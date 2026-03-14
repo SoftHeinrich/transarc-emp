@@ -168,13 +168,13 @@ HUS = 2 · Coverage · Purity / (Coverage + Purity)
 
 | Baseline | F1 |
 |:--|:---:|
-| Random | 0.124 |
+| Random | 0.148 |
 | Oracle (gold SAD-SAM × gold SAM-CODE) | 1.000 (TP=59, FP=0, FN=0) |
 
 | System | F1 | NDG |
 |:--|:---:|:---:|
-| TransArc | 0.588 | **0.530** |
-| V45+GoldSAMCODE | 0.000 | **-0.142** |
+| TransArc | 0.588 | **0.516** |
+| V45+GoldSAMCODE | 0.000 | **-0.174** |
 
 **N6: Harmonic Usefulness Score (HUS):**
 
@@ -575,12 +575,12 @@ ACF1 gives a truer picture of component-level quality.
 
 | Project | Random F1 | Oracle F1 | TransArc F1 | TransArc NDG | V45 F1 | V45 NDG |
 |:--|:---:|:---:|:---:|:---:|:---:|:---:|
-| mediastore | 0.124 | 1.000 | 0.588 | **0.530** | 0.000 | **-0.142** |
+| mediastore | 0.148 | 1.000 | 0.588 | **0.516** | 0.000 | **-0.174** |
 | teastore | 0.120 | 1.000 | 0.829 | **0.806** | 0.000 | **-0.137** |
 | teammates | 0.055 | 0.881 | 0.821 | **0.927** | 0.000 | **-0.067** |
 | bigbluebutton | 0.059 | 0.968 | 0.831 | **0.850** | 0.000 | **-0.065** |
 | jabref | 0.335 | 1.000 | 0.943 | **0.915** | 0.000 | **-0.503** |
-| **Average** | | | | **0.805** | | **-0.183** |
+| **Average** | | | | **0.803** | | **-0.189** |
 
 **Insight:** NDG reveals which projects are genuinely hard. A high F1 with a high
 oracle ceiling and low random baseline means the achievable range is wide — the system
@@ -626,7 +626,7 @@ for improvement and the metric flatters the system.
 | **N3: MAP** | SAD-SAM | 0.746 | 0.000 | -0.746 | TransArc | Ranking quality (component) |
 | **N3: MAP** | SAD-CODE | 0.697 | 0.000 | -0.697 | TransArc | Ranking quality (file) |
 | **N4: ACF1** | SAD-CODE | 0.684 | 0.000 | -0.684 | TransArc | Enrollment-corrected file-level |
-| **N5: NDG** | SAD-CODE | 0.805 | -0.183 | -0.988 | TransArc | Intelligence over random baseline |
+| **N5: NDG** | SAD-CODE | 0.803 | -0.189 | -0.992 | TransArc | Intelligence over random baseline |
 | **N6: HUS** | SAD-SAM | 0.786 | 0.000 | -0.786 | TransArc | Coverage × purity (component) |
 | **N6: HUS** | SAD-CODE | 0.649 | 0.000 | -0.649 | TransArc | Coverage × purity (file) |
 

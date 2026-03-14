@@ -9,29 +9,29 @@ sentences for M, producing |sentences(M)| SAD-CODE links — most of which are F
 
 | Rank | Project | Model Element | Wrong Code File | SAD-SAM Sents | →SAD-CODE TPs | →SAD-CODE FPs | Total |
 |------|---------|--------------|----------------|---------------|-------------|-------------|-------|
-| 1 | bigbluebutton | Component: HTML5 Server | `bbb-graphql-server/build_hasura.sh` | 12 | 0 | **12** | 12 |
-| 2 | bigbluebutton | Component: HTML5 Server | `bbb-graphql-server/before-remove.sh` | 12 | 0 | **12** | 12 |
+| 1 | bigbluebutton | Component: HTML5 Server | `bbb-graphql-server/after-install.sh` | 12 | 0 | **12** | 12 |
+| 2 | bigbluebutton | Component: HTML5 Server | `bbb-graphql-server/install-hasura.sh` | 12 | 0 | **12** | 12 |
 | 3 | bigbluebutton | Component: HTML5 Server | `bbb-graphql-server/after-remove.sh` | 12 | 0 | **12** | 12 |
-| 4 | bigbluebutton | Component: HTML5 Server | `bbb-html5-nodejs/build.sh` | 12 | 0 | **12** | 12 |
-| 5 | bigbluebutton | Component: HTML5 Server | `bbb-graphql-server/install-hasura.sh` | 12 | 0 | **12** | 12 |
-| 6 | bigbluebutton | Component: HTML5 Server | `bbb-graphql-server/build.sh` | 12 | 0 | **12** | 12 |
-| 7 | bigbluebutton | Component: HTML5 Server | `bbb-graphql-server/after-install.sh` | 12 | 0 | **12** | 12 |
+| 4 | bigbluebutton | Component: HTML5 Server | `bbb-graphql-server/build_hasura.sh` | 12 | 0 | **12** | 12 |
+| 5 | bigbluebutton | Component: HTML5 Server | `bbb-graphql-server/build.sh` | 12 | 0 | **12** | 12 |
+| 6 | bigbluebutton | Component: HTML5 Server | `bbb-graphql-server/before-remove.sh` | 12 | 0 | **12** | 12 |
+| 7 | bigbluebutton | Component: HTML5 Server | `bbb-html5-nodejs/build.sh` | 12 | 0 | **12** | 12 |
 | 8 | bigbluebutton | Component: HTML5 Server | `bbb-graphql-server/opts-jammy.sh` | 12 | 0 | **12** | 12 |
 | 9 | bigbluebutton | Component: FreeSWITCH | `cron.hourly/bbb-resync-freeswitch` | 8 | 0 | **8** | 8 |
 | 10 | bigbluebutton | Component: Apps | `messages/BbbAppsIsAliveMessage.java` | 5 | 0 | **5** | 5 |
-| 11 | bigbluebutton | Component: HTML5 Client | `client/stress-test.sh` | 4 | 0 | **4** | 4 |
-| 12 | bigbluebutton | Component: HTML5 Client | `bbb-graphql-client-test/deploy.sh` | 4 | 0 | **4** | 4 |
-| 13 | bigbluebutton | Component: HTML5 Client | `client/run.sh` | 4 | 0 | **4** | 4 |
-| 14 | bigbluebutton | Component: HTML5 Client | `client/run-watch.sh` | 4 | 0 | **4** | 4 |
-| 15 | bigbluebutton | Component: HTML5 Client | `bbb-html5-nodejs/build.sh` | 4 | 0 | **4** | 4 |
+| 11 | bigbluebutton | Component: HTML5 Client | `bbb-graphql-client-test/deploy.sh` | 4 | 0 | **4** | 4 |
+| 12 | bigbluebutton | Component: HTML5 Client | `bbb-html5-nodejs/build.sh` | 4 | 0 | **4** | 4 |
+| 13 | bigbluebutton | Component: HTML5 Client | `client/run-watch.sh` | 4 | 0 | **4** | 4 |
+| 14 | bigbluebutton | Component: HTML5 Client | `client/run.sh` | 4 | 0 | **4** | 4 |
+| 15 | bigbluebutton | Component: HTML5 Client | `client/stress-test.sh` | 4 | 0 | **4** | 4 |
 | 16 | jabref | Component: gui | `category/GUITest.java` | 4 | 0 | **4** | 4 |
-| 17 | bigbluebutton | Component: Presentation Conversion | `bbb-playback-presentation/after-install.sh` | 2 | 0 | **2** | 2 |
+| 17 | bigbluebutton | Component: Presentation Conversion | `bbb-playback-presentation/build.sh` | 2 | 0 | **2** | 2 |
 | 18 | bigbluebutton | Component: Presentation Conversion | `bbb-playback-presentation/opts-jammy.sh` | 2 | 0 | **2** | 2 |
-| 19 | bigbluebutton | Component: Presentation Conversion | `bbb-playback-presentation/build.sh` | 2 | 0 | **2** | 2 |
-| 20 | bigbluebutton | Component: Recording Service | `service/ValidationService.java` | 0 | 0 | **0** | 0 |
-| 21 | bigbluebutton | Component: Recording Service | `service/SessionService.java` | 0 | 0 | **0** | 0 |
-| 22 | bigbluebutton | Component: Recording Service | `service/ServiceUtils.java` | 0 | 0 | **0** | 0 |
-| 23 | bigbluebutton | Component: Recording Service | `service/XmlService.java` | 0 | 0 | **0** | 0 |
+| 19 | bigbluebutton | Component: Presentation Conversion | `bbb-playback-presentation/after-install.sh` | 2 | 0 | **2** | 2 |
+| 20 | bigbluebutton | Component: Recording Service | `service/ServiceUtils.java` | 0 | 0 | **0** | 0 |
+| 21 | bigbluebutton | Component: Recording Service | `service/XmlService.java` | 0 | 0 | **0** | 0 |
+| 22 | bigbluebutton | Component: Recording Service | `service/ValidationService.java` | 0 | 0 | **0** | 0 |
+| 23 | bigbluebutton | Component: Recording Service | `service/SessionService.java` | 0 | 0 | **0** | 0 |
 | 24 | bigbluebutton | Component: Recording Service | `impl/XmlServiceImpl.java` | 0 | 0 | **0** | 0 |
 
 ### SAM-CODE FP Cascade Summary
@@ -54,17 +54,17 @@ for all sentences that should link to it.
 
 | Rank | Project | Model Element | Missed Code File | Caused SAD-CODE FNs |
 |------|---------|--------------|-----------------|-------------------|
-| 1 | bigbluebutton | Component: BBB web | `prescheck/Main.java` | **3** |
-| 2 | bigbluebutton | Component: BBB web | `api/ParamsProcessorUtilTest.java` | **3** |
-| 3 | bigbluebutton | Component: BBB web | `bigbluebutton-web/run-dev.sh` | **3** |
-| 4 | bigbluebutton | Component: BBB web | `bigbluebutton-web/build.sh` | **3** |
+| 1 | bigbluebutton | Component: BBB web | `api/ParamsProcessorUtilTest.java` | **3** |
+| 2 | bigbluebutton | Component: BBB web | `bigbluebutton-web/build.sh` | **3** |
+| 3 | bigbluebutton | Component: BBB web | `prescheck/Main.java` | **3** |
+| 4 | bigbluebutton | Component: BBB web | `messaging/NullMessagingService.java` | **3** |
 | 5 | bigbluebutton | Component: BBB web | `bigbluebutton-web/run.sh` | **3** |
-| 6 | bigbluebutton | Component: BBB web | `bigbluebutton-web/deploy_to_usr_share.sh` | **3** |
-| 7 | bigbluebutton | Component: BBB web | `messaging/NullMessagingService.java` | **3** |
-| 8 | bigbluebutton | Component: BBB web | `bigbluebutton-web/grailsw` | **3** |
+| 6 | bigbluebutton | Component: BBB web | `bigbluebutton-web/run-dev.sh` | **3** |
+| 7 | bigbluebutton | Component: BBB web | `pres-checker/build.sh` | **3** |
+| 8 | bigbluebutton | Component: BBB web | `bigbluebutton-web/deploy_to_usr_share.sh` | **3** |
 | 9 | bigbluebutton | Component: BBB web | `bigbluebutton-web/gradlew` | **3** |
-| 10 | bigbluebutton | Component: BBB web | `pres-checker/run.sh` | **3** |
-| 11 | bigbluebutton | Component: BBB web | `pres-checker/build.sh` | **3** |
+| 10 | bigbluebutton | Component: BBB web | `bigbluebutton-web/grailsw` | **3** |
+| 11 | bigbluebutton | Component: BBB web | `pres-checker/run.sh` | **3** |
 
 ### SAM-CODE FN Cascade Summary
 
@@ -85,46 +85,46 @@ With correct SAD-SAM links this produces TPs; with wrong SAD-SAM links, FPs.
 
 | Rank | Project | Model Element | Correct Code File | →SAD-CODE TPs | →SAD-CODE FPs | Precision |
 |------|---------|--------------|------------------|-------------|-------------|-----------|
-| 1 | teammates | Component: Logic | `api/EmailSender.java` | **17** | 4 | 0.810 |
-| 2 | teammates | Component: Logic | `api/RecaptchaVerifier.java` | **17** | 4 | 0.810 |
-| 3 | teammates | Component: Logic | `api/UserProvision.java` | **17** | 4 | 0.810 |
-| 4 | teammates | Component: Logic | `core/AccountRequestsLogic.java` | **17** | 4 | 0.810 |
-| 5 | teammates | Component: Logic | `core/FeedbackResponseCommentsLogic.java` | **17** | 4 | 0.810 |
-| 6 | teammates | Component: Logic | `api/TaskQueuer.java` | **17** | 4 | 0.810 |
-| 7 | teammates | Component: Logic | `core/AccountsLogic.java` | **17** | 4 | 0.810 |
+| 1 | teammates | Component: Logic | `core/UsageStatisticsLogic.java` | **17** | 4 | 0.810 |
+| 2 | teammates | Component: Logic | `api/package-info.java` | **17** | 4 | 0.810 |
+| 3 | teammates | Component: Logic | `core/FeedbackResponsesLogic.java` | **17** | 4 | 0.810 |
+| 4 | teammates | Component: Logic | `core/package-info.java` | **17** | 4 | 0.810 |
+| 5 | teammates | Component: Logic | `api/AuthProxy.java` | **17** | 4 | 0.810 |
+| 6 | teammates | Component: Logic | `api/EmailGenerator.java` | **17** | 4 | 0.810 |
+| 7 | teammates | Component: Logic | `api/RecaptchaVerifier.java` | **17** | 4 | 0.810 |
 | 8 | teammates | Component: Logic | `core/LogicStarter.java` | **17** | 4 | 0.810 |
-| 9 | teammates | Component: Logic | `core/FeedbackSessionsLogic.java` | **17** | 4 | 0.810 |
-| 10 | teammates | Component: Logic | `core/DeadlineExtensionsLogic.java` | **17** | 4 | 0.810 |
-| 11 | teammates | Component: Logic | `core/StudentsLogic.java` | **17** | 4 | 0.810 |
-| 12 | teammates | Component: Logic | `core/DataBundleLogic.java` | **17** | 4 | 0.810 |
-| 13 | teammates | Component: Logic | `api/package-info.java` | **17** | 4 | 0.810 |
-| 14 | teammates | Component: Logic | `core/UsageStatisticsLogic.java` | **17** | 4 | 0.810 |
-| 15 | teammates | Component: Logic | `api/AuthProxy.java` | **17** | 4 | 0.810 |
-| 16 | teammates | Component: Logic | `core/NotificationsLogic.java` | **17** | 4 | 0.810 |
-| 17 | teammates | Component: Logic | `api/LogsProcessor.java` | **17** | 4 | 0.810 |
-| 18 | teammates | Component: Logic | `core/InstructorsLogic.java` | **17** | 4 | 0.810 |
-| 19 | teammates | Component: Logic | `core/FeedbackResponsesLogic.java` | **17** | 4 | 0.810 |
-| 20 | teammates | Component: Logic | `api/EmailGenerator.java` | **17** | 4 | 0.810 |
+| 9 | teammates | Component: Logic | `core/AccountsLogic.java` | **17** | 4 | 0.810 |
+| 10 | teammates | Component: Logic | `api/LogsProcessor.java` | **17** | 4 | 0.810 |
+| 11 | teammates | Component: Logic | `core/DataBundleLogic.java` | **17** | 4 | 0.810 |
+| 12 | teammates | Component: Logic | `core/FeedbackSessionsLogic.java` | **17** | 4 | 0.810 |
+| 13 | teammates | Component: Logic | `core/FeedbackResponseCommentsLogic.java` | **17** | 4 | 0.810 |
+| 14 | teammates | Component: Logic | `api/UserProvision.java` | **17** | 4 | 0.810 |
+| 15 | teammates | Component: Logic | `core/StudentsLogic.java` | **17** | 4 | 0.810 |
+| 16 | teammates | Component: Logic | `api/Logic.java` | **17** | 4 | 0.810 |
+| 17 | teammates | Component: Logic | `api/EmailSender.java` | **17** | 4 | 0.810 |
+| 18 | teammates | Component: Logic | `core/FeedbackQuestionsLogic.java` | **17** | 4 | 0.810 |
+| 19 | teammates | Component: Logic | `core/DeadlineExtensionsLogic.java` | **17** | 4 | 0.810 |
+| 20 | teammates | Component: Logic | `core/InstructorsLogic.java` | **17** | 4 | 0.810 |
 
 ### SAM-CODE TPs with Lowest Cascade Precision (correct file, but most SAD-CODE output is wrong)
 
 | Project | Model Element | Correct Code File | →SAD-CODE TPs | →SAD-CODE FPs | Precision | Root Cause |
 |---------|--------------|------------------|-------------|-------------|-----------|-----------|
 | mediastore | Component: Reencoding | `reencoder/ReEncoderImpl.java` | 0 | 1 | 0.000 | 1 SAD-SAM FPs for Component: Reencoding |
-| teammates | Component: Client | `scripts/package-info.java` | 3 | 5 | 0.375 | 5 SAD-SAM FPs for Component: Client |
-| teammates | Component: Client | `scripts/DataMigrationEntitiesBaseScript.java` | 3 | 5 | 0.375 | 5 SAD-SAM FPs for Component: Client |
-| teammates | Component: Client | `scripts/DataMigrationForSanitizedInstructorName.java` | 3 | 5 | 0.375 | 5 SAD-SAM FPs for Component: Client |
-| teammates | Component: Client | `scripts/PopulateCourseSearchDocuments.java` | 3 | 5 | 0.375 | 5 SAD-SAM FPs for Component: Client |
-| teammates | Component: Client | `statistics/StatisticsBundle.java` | 3 | 5 | 0.375 | 5 SAD-SAM FPs for Component: Client |
-| teammates | Component: Client | `statistics/package-info.java` | 3 | 5 | 0.375 | 5 SAD-SAM FPs for Component: Client |
-| teammates | Component: Client | `scripts/DataMigrationForInstructorFeedbackResponseComments.java` | 3 | 5 | 0.375 | 5 SAD-SAM FPs for Component: Client |
-| teammates | Component: Client | `statistics/CursorIterator.java` | 3 | 5 | 0.375 | 5 SAD-SAM FPs for Component: Client |
-| teammates | Component: Client | `scripts/DataMigrationForUnencryptedKeyForInstructors.java` | 3 | 5 | 0.375 | 5 SAD-SAM FPs for Component: Client |
-| teammates | Component: Client | `scripts/IndexFeedbackSessionFields.java` | 3 | 5 | 0.375 | 5 SAD-SAM FPs for Component: Client |
-| teammates | Component: Client | `scripts/SingleAccountGoogleIdMigrationScript.java` | 3 | 5 | 0.375 | 5 SAD-SAM FPs for Component: Client |
-| teammates | Component: Client | `scripts/GoogleIdMigrationBaseScript.java` | 3 | 5 | 0.375 | 5 SAD-SAM FPs for Component: Client |
-| teammates | Component: Client | `scripts/DataMigrationForContributionQuestionDetailsIsZeroSum.java` | 3 | 5 | 0.375 | 5 SAD-SAM FPs for Component: Client |
 | teammates | Component: Client | `statistics/StatisticsPerInstitute.java` | 3 | 5 | 0.375 | 5 SAD-SAM FPs for Component: Client |
+| teammates | Component: Client | `scripts/package-info.java` | 3 | 5 | 0.375 | 5 SAD-SAM FPs for Component: Client |
+| teammates | Component: Client | `statistics/package-info.java` | 3 | 5 | 0.375 | 5 SAD-SAM FPs for Component: Client |
+| teammates | Component: Client | `scripts/DataMigrationForFeedbackSessionMismatchedTimezone.java` | 3 | 5 | 0.375 | 5 SAD-SAM FPs for Component: Client |
+| teammates | Component: Client | `scripts/MockCourseWithLargeResponseScript.java` | 3 | 5 | 0.375 | 5 SAD-SAM FPs for Component: Client |
+| teammates | Component: Client | `scripts/ListActiveInstructors.java` | 3 | 5 | 0.375 | 5 SAD-SAM FPs for Component: Client |
+| teammates | Component: Client | `statistics/StatisticsBundle.java` | 3 | 5 | 0.375 | 5 SAD-SAM FPs for Component: Client |
+| teammates | Component: Client | `scripts/DataMigrationForInstructorNullIsArchivedField.java` | 3 | 5 | 0.375 | 5 SAD-SAM FPs for Component: Client |
+| teammates | Component: Client | `scripts/DataMigrationForTextQuestionDetailsFormat.java` | 3 | 5 | 0.375 | 5 SAD-SAM FPs for Component: Client |
+| teammates | Component: Client | `scripts/DataMigrationForSampleGoogleIdInStudentAttributes.java` | 3 | 5 | 0.375 | 5 SAD-SAM FPs for Component: Client |
+| teammates | Component: Client | `scripts/DataMigrationForStudentsAndTeamsRecipientType.java` | 3 | 5 | 0.375 | 5 SAD-SAM FPs for Component: Client |
+| teammates | Component: Client | `scripts/DataBundleRegenerator.java` | 3 | 5 | 0.375 | 5 SAD-SAM FPs for Component: Client |
+| teammates | Component: Client | `scripts/DataMigrationForSanitizedDataInInstructorAttributes.java` | 3 | 5 | 0.375 | 5 SAD-SAM FPs for Component: Client |
+| teammates | Component: Client | `scripts/DataMigrationForUnencryptedKeyForStudents.java` | 3 | 5 | 0.375 | 5 SAD-SAM FPs for Component: Client |
 
 ## 4. Holistic Per-Model-Element Pipeline View
 
@@ -141,14 +141,14 @@ TransArc output: 25 TPs + 1 FPs = 26 | FNs: 34
 | Component: UserDBAdapter | 6 | 3 | 2 | **6** | 0 | 0 | 0 | 0 | 0 |
 | Component: MediaAccess | 10 | 3 | 2 | **6** | 0 | 0 | 0 | 0 | 0 |
 | Component: UserManagement | 4 | 2 | 2 | **4** | 0 | 0 | 0 | 0 | 0 |
-| Component: MediaManagement | 4 | 3 | 1 | **3** | 0 | 0 | 0 | 0 | 0 |
 | Component: Facade | 3 | 3 | 1 | **3** | 0 | 0 | 0 | 0 | 0 |
+| Component: MediaManagement | 4 | 3 | 1 | **3** | 0 | 0 | 0 | 0 | 0 |
 | Component: TagWatermarking | 2 | 2 | 1 | **2** | 0 | 0 | 0 | 0 | 0 |
 | Component: Packaging | 1 | 1 | 1 | **1** | 0 | 0 | 0 | 0 | 0 |
 | Component: Reencoding | 1 | 1 | 1 | **0** | 1 | 0 | 0 | 0 | 0 |
-| Component: DB | 28 | 0 | 3 | **0** | 0 | 0 | 0 | 0 | 0 |
 | Component: Cache | 0 | 0 | 3 | **0** | 0 | 0 | 0 | 0 | 0 |
 | Component: AudioWatermarking | 0 | 0 | 3 | **0** | 0 | 0 | 0 | 0 | 0 |
+| Component: DB | 28 | 0 | 3 | **0** | 0 | 0 | 0 | 0 | 0 |
 | **TOTAL** | | | | **25** | **1** | **0** | **0** | **0** | **0** |
 
 ### TEASTORE
@@ -163,11 +163,11 @@ TransArc output: 501 TPs + 0 FPs = 501 | FNs: 206
 | Component: Recommender | 42 | 2 | 14 | **28** | 0 | 0 | 0 | 0 | 0 |
 | Component: Auth | 26 | 2 | 13 | **26** | 0 | 0 | 0 | 0 | 0 |
 | Component: Registry | 25 | 5 | 5 | **25** | 0 | 0 | 0 | 0 | 0 |
-| Component: PreprocessedSlopeOneRecommender | 0 | 0 | 2 | **0** | 0 | 0 | 0 | 0 | 0 |
-| Component: OrderBasedRecommender | 0 | 0 | 2 | **0** | 0 | 0 | 0 | 0 | 0 |
-| Component: PopularityBasedRecommender | 0 | 0 | 2 | **0** | 0 | 0 | 0 | 0 | 0 |
-| Component: SlopeOneRecommender | 0 | 0 | 2 | **0** | 0 | 0 | 0 | 0 | 0 |
 | Component: DummyRecommender | 0 | 0 | 2 | **0** | 0 | 0 | 0 | 0 | 0 |
+| Component: PreprocessedSlopeOneRecommender | 0 | 0 | 2 | **0** | 0 | 0 | 0 | 0 | 0 |
+| Component: PopularityBasedRecommender | 0 | 0 | 2 | **0** | 0 | 0 | 0 | 0 | 0 |
+| Component: OrderBasedRecommender | 0 | 0 | 2 | **0** | 0 | 0 | 0 | 0 | 0 |
+| Component: SlopeOneRecommender | 0 | 0 | 2 | **0** | 0 | 0 | 0 | 0 | 0 |
 | **TOTAL** | | | | **501** | **0** | **0** | **0** | **0** | **0** |
 
 ### TEAMMATES
@@ -202,8 +202,8 @@ TransArc output: 1287 TPs + 282 FPs = 1569 | FNs: 242
 | Component: WebRTC-SFU | 24 | 6 | 6 | **24** | 12 | 0 | 0 | 0 | 0 |
 | Component: Redis PubSub | 28 | 4 | 7 | **28** | 0 | 0 | 0 | 0 | 0 |
 | Component: Redis DB | 6 | 2 | 3 | **6** | 0 | 0 | 0 | 0 | 0 |
-| _oN4CMFkHEeyewPSmlgszyA | 0 | 2 | 0 | **0** | 0 | 0 | 0 | 0 | 0 |
 | Component: Recording Service | 0 | 0 | 15 | **0** | 0 | 0 | 0 | 0 | 0 |
+| _oN4CMFkHEeyewPSmlgszyA | 0 | 2 | 0 | **0** | 0 | 0 | 0 | 0 | 0 |
 | **TOTAL** | | | | **1303** | **54** | **118** | **17** | **94** | **33** |
 
 ### JABREF

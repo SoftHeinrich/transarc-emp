@@ -34,11 +34,11 @@ Gold: **59** enrolled links, **25** sentences, **15** code files, code model: 97
 | B6: Keyword-Grep | 25 | **0.595** | 0.620 | 0.640 (16/25) | 1.000 | 0.000 | 0.00 |
 | B7: Oracle-Component | 54 | **0.956** | 0.971 | 1.000 (25/25) | 1.000 | 0.000 | 0.00 |
 | B8: Oracle-Subset | 59 | **1.000** | 1.000 | 1.000 (25/25) | 1.000 | 0.000 | 0.00 |
-| B9: Round-Robin | 95 | **0.052** | 0.040 | 0.040 (1/25) | 0.040 | 0.960 | 22.75 |
+| B9: Round-Robin | 95 | **0.078** | 0.067 | 0.080 (2/25) | 0.080 | 0.920 | 14.83 |
 | B10: Sent-Length | 95 | **0.052** | 0.040 | 0.040 (1/25) | 0.040 | 0.960 | 22.75 |
 | B11: Optimal-Const (Component: DB) | 100 | **0.352** | 0.264 | 0.280 (7/25) | 0.280 | 0.720 | 2.57 |
 | B12: Enhanced-Grep | 384 | **0.122** | 0.120 | 0.680 (17/25) | 0.000 | 0.922 | 13.22 |
-| B13: Gold-Density | 1,200 | **0.067** | 0.066 | 0.880 (22/25) | 0.000 | 0.965 | 27.57 |
+| B13: Gold-Density | 1,200 | **0.094** | 0.092 | 1.000 (25/25) | 0.000 | 0.951 | 19.34 |
 | B_perf: Perfect-Trans | 59 | **1.000** | 1.000 | 1.000 (25/25) | 1.000 | 0.000 | 0.00 |
 
 ## Teastore
@@ -53,11 +53,11 @@ Gold: **707** enrolled links, **23** sentences, **145** code files, code model: 
 | B6: Keyword-Grep | 245 | **0.515** | 0.570 | 0.652 (15/23) | 1.000 | 0.000 | 0.00 |
 | B7: Oracle-Component | 636 | **0.947** | 0.975 | 1.000 (23/23) | 1.000 | 0.000 | 0.00 |
 | B8: Oracle-Subset | 707 | **1.000** | 1.000 | 1.000 (23/23) | 1.000 | 0.000 | 0.00 |
-| B9: Round-Robin | 291 | **0.032** | 0.030 | 0.130 (3/23) | 0.130 | 0.870 | 17.19 |
-| B10: Sent-Length | 291 | **0.160** | 0.092 | 0.174 (4/23) | 0.174 | 0.826 | 2.64 |
+| B9: Round-Robin | 291 | **0.028** | 0.021 | 0.043 (1/23) | 0.043 | 0.957 | 19.79 |
+| B10: Sent-Length | 291 | **0.134** | 0.052 | 0.174 (4/23) | 0.174 | 0.826 | 3.34 |
 | B11: Optimal-Const (Component: ImageProvider) | 1,472 | **0.294** | 0.201 | 0.217 (5/23) | 0.217 | 0.783 | 3.60 |
 | B12: Enhanced-Grep | 719 | **0.792** | 0.684 | 0.739 (17/23) | 0.833 | 0.155 | 0.27 |
-| B13: Gold-Density | 2,346 | **0.301** | 0.269 | 1.000 (23/23) | 0.130 | 0.804 | 4.11 |
+| B13: Gold-Density | 2,346 | **0.295** | 0.264 | 1.000 (23/23) | 0.000 | 0.808 | 4.21 |
 | B_perf: Perfect-Trans | 707 | **1.000** | 1.000 | 1.000 (23/23) | 1.000 | 0.000 | 0.00 |
 
 ## Teammates
@@ -73,10 +73,10 @@ Gold: **8097** enrolled links, **92** sentences, **828** code files, code model:
 | B7: Oracle-Component | 6,695 | **0.881** | 0.525 | 0.554 (51/92) | 1.000 | 0.030 | 0.03 |
 | B8: Oracle-Subset | 7,427 | **0.934** | 0.537 | 0.554 (51/92) | 1.000 | 0.030 | 0.02 |
 | B9: Round-Robin | 11,080 | **0.193** | 0.101 | 0.174 (16/92) | 0.109 | 0.896 | 4.99 |
-| B10: Sent-Length | 11,080 | **0.077** | 0.051 | 0.130 (12/92) | 0.054 | 0.936 | 14.03 |
-| B11: Optimal-Const (Interface: UI) | 32,016 | **0.181** | 0.113 | 0.293 (27/92) | 0.098 | 0.887 | 7.84 |
+| B10: Sent-Length | 11,080 | **0.137** | 0.088 | 0.185 (17/92) | 0.076 | 0.910 | 7.44 |
+| B11: Optimal-Const (Component: UI) | 32,016 | **0.181** | 0.113 | 0.293 (27/92) | 0.098 | 0.887 | 7.84 |
 | B12: Enhanced-Grep | 5,442 | **0.608** | 0.439 | 0.565 (52/92) | 0.707 | 0.300 | 0.32 |
-| B13: Gold-Density | 38,272 | **0.182** | 0.147 | 0.870 (80/92) | 0.011 | 0.890 | 8.07 |
+| B13: Gold-Density | 38,272 | **0.181** | 0.142 | 0.935 (86/92) | 0.043 | 0.890 | 8.11 |
 | B_perf: Perfect-Trans | 6,380 | **0.881** | 0.454 | 0.457 (42/92) | 1.000 | 0.000 | 0.00 |
 
 ## Bigbluebutton
@@ -90,9 +90,9 @@ Gold: **1529** enrolled links, **45** sentences, **252** code files, code model:
 | B0: TransArc | 1,569 | **0.831** | 0.732 | 0.822 (37/45) | 0.902 | 0.211 | 0.22 |
 | B6: Keyword-Grep | 2,014 | **0.827** | 0.779 | 0.956 (43/45) | 0.682 | 0.251 | 0.37 |
 | B7: Oracle-Component | 1,463 | **0.978** | 0.983 | 1.000 (45/45) | 1.000 | 0.000 | 0.00 |
-| B8: Oracle-Subset | 1,529 | **1.000** | 1.000 | 1.000 (45/45) | 1.000 | 0.000 | 0.00 |
+| B8: Oracle-Subset | 1,589 | **0.981** | 0.994 | 1.000 (45/45) | 1.000 | 0.012 | 0.04 |
 | B9: Round-Robin | 1,554 | **0.042** | 0.089 | 0.089 (4/45) | 0.089 | 0.911 | 23.28 |
-| B10: Sent-Length | 1,554 | **0.155** | 0.153 | 0.156 (7/45) | 0.156 | 0.846 | 5.50 |
+| B10: Sent-Length | 1,554 | **0.151** | 0.131 | 0.133 (6/45) | 0.133 | 0.869 | 5.67 |
 | B11: Optimal-Const (Component: HTML5 Client) | 720 | **0.285** | 0.416 | 0.444 (20/45) | 0.444 | 0.556 | 1.25 |
 | B12: Enhanced-Grep | 2,014 | **0.827** | 0.779 | 0.956 (43/45) | 0.682 | 0.251 | 0.37 |
 | B13: Gold-Density | 11,925 | **0.227** | 0.208 | 1.000 (45/45) | 0.000 | 0.872 | 6.80 |
@@ -114,7 +114,7 @@ Gold: **8268** enrolled links, **10** sentences, **1955** code files, code model
 | B10: Sent-Length | 3,903 | **0.320** | 0.226 | 0.500 (5/10) | 0.500 | 0.500 | 1.00 |
 | B11: Optimal-Const (Component: logic) | 9,720 | **0.432** | 0.290 | 0.400 (4/10) | 0.400 | 0.600 | 1.50 |
 | B12: Enhanced-Grep | 9,258 | **0.944** | 0.933 | 1.000 (10/10) | 0.900 | 0.082 | 0.12 |
-| B13: Gold-Density | 9,990 | **0.464** | 0.349 | 1.000 (10/10) | 0.400 | 0.576 | 1.36 |
+| B13: Gold-Density | 9,990 | **0.462** | 0.346 | 1.000 (10/10) | 0.400 | 0.578 | 1.37 |
 | B_perf: Perfect-Trans | 8,268 | **1.000** | 1.000 | 1.000 (10/10) | 1.000 | 0.000 | 0.00 |
 
 ## Cross-Project Micro F1 Comparison
@@ -124,12 +124,12 @@ Gold: **8268** enrolled links, **10** sentences, **1955** code files, code model
 | B0: TransArc | 0.588 | 0.829 | 0.821 | 0.831 | 0.943 | **0.803** |
 | B6: Keyword-Grep | 0.595 | 0.515 | 0.608 | 0.827 | 0.944 | **0.698** |
 | B7: Oracle-Component | 0.956 | 0.947 | 0.881 | 0.978 | 0.767 | **0.906** |
-| B8: Oracle-Subset | 1.000 | 1.000 | 0.934 | 1.000 | 1.000 | **0.987** |
-| B9: Round-Robin | 0.052 | 0.032 | 0.193 | 0.042 | 0.361 | **0.136** |
-| B10: Sent-Length | 0.052 | 0.160 | 0.077 | 0.155 | 0.320 | **0.153** |
+| B8: Oracle-Subset | 1.000 | 1.000 | 0.934 | 0.981 | 1.000 | **0.983** |
+| B9: Round-Robin | 0.078 | 0.028 | 0.193 | 0.042 | 0.361 | **0.140** |
+| B10: Sent-Length | 0.052 | 0.134 | 0.137 | 0.151 | 0.320 | **0.159** |
 | B11: Optimal-Const | 0.352 | 0.294 | 0.181 | 0.285 | 0.432 | **0.309** |
 | B12: Enhanced-Grep | 0.122 | 0.792 | 0.608 | 0.827 | 0.944 | **0.659** |
-| B13: Gold-Density | 0.067 | 0.301 | 0.182 | 0.227 | 0.464 | **0.248** |
+| B13: Gold-Density | 0.094 | 0.295 | 0.181 | 0.227 | 0.462 | **0.252** |
 | B_perf: Perfect-Trans | 1.000 | 1.000 | 0.881 | 0.968 | 1.000 | **0.970** |
 
 ## Cross-Project Macro F1 Comparison
@@ -139,12 +139,12 @@ Gold: **8268** enrolled links, **10** sentences, **1955** code files, code model
 | B0: TransArc | 0.620 | 0.696 | 0.515 | 0.732 | 0.933 | **0.699** |
 | B6: Keyword-Grep | 0.620 | 0.570 | 0.439 | 0.779 | 0.933 | **0.668** |
 | B7: Oracle-Component | 0.971 | 0.975 | 0.525 | 0.983 | 0.871 | **0.865** |
-| B8: Oracle-Subset | 1.000 | 1.000 | 0.537 | 1.000 | 1.000 | **0.907** |
-| B9: Round-Robin | 0.040 | 0.030 | 0.101 | 0.089 | 0.179 | **0.088** |
-| B10: Sent-Length | 0.040 | 0.092 | 0.051 | 0.153 | 0.226 | **0.112** |
+| B8: Oracle-Subset | 1.000 | 1.000 | 0.537 | 0.994 | 1.000 | **0.906** |
+| B9: Round-Robin | 0.067 | 0.021 | 0.101 | 0.089 | 0.179 | **0.091** |
+| B10: Sent-Length | 0.040 | 0.052 | 0.088 | 0.131 | 0.226 | **0.107** |
 | B11: Optimal-Const | 0.264 | 0.201 | 0.113 | 0.416 | 0.290 | **0.257** |
 | B12: Enhanced-Grep | 0.120 | 0.684 | 0.439 | 0.779 | 0.933 | **0.591** |
-| B13: Gold-Density | 0.066 | 0.269 | 0.147 | 0.208 | 0.349 | **0.208** |
+| B13: Gold-Density | 0.092 | 0.264 | 0.142 | 0.208 | 0.346 | **0.210** |
 | B_perf: Perfect-Trans | 1.000 | 1.000 | 0.454 | 0.999 | 1.000 | **0.891** |
 
 ## Key Findings
@@ -158,7 +158,7 @@ just knowing which components each sentence should map to. Results:
 - **mediastore**: Oracle-Subset F1=**1.000** vs TransArc F1=0.588 (Δ=+0.412)
 - **teastore**: Oracle-Subset F1=**1.000** vs TransArc F1=0.829 (Δ=+0.171)
 - **teammates**: Oracle-Subset F1=**0.934** vs TransArc F1=0.821 (Δ=+0.113)
-- **bigbluebutton**: Oracle-Subset F1=**1.000** vs TransArc F1=0.831 (Δ=+0.169)
+- **bigbluebutton**: Oracle-Subset F1=**0.981** vs TransArc F1=0.831 (Δ=+0.150)
 - **jabref**: Oracle-Subset F1=**1.000** vs TransArc F1=0.943 (Δ=+0.057)
 
 **Implication**: The SAD-CODE task effectively reduces to **component-level sentence
@@ -181,10 +181,10 @@ strategy achieves high F1:
 Round-Robin (B9) and Sentence-Length (B10) use zero text content. Their F1 represents
 the 'free' F1 obtainable from dataset structure alone:
 
-- **mediastore**: Round-Robin F1=0.052, Sent-Length F1=0.052 (TransArc=0.588)
-- **teastore**: Round-Robin F1=0.032, Sent-Length F1=0.160 (TransArc=0.829)
-- **teammates**: Round-Robin F1=0.193, Sent-Length F1=0.077 (TransArc=0.821)
-- **bigbluebutton**: Round-Robin F1=0.042, Sent-Length F1=0.155 (TransArc=0.831)
+- **mediastore**: Round-Robin F1=0.078, Sent-Length F1=0.052 (TransArc=0.588)
+- **teastore**: Round-Robin F1=0.028, Sent-Length F1=0.134 (TransArc=0.829)
+- **teammates**: Round-Robin F1=0.193, Sent-Length F1=0.137 (TransArc=0.821)
+- **bigbluebutton**: Round-Robin F1=0.042, Sent-Length F1=0.151 (TransArc=0.831)
 - **jabref**: Round-Robin F1=0.361, Sent-Length F1=0.320 (TransArc=0.943)
 
 ### Finding 4: Perfect-Transitive Upper Bound
@@ -195,7 +195,7 @@ The gap between B_perf and B8 reveals how much is lost to gold standard disagree
 - **mediastore**: Perfect-Transitive F1=1.000, Oracle-Subset F1=1.000, gap=0.000
 - **teastore**: Perfect-Transitive F1=1.000, Oracle-Subset F1=1.000, gap=0.000
 - **teammates**: Perfect-Transitive F1=0.881, Oracle-Subset F1=0.934, gap=-0.053
-- **bigbluebutton**: Perfect-Transitive F1=0.968, Oracle-Subset F1=1.000, gap=-0.032
+- **bigbluebutton**: Perfect-Transitive F1=0.968, Oracle-Subset F1=0.981, gap=-0.013
 - **jabref**: Perfect-Transitive F1=1.000, Oracle-Subset F1=1.000, gap=0.000
 
 ### Finding 5: Macro F1 Correctly Penalizes Exploitation
@@ -208,12 +208,12 @@ baselines that only work for a few sentences:
 | B0: TransArc | 0.803 | 0.699 | +0.104 |
 | B6: Keyword-Grep | 0.698 | 0.668 | +0.029 |
 | B7: Oracle-Component | 0.906 | 0.865 | +0.041 |
-| B8: Oracle-Subset | 0.987 | 0.907 | +0.079 |
-| B9: Round-Robin | 0.136 | 0.088 | +0.048 |
-| B10: Sent-Length | 0.153 | 0.112 | +0.040 |
+| B8: Oracle-Subset | 0.983 | 0.906 | +0.077 |
+| B9: Round-Robin | 0.140 | 0.091 | +0.049 |
+| B10: Sent-Length | 0.159 | 0.107 | +0.051 |
 | B11: Optimal-Const | 0.309 | 0.257 | +0.052 |
 | B12: Enhanced-Grep | 0.659 | 0.591 | +0.068 |
-| B13: Gold-Density | 0.248 | 0.208 | +0.041 |
+| B13: Gold-Density | 0.252 | 0.210 | +0.042 |
 | B_perf: Perfect-Trans | 0.970 | 0.891 | +0.079 |
 
 ### Finding 6: The F1 Hierarchy Reveals What Matters
@@ -222,16 +222,16 @@ Ordering baselines by average micro F1 reveals the contribution of each 'intelli
 
 | Rank | Baseline | Avg Micro F1 | Intelligence Required |
 |------|----------|------------|---------------------|
-| 1 | B8: Oracle-Subset | 0.987 | Oracle (per-sentence component knowledge) |
+| 1 | B8: Oracle-Subset | 0.983 | Oracle (per-sentence component knowledge) |
 | 2 | B_perf: Perfect-Trans | 0.970 | Oracle (gold standards) |
 | 3 | B7: Oracle-Component | 0.906 | Oracle (per-sentence component knowledge) |
 | 4 | B0: TransArc | 0.803 | Full NLP pipeline (SAD-SAM + SAM-CODE) |
 | 5 | B6: Keyword-Grep | 0.698 | Simple substring match |
 | 6 | B12: Enhanced-Grep | 0.659 | CamelCase-aware substring match |
 | 7 | B11: Optimal-Const | 0.309 | Search (tries all components against gold) |
-| 8 | B13: Gold-Density | 0.248 | SAM-CODE gold file frequency |
-| 9 | B10: Sent-Length | 0.153 | Word count only |
-| 10 | B9: Round-Robin | 0.136 | None (positional) |
+| 8 | B13: Gold-Density | 0.252 | SAM-CODE gold file frequency |
+| 9 | B10: Sent-Length | 0.159 | Word count only |
+| 10 | B9: Round-Robin | 0.140 | None (positional) |
 
 ## Conclusion
 

@@ -546,8 +546,8 @@ Teammates has 198 sentences. What sections do gold vs non-gold mentions fall in?
 
   - [OTHER] S4 × Client: `The UI Browser seen by users consists of Web pages containing HTML, CSS for styling and Ja`
   - [OTHER] S17 × E2E: `Selenium Java is used to automate E2E testing with actual Web browsers.`
-  - [OTHER] S22 × UI: `logic, ui.website, ui.controller represent an application of Model-View-Controller pattern`
   - [OTHER] S22 × Logic: `logic, ui.website, ui.controller represent an application of Model-View-Controller pattern`
+  - [OTHER] S22 × UI: `logic, ui.website, ui.controller represent an application of Model-View-Controller pattern`
   - [SUBPKG_DESC] S23 × UI: `ui.website is not a real package.`
   - [SUBPKG_DESC] S26 × UI: `ui.website is not a Java package.`
   - [OTHER] S79 × Logic: `Managing relationships between entities, e.g. cascade logic for create/update/delete.`

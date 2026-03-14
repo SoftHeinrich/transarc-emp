@@ -215,8 +215,8 @@ For each project, trace how model element concentration flows through enrollment
 |---------|----------------|--------|-----------------|-------------------------------|----------------|
 | mediastore | 19 | Interface: IDownload | 16 | 0 | 0.0% |
 | teastore | 19 | Component: ImageProvider | 64 | 320 | 45.3% |
-| teammates | 14 | Interface: UI | 348 | 3,622 | 44.7% |
-| bigbluebutton | 22 | Interface: FreeSWITCH | 94 | 732 | 47.9% |
+| teammates | 14 | Component: UI | 348 | 3,622 | 44.7% |
+| bigbluebutton | 22 | Component: FreeSWITCH | 94 | 732 | 47.9% |
 | jabref | 6 | Component: logic | 972 | 3,888 | 47.0% |
 
 The top architectural element's files account for a large fraction of the SAD-CODE
@@ -287,45 +287,45 @@ collectively count as 1.0, not N separate data points.
 
 | Project | TransArc | V45 | LLM | V87-pc |
 |---------|----------|-----|-----|--------|
-| mediastore | 0.588 | 0.812 | 0.965 | 0.929 |
-| teastore | 0.829 | 0.990 | 0.829 | 0.932 |
-| teammates | 0.821 | 0.786 | 0.618 | 0.811 |
-| bigbluebutton | 0.831 | 0.819 | 0.789 | 0.791 |
-| jabref | 0.943 | 0.943 | 0.916 | 0.943 |
-| **Average** | **0.803** | **0.870** | **0.823** | **0.881** |
+| mediastore | 0.588 | 0.000 | 0.965 | 0.000 |
+| teastore | 0.829 | 0.000 | 0.829 | 0.000 |
+| teammates | 0.821 | 0.000 | 0.618 | 0.000 |
+| bigbluebutton | 0.831 | 0.000 | 0.789 | 0.000 |
+| jabref | 0.943 | 0.000 | 0.916 | 0.000 |
+| **Average** | **0.803** | **0.000** | **0.823** | **0.000** |
 
 **Decision-level F1** (one raw gold entry = one data point):
 
 | Project | TransArc | V45 | LLM | V87-pc |
 |---------|----------|-----|-----|--------|
-| mediastore | 0.568 | 0.804 | 0.964 | N/A |
-| teastore | 0.824 | 0.966 | 0.685 | N/A |
-| teammates | 0.564 | 0.500 | 0.442 | N/A |
-| bigbluebutton | 0.629 | 0.599 | 0.693 | N/A |
-| jabref | 0.394 | 0.394 | 0.239 | N/A |
-| **Average** | **0.596** | **0.653** | **0.604** | N/A |
+| mediastore | 0.568 | 0.000 | 0.964 | N/A |
+| teastore | 0.824 | 0.000 | 0.685 | N/A |
+| teammates | 0.564 | 0.000 | 0.442 | N/A |
+| bigbluebutton | 0.629 | 0.000 | 0.693 | N/A |
+| jabref | 0.394 | 0.000 | 0.239 | N/A |
+| **Average** | **0.596** | **0.000** | **0.604** | N/A |
 
 **Component-level F1** (sentence × component pairs):
 
 | Project | TransArc | V45 | LLM | V87-pc |
 |---------|----------|-----|-----|--------|
-| mediastore | 0.642 | 0.875 | 0.971 | N/A |
-| teastore | 0.828 | 0.975 | 0.803 | N/A |
-| teammates | 0.648 | 0.516 | 0.531 | N/A |
-| bigbluebutton | 0.574 | 0.577 | 0.775 | N/A |
-| jabref | 0.880 | 0.880 | 0.875 | N/A |
-| **Average** | **0.714** | **0.765** | **0.791** | N/A |
+| mediastore | 0.642 | 0.000 | 0.971 | N/A |
+| teastore | 0.828 | 0.000 | 0.803 | N/A |
+| teammates | 0.648 | 0.000 | 0.531 | N/A |
+| bigbluebutton | 0.574 | 0.000 | 0.775 | N/A |
+| jabref | 0.880 | 0.000 | 0.875 | N/A |
+| **Average** | **0.714** | **0.000** | **0.791** | N/A |
 
 **Weighted File F1** (1/block_size weighting):
 
 | Project | TransArc | V45 | LLM | V87-pc |
 |---------|----------|-----|-----|--------|
-| mediastore | 0.568 | 0.804 | 0.964 | N/A |
-| teastore | 0.824 | 0.966 | 0.685 | N/A |
-| teammates | 0.562 | 0.497 | 0.442 | N/A |
-| bigbluebutton | 0.623 | 0.596 | 0.689 | N/A |
-| jabref | 0.394 | 0.394 | 0.239 | N/A |
-| **Average** | **0.594** | **0.651** | **0.604** | N/A |
+| mediastore | 0.568 | 0.000 | 0.964 | N/A |
+| teastore | 0.824 | 0.000 | 0.685 | N/A |
+| teammates | 0.562 | 0.000 | 0.442 | N/A |
+| bigbluebutton | 0.623 | 0.000 | 0.689 | N/A |
+| jabref | 0.394 | 0.000 | 0.239 | N/A |
+| **Average** | **0.594** | **0.000** | **0.604** | N/A |
 
 ### 5.5 Per-System Summary (All Granularities)
 
@@ -344,12 +344,12 @@ collectively count as 1.0, not N separate data points.
 
 | Project | File F1 | Decision F1 | Component F1 | Weighted F1 |
 |---------|---------|-------------|-------------|-------------|
-| mediastore | 0.812 | 0.804 | 0.875 | 0.804 |
-| teastore | 0.990 | 0.966 | 0.975 | 0.966 |
-| teammates | 0.786 | 0.500 | 0.516 | 0.497 |
-| bigbluebutton | 0.819 | 0.599 | 0.577 | 0.596 |
-| jabref | 0.943 | 0.394 | 0.880 | 0.394 |
-| **Average** | **0.870** | **0.653** | **0.765** | **0.651** |
+| mediastore | 0.000 | 0.000 | 0.000 | 0.000 |
+| teastore | 0.000 | 0.000 | 0.000 | 0.000 |
+| teammates | 0.000 | 0.000 | 0.000 | 0.000 |
+| bigbluebutton | 0.000 | 0.000 | 0.000 | 0.000 |
+| jabref | 0.000 | 0.000 | 0.000 | 0.000 |
+| **Average** | **0.000** | **0.000** | **0.000** | **0.000** |
 
 **LLM (Meta-Learning):**
 
@@ -366,12 +366,12 @@ collectively count as 1.0, not N separate data points.
 
 | Project | File F1 | Decision F1 | Component F1 | Weighted F1 |
 |---------|---------|-------------|-------------|-------------|
-| mediastore | 0.929 | N/A | N/A | N/A |
-| teastore | 0.932 | N/A | N/A | N/A |
-| teammates | 0.811 | N/A | N/A | N/A |
-| bigbluebutton | 0.791 | N/A | N/A | N/A |
-| jabref | 0.943 | N/A | N/A | N/A |
-| **Average** | **0.881** | N/A | N/A | N/A |
+| mediastore | 0.000 | N/A | N/A | N/A |
+| teastore | 0.000 | N/A | N/A | N/A |
+| teammates | 0.000 | N/A | N/A | N/A |
+| bigbluebutton | 0.000 | N/A | N/A | N/A |
+| jabref | 0.000 | N/A | N/A | N/A |
+| **Average** | **0.000** | N/A | N/A | N/A |
 
 ### 5.6 System Comparison Instability — Which System Wins?
 
@@ -381,30 +381,30 @@ The central question: does the choice of metric change which system appears bett
 
 | Metric | TransArc | V45 | LLM | V87-pc | Best |
 |--------|----------|-----|-----|--------|------|
-| File F1 | 0.803 | 0.870 | 0.823 | 0.881 | V87-pc |
-| Decision F1 | 0.596 | 0.653 | 0.604 | N/A | V45 |
-| Component F1 | 0.714 | 0.765 | 0.791 | N/A | LLM |
-| Weighted F1 | 0.594 | 0.651 | 0.604 | N/A | V45 |
+| File F1 | 0.803 | 0.000 | 0.823 | 0.000 | LLM |
+| Decision F1 | 0.596 | 0.000 | 0.604 | N/A | LLM |
+| Component F1 | 0.714 | 0.000 | 0.791 | N/A | LLM |
+| Weighted F1 | 0.594 | 0.000 | 0.604 | N/A | LLM |
 
 **Per-project winners (File F1):**
 
 | Project | TransArc | V45 | LLM | V87-pc | Best |
 |---------|----------|-----|-----|--------|------|
-| mediastore | 0.588 | 0.812 | 0.965 | 0.929 | LLM |
-| teastore | 0.829 | 0.990 | 0.829 | 0.932 | V45 |
-| teammates | 0.821 | 0.786 | 0.618 | 0.811 | TransArc |
-| bigbluebutton | 0.831 | 0.819 | 0.789 | 0.791 | TransArc |
-| jabref | 0.943 | 0.943 | 0.916 | 0.943 | TransArc |
+| mediastore | 0.588 | 0.000 | 0.965 | 0.000 | LLM |
+| teastore | 0.829 | 0.000 | 0.829 | 0.000 | TransArc |
+| teammates | 0.821 | 0.000 | 0.618 | 0.000 | TransArc |
+| bigbluebutton | 0.831 | 0.000 | 0.789 | 0.000 | TransArc |
+| jabref | 0.943 | 0.000 | 0.916 | 0.000 | TransArc |
 
 **Per-project winners (Component F1) — most semantically meaningful:**
 
 | Project | TransArc | V45 | LLM | Best |
 |---------|----------|-----|-----|------|
-| mediastore | 0.642 | 0.875 | 0.971 | LLM |
-| teastore | 0.828 | 0.975 | 0.803 | V45 |
-| teammates | 0.648 | 0.516 | 0.531 | TransArc |
-| bigbluebutton | 0.574 | 0.577 | 0.775 | LLM |
-| jabref | 0.880 | 0.880 | 0.875 | TransArc |
+| mediastore | 0.642 | 0.000 | 0.971 | LLM |
+| teastore | 0.828 | 0.000 | 0.803 | TransArc |
+| teammates | 0.648 | 0.000 | 0.531 | TransArc |
+| bigbluebutton | 0.574 | 0.000 | 0.775 | LLM |
+| jabref | 0.880 | 0.000 | 0.875 | TransArc |
 
 **Winner flips across metric granularity (per project):**
 
@@ -526,10 +526,10 @@ We compare all four systems (TransArc, V45, LLM, V87-pc) across metrics:
 
 | Metric | TransArc | V45 | LLM | V87-pc | Best |
 |--------|----------|-----|-----|--------|------|
-| File F1 | 0.803 | 0.870 | 0.823 | 0.881 | V87-pc |
-| Decision F1 | 0.596 | 0.653 | 0.604 | N/A | V45 |
-| Component F1 | 0.714 | 0.765 | 0.791 | N/A | LLM |
-| Weighted F1 | 0.594 | 0.651 | 0.604 | N/A | V45 |
+| File F1 | 0.803 | 0.000 | 0.823 | 0.000 | LLM |
+| Decision F1 | 0.596 | 0.000 | 0.604 | N/A | LLM |
+| Component F1 | 0.714 | 0.000 | 0.791 | N/A | LLM |
+| Weighted F1 | 0.594 | 0.000 | 0.604 | N/A | LLM |
 
 In **1/5** projects, changing the metric granularity flips which system wins.
 This means that claims like 'System A outperforms System B' are not robust —

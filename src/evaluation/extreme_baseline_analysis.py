@@ -31,7 +31,6 @@ B13: Gold-Density — Link every sentence to the top-K "densest" code files (fil
      that appear in the most SAM-CODE gold entries). Exploits file frequency skew.
 """
 
-import itertools
 import math
 import random
 import sys
@@ -155,32 +154,18 @@ def baseline_oracle_best_component(gold_sents, gs_sad_code, model_to_files):
 
 
 def baseline_oracle_component_subset(gold_sents, gs_sad_code, model_to_files):
-    """B8: For each sentence, oracle-select the BEST SUBSET of components
-    (exhaustive 2^K search) maximizing TP - FP."""
-    model_ids = list(model_to_files.keys())
-    K = len(model_ids)
+    """B8: For each sentence, include each component whose gold TPs outnumber
+    its FPs. The gold standard directly tells us which components help —
+    no search needed."""
     result = set()
-
     for s in gold_sents:
         gold_s = set(c for ss, c in gs_sad_code if ss == s)
-        best_score = 0  # score must be positive to include anything
-        best_files = set()
-
-        # For each possible non-empty subset of components
-        for r in range(1, K + 1):
-            for subset in itertools.combinations(range(K), r):
-                files = set()
-                for idx in subset:
-                    files |= model_to_files[model_ids[idx]]
-                tp = len(gold_s & files)
-                fp = len(files - gold_s)
-                score = tp - fp
-                if score > best_score:
-                    best_score = score
-                    best_files = files.copy()
-
-        for c in best_files:
-            result.add((s, c))
+        for m_id, m_files in model_to_files.items():
+            tp = len(gold_s & m_files)
+            fp = len(m_files - gold_s)
+            if tp > fp:
+                for c in m_files:
+                    result.add((s, c))
     return result
 
 
@@ -411,7 +396,6 @@ def main():
         b7 = baseline_oracle_best_component(gold_sents, gs_sad_code, model_to_files)
 
         # B8: Oracle component subset
-        print(f"  Computing oracle component subset (2^{len(model_to_files)} subsets)...")
         b8 = baseline_oracle_component_subset(gold_sents, gs_sad_code, model_to_files)
 
         # B9: Round-robin
