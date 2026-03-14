@@ -1,0 +1,49 @@
+{
+  "1": [
+    "Component: model",
+    "Component: logic",
+    "Component: gui"
+  ],
+  "2": [
+    "Component: preferences",
+    "Component: cli"
+  ],
+  "3": [
+    "Component: model"
+  ],
+  "4": [
+    "Component: logic",
+    "Component: model",
+    "Component: gui"
+  ],
+  "5": [
+    "Component: model"
+  ],
+  "6": [
+    "Component: logic",
+    "Component: gui"
+  ],
+  "7": [
+    "Component: gui",
+    "Component: globals",
+    "Component: preferences"
+  ],
+  "9": [
+    "Component: model",
+    "Component: logic"
+  ],
+  "10": [
+    "Component: cli"
+  ],
+  "11": [
+    "Component: preferences"
+  ],
+  "12": [
+    "Component: model"
+  ],
+  "13": [
+    "Component: model",
+    "Component: gui",
+    "Component: globals"
+  ]
+}

@@ -1,0 +1,138 @@
+{
+  "5": [
+    "Component: HTML5 Client"
+  ],
+  "6": [
+    "Interface: HTML5 Client"
+  ],
+  "9": [
+    "Component: HTML5 Server"
+  ],
+  "10": [
+    "Component: HTML5 Server"
+  ],
+  "11": [
+    "Component: HTML5 Client"
+  ],
+  "12": [
+    "Interface: HTML5 Client",
+    "Interface: HTML5 Server"
+  ],
+  "13": [
+    "Component: HTML5 Server",
+    "Component: HTML5 Client"
+  ],
+  "19": [
+    "Component: HTML5 Server"
+  ],
+  "20": [
+    "Component: HTML5 Server"
+  ],
+  "21": [
+    "Component: HTML5 Server"
+  ],
+  "24": [
+    "Component: HTML5 Server"
+  ],
+  "25": [
+    "Component: HTML5 Server"
+  ],
+  "26": [
+    "Component: HTML5 Server",
+    "Interface: HTML5 Server",
+    "Interface: Apps"
+  ],
+  "27": [
+    "Component: HTML5 Server"
+  ],
+  "28": [
+    "Component: HTML5 Server"
+  ],
+  "29": [
+    "Component: HTML5 Server"
+  ],
+  "30": [
+    "Component: BBB web"
+  ],
+  "31": [
+    "Component: HTML5 Server"
+  ],
+  "32": [
+    "Component: HTML5 Server"
+  ],
+  "37": [
+    "Component: BBB web"
+  ],
+  "38": [
+    "Component: BBB web",
+    "Interface: BBB web"
+  ],
+  "39": [
+    "Interface: BBB web"
+  ],
+  "47": [
+    "Component: Redis PubSub"
+  ],
+  "49": [
+    "Component: Redis DB"
+  ],
+  "50": [
+    "Component: Recording Service"
+  ],
+  "52": [
+    "Component: Apps"
+  ],
+  "53": [
+    "Component: Apps"
+  ],
+  "55": [
+    "Component: Apps"
+  ],
+  "56": [
+    "Component: Apps"
+  ],
+  "58": [
+    "Component: FSESL"
+  ],
+  "60": [
+    "Interface: FSESL",
+    "Interface: Apps",
+    "Interface: Redis PubSub"
+  ],
+  "63": [
+    "Component: FreeSWITCH"
+  ],
+  "66": [
+    "Component: FreeSWITCH",
+    "Interface: FreeSWITCH"
+  ],
+  "69": [
+    "Component: WebRTC-SFU"
+  ],
+  "70": [
+    "Component: WebRTC-SFU"
+  ],
+  "76": [
+    "Component: Presentation Conversion"
+  ],
+  "77": [
+    "Component: Presentation Conversion"
+  ],
+  "78": [
+    "Component: Presentation Conversion",
+    "Component: BBB web"
+  ],
+  "79": [
+    "Interface: Presentation Conversion",
+    "Interface: Redis PubSub"
+  ],
+  "82": [
+    "Component: Presentation Conversion"
+  ],
+  "85": [
+    "Component: Presentation Conversion"
+  ],
+  "16": [
+    "Component: HTML5 Server"
+  ]
+}

@@ -1,0 +1,135 @@
+{
+  "129": [
+    "Component: Logic"
+  ],
+  "163": [
+    "Component: Test Driver"
+  ],
+  "68": [
+    "Component: Logic"
+  ],
+  "9": [
+    "Component: Storage"
+  ],
+  "118": [
+    "Component: Storage"
+  ],
+  "173": [
+    "Component: Test Driver"
+  ],
+  "175": [
+    "Component: Common",
+    "Component: Test Driver"
+  ],
+  "125": [
+    "Component: Storage"
+  ],
+  "192": [
+    "Component: E2E"
+  ],
+  "177": [
+    "Component: Storage",
+    "Component: Test Driver"
+  ],
+  "20": [
+    "Component: Common"
+  ],
+  "8": [
+    "Component: Logic"
+  ],
+  "193": [
+    "Component: E2E"
+  ],
+  "155": [
+    "Component: Common"
+  ],
+  "198": [
+    "Component: Client"
+  ],
+  "7": [
+    "Component: UI"
+  ],
+  "123": [
+    "Component: Storage"
+  ],
+  "189": [
+    "Component: E2E"
+  ],
+  "174": [
+    "Component: Common",
+    "Component: Test Driver"
+  ],
+  "6": [
+    "Component: UI"
+  ],
+  "188": [
+    "Component: E2E"
+  ],
+  "179": [
+    "Component: Test Driver"
+  ],
+  "88": [
+    "Component: Storage"
+  ],
+  "81": [
+    "Component: Logic",
+    "Component: UI"
+  ],
+  "18": [
+    "Component: Client"
+  ],
+  "27": [
+    "Component: UI"
+  ],
+  "176": [
+    "Component: Test Driver",
+    "Component: Logic"
+  ],
+  "97": [
+    "Component: Logic",
+    "Component: UI"
+  ],
+  "178": [
+    "Component: Test Driver"
+  ],
+  "191": [
+    "Component: E2E"
+  ],
+  "28": [
+    "Component: UI"
+  ],
+  "85": [
+    "Component: UI"
+  ],
+  "101": [
+    "Component: Storage"
+  ],
+  "197": [
+    "Component: Client"
+  ],
+  "128": [
+    "Component: Storage"
+  ],
+  "196": [
+    "Component: Client"
+  ],
+  "180": [
+    "Component: Test Driver"
+  ],
+  "194": [
+    "Component: Client"
+  ],
+  "22": [
+    "Component: Logic",
+    "Component: UI"
+  ],
+  "4": [
+    "Component: UI"
+  ],
+  "5": [
+    "Component: UI"
+  ],
+  "47": [
+    "Component: Logic"
+  ]
+}

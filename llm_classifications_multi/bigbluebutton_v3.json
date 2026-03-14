@@ -1,0 +1,119 @@
+{
+  "5": [
+    "Component: HTML5 Client"
+  ],
+  "6": [
+    "Component: HTML5 Client"
+  ],
+  "8": [
+    "Component: HTML5 Server"
+  ],
+  "9": [
+    "Component: HTML5 Server"
+  ],
+  "14": [
+    "Component: HTML5 Client"
+  ],
+  "15": [
+    "Component: HTML5 Server"
+  ],
+  "26": [
+    "Component: Apps"
+  ],
+  "30": [
+    "Component: BBB web"
+  ],
+  "37": [
+    "Component: BBB web"
+  ],
+  "38": [
+    "Component: BBB web",
+    "Interface: BBB web"
+  ],
+  "39": [
+    "Interface: BBB web"
+  ],
+  "44": [
+    "Interface: BBB web"
+  ],
+  "45": [
+    "Interface: BBB web"
+  ],
+  "47": [
+    "Component: Redis PubSub"
+  ],
+  "49": [
+    "Component: Redis DB"
+  ],
+  "50": [
+    "Component: Recording Service"
+  ],
+  "52": [
+    "Component: Apps"
+  ],
+  "53": [
+    "Component: Apps"
+  ],
+  "54": [
+    "Component: Apps"
+  ],
+  "58": [
+    "Component: FSESL",
+    "Component: FreeSWITCH"
+  ],
+  "59": [
+    "Component: FreeSWITCH"
+  ],
+  "60": [
+    "Component: Apps",
+    "Component: FSESL",
+    "Component: Redis PubSub"
+  ],
+  "62": [
+    "Component: FreeSWITCH"
+  ],
+  "63": [
+    "Component: FreeSWITCH"
+  ],
+  "66": [
+    "Component: FreeSWITCH"
+  ],
+  "70": [
+    "Component: WebRTC-SFU"
+  ],
+  "71": [
+    "Component: FreeSWITCH",
+    "Component: HTML5 Client"
+  ],
+  "72": [
+    "Component: FreeSWITCH",
+    "Component: HTML5 Client"
+  ],
+  "76": [
+    "Component: Presentation Conversion"
+  ],
+  "77": [
+    "Component: Presentation Conversion"
+  ],
+  "78": [
+    "Component: BBB web",
+    "Component: Presentation Conversion",
+    "Component: Redis PubSub"
+  ],
+  "79": [
+    "Component: Presentation Conversion",
+    "Component: Redis PubSub"
+  ],
+  "81": [
+    "Component: Presentation Conversion"
+  ],
+  "82": [
+    "Component: Presentation Conversion"
+  ],
+  "83": [
+    "Component: Presentation Conversion"
+  ],
+  "84": [
+    "Component: Presentation Conversion"
+  ]
+}

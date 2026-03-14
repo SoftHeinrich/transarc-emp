@@ -1,0 +1,35 @@
+{
+  "1": [
+    "Component: gui",
+    "Component: logic",
+    "Component: model"
+  ],
+  "2": [
+    "Component: preferences",
+    "Component: cli"
+  ],
+  "5": [
+    "Component: model"
+  ],
+  "6": [
+    "Component: logic",
+    "Component: model",
+    "Component: gui"
+  ],
+  "7": [
+    "Component: gui"
+  ],
+  "9": [
+    "Component: model",
+    "Component: logic"
+  ],
+  "10": [
+    "Component: cli"
+  ],
+  "11": [
+    "Component: preferences"
+  ],
+  "12": [
+    "Component: model"
+  ]
+}

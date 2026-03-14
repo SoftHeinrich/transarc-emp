@@ -1,0 +1,96 @@
+{
+  "sections": [
+    {
+      "header_sent": 1,
+      "header_text": "The TeaStore consists of 5 replicatable services and a single Registry instance.",
+      "component": "Component: WebUI",
+      "end_sent": 9
+    },
+    {
+      "header_sent": 10,
+      "header_text": "The Image Provider delivers images to the WebUI as base64 encoded strings to embed them in the final HTML.",
+      "component": "Component: ImageProvider",
+      "end_sent": 17
+    },
+    {
+      "header_sent": 18,
+      "header_text": "The Auth service handles user and session authentication.",
+      "component": "Component: Auth",
+      "end_sent": 21
+    },
+    {
+      "header_sent": 22,
+      "header_text": "The Persistence service provides access to the data persisted in the relational database back-end.",
+      "component": "Component: Persistence",
+      "end_sent": 26
+    },
+    {
+      "header_sent": 27,
+      "header_text": "The Recommender is used to generate individual product recommendations for each user.",
+      "component": "Component: Recommender",
+      "end_sent": 36
+    },
+    {
+      "header_sent": 37,
+      "header_text": "The Registry provides information about how many service instances are online for each service and where they are located.",
+      "component": "Component: Registry",
+      "end_sent": 43
+    }
+  ],
+  "aliases": {
+    "Component: WebUI": [
+      "WebUI",
+      "WebUi",
+      "UI"
+    ],
+    "Component: ImageProvider": [
+      "Image Provider",
+      "Image Provider service"
+    ],
+    "Component: Auth": [
+      "Auth service"
+    ],
+    "Component: Persistence": [
+      "Persistence service",
+      "PersistenceProvider",
+      "persistence provider"
+    ],
+    "Component: Recommender": [
+      "Recommender service"
+    ],
+    "Component: Registry": [
+      "Registry"
+    ],
+    "Component: SlopeOneRecommender": [
+      "Slope One"
+    ],
+    "Component: OrderBasedRecommender": [
+      "order-based nearest-neighbor approach"
+    ],
+    "Component: PopularityBasedRecommender": [
+      "fallback algorithm based on the general item popularity"
+    ]
+  },
+  "cooccurrence_pairs": [
+    {
+      "comp_a": "Component: Auth",
+      "comp_b": "Interface: AuthCart",
+      "rule": "100% file overlap: when a sentence references Auth or AuthCart functionality, co-assign both"
+    },
+    {
+      "comp_a": "Interface: CartActions",
+      "comp_b": "Component: WebUI",
+      "rule": "100% file overlap: when a sentence references CartActions or WebUI cart logic, co-assign both"
+    },
+    {
+      "comp_a": "Interface: ProductActions",
+      "comp_b": "Component: WebUI",
+      "rule": "100% file overlap: when a sentence references ProductActions or WebUI product logic, co-assign both"
+    },
+    {
+      "comp_a": "Component: Recommender",
+      "comp_b": "Interface: RecommenderStrategy",
+      "rule": "100% file overlap: when a sentence references Recommender or RecommenderStrategy, co-assign both"
+    }
+  ]
+}

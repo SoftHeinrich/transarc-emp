@@ -1,0 +1,103 @@
+{
+  "sections": [
+    {
+      "header_sent": 1,
+      "header_text": "One of the main components of Media Store is a server-side web front end, namely the Facade component",
+      "component": "Component: Facade",
+      "end_sent": 6
+    },
+    {
+      "header_sent": 7,
+      "header_text": "Application business logic is provided by a central business logic component, called the MediaManagement component",
+      "component": "Component: MediaManagement",
+      "end_sent": 9
+    },
+    {
+      "header_sent": 11,
+      "header_text": "The UserManagement component answers the requests for registration and authentication",
+      "component": "Component: UserManagement",
+      "end_sent": 13
+    },
+    {
+      "header_sent": 14,
+      "header_text": "To reduce the risk of copyright infringements, all downloaded files are watermarked",
+      "component": "Component: TagWatermarking",
+      "end_sent": 18
+    },
+    {
+      "header_sent": 19,
+      "header_text": "To allow users to download several files at a time, we provide the Packaging component",
+      "component": "Component: Packaging",
+      "end_sent": 19
+    },
+    {
+      "header_sent": 20,
+      "header_text": "The ReEncoder component converts the bit rates of audio files",
+      "component": "Component: Reencoding",
+      "end_sent": 21
+    },
+    {
+      "header_sent": 22,
+      "header_text": "The persistence tier contains components that are concerned with the storage of audio files and their meta-data",
+      "component": "Component: DB",
+      "end_sent": 25
+    },
+    {
+      "header_sent": 26,
+      "header_text": "When a user uploads an audio file, the MediaAccess component stores it at the predefined location",
+      "component": "Component: MediaAccess",
+      "end_sent": 28
+    },
+    {
+      "header_sent": 29,
+      "header_text": "By contrast, the UserDBAdapter component provides all functions required in order to encapsulate database access for the user data",
+      "component": "Component: UserDBAdapter",
+      "end_sent": 32
+    },
+    {
+      "header_sent": 33,
+      "header_text": "By contrast, all audio files are stored in a specific location",
+      "component": "Component: MediaAccess",
+      "end_sent": 37
+    }
+  ],
+  "aliases": {
+    "Component: Facade": [
+      "Facade"
+    ],
+    "Component: MediaManagement": [
+      "MediaManagement"
+    ],
+    "Component: UserManagement": [
+      "UserManagement"
+    ],
+    "Component: UserDBAdapter": [
+      "UserDBAdapter"
+    ],
+    "Component: TagWatermarking": [
+      "TagWatermarking"
+    ],
+    "Component: Packaging": [
+      "Packaging"
+    ],
+    "Component: Reencoding": [
+      "ReEncoder",
+      "ReEncoder component"
+    ],
+    "Component: DB": [
+      "Database",
+      "Database component"
+    ],
+    "Component: MediaAccess": [
+      "MediaAccess",
+      "AudioAccess"
+    ]
+  },
+  "cooccurrence_pairs": [
+    {
+      "comp_a": "Component: DB",
+      "comp_b": "Interface: IDB",
+      "rule": "100% file overlap: when a sentence mentions the Database component or DB, co-assign IDB"
+    }
+  ]
+}

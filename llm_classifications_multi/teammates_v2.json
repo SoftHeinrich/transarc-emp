@@ -1,0 +1,623 @@
+{
+  "1": [
+    "Component: UI",
+    "Component: Logic",
+    "Component: Storage",
+    "Component: Common",
+    "Component: Test Driver",
+    "Component: E2E",
+    "Component: Client"
+  ],
+  "4": [
+    "Component: UI"
+  ],
+  "5": [
+    "Component: UI"
+  ],
+  "6": [
+    "Component: UI"
+  ],
+  "7": [
+    "Component: UI",
+    "Component: Logic"
+  ],
+  "8": [
+    "Component: Logic"
+  ],
+  "9": [
+    "Component: Storage"
+  ],
+  "10": [
+    "Component: Test Driver"
+  ],
+  "11": [
+    "Component: Test Driver"
+  ],
+  "12": [
+    "Component: Test Driver"
+  ],
+  "13": [
+    "Component: Test Driver"
+  ],
+  "14": [
+    "Component: Test Driver"
+  ],
+  "15": [
+    "Component: E2E"
+  ],
+  "16": [
+    "Component: E2E"
+  ],
+  "17": [
+    "Component: E2E"
+  ],
+  "18": [
+    "Component: Client"
+  ],
+  "19": [
+    "Component: Client"
+  ],
+  "20": [
+    "Component: Common"
+  ],
+  "22": [
+    "Component: Logic",
+    "Component: UI"
+  ],
+  "23": [
+    "Component: UI"
+  ],
+  "24": [
+    "Component: UI"
+  ],
+  "25": [
+    "Component: UI"
+  ],
+  "26": [
+    "Component: UI"
+  ],
+  "27": [
+    "Component: UI"
+  ],
+  "28": [
+    "Component: UI"
+  ],
+  "29": [
+    "Component: UI"
+  ],
+  "30": [
+    "Component: UI"
+  ],
+  "31": [
+    "Component: UI"
+  ],
+  "32": [
+    "Component: UI"
+  ],
+  "33": [
+    "Component: UI"
+  ],
+  "34": [
+    "Component: UI"
+  ],
+  "35": [
+    "Component: UI"
+  ],
+  "36": [
+    "Component: UI"
+  ],
+  "37": [
+    "Component: UI"
+  ],
+  "38": [
+    "Component: UI"
+  ],
+  "39": [
+    "Component: UI"
+  ],
+  "40": [
+    "Component: UI"
+  ],
+  "41": [
+    "Component: UI"
+  ],
+  "42": [
+    "Component: UI"
+  ],
+  "43": [
+    "Component: UI"
+  ],
+  "44": [
+    "Component: UI",
+    "Component: Logic"
+  ],
+  "45": [
+    "Component: UI"
+  ],
+  "46": [
+    "Component: UI",
+    "Component: Logic"
+  ],
+  "47": [
+    "Component: UI",
+    "Component: Logic"
+  ],
+  "48": [
+    "Component: UI"
+  ],
+  "49": [
+    "Component: UI"
+  ],
+  "50": [
+    "Component: UI"
+  ],
+  "51": [
+    "Component: UI"
+  ],
+  "52": [
+    "Component: UI"
+  ],
+  "53": [
+    "Component: UI"
+  ],
+  "54": [
+    "Component: UI"
+  ],
+  "55": [
+    "Component: UI"
+  ],
+  "56": [
+    "Component: UI"
+  ],
+  "57": [
+    "Component: UI"
+  ],
+  "58": [
+    "Component: UI"
+  ],
+  "59": [
+    "Component: UI"
+  ],
+  "60": [
+    "Component: UI"
+  ],
+  "61": [
+    "Component: UI"
+  ],
+  "62": [
+    "Component: UI"
+  ],
+  "63": [
+    "Component: UI"
+  ],
+  "64": [
+    "Component: UI"
+  ],
+  "65": [
+    "Component: UI"
+  ],
+  "66": [
+    "Component: UI",
+    "Component: Logic"
+  ],
+  "67": [
+    "Component: UI"
+  ],
+  "68": [
+    "Component: UI",
+    "Component: Logic"
+  ],
+  "69": [
+    "Component: UI"
+  ],
+  "70": [
+    "Component: UI"
+  ],
+  "71": [
+    "Component: UI"
+  ],
+  "72": [
+    "Component: UI"
+  ],
+  "73": [
+    "Component: UI"
+  ],
+  "74": [
+    "Component: UI"
+  ],
+  "75": [
+    "Component: UI"
+  ],
+  "76": [
+    "Component: UI",
+    "Component: Logic"
+  ],
+  "77": [
+    "Component: Logic"
+  ],
+  "78": [
+    "Component: Logic"
+  ],
+  "79": [
+    "Component: Logic"
+  ],
+  "80": [
+    "Component: Logic"
+  ],
+  "81": [
+    "Component: Logic",
+    "Component: UI"
+  ],
+  "82": [
+    "Component: Logic"
+  ],
+  "83": [
+    "Component: Logic"
+  ],
+  "84": [
+    "Component: Logic"
+  ],
+  "85": [
+    "Component: Logic",
+    "Component: UI"
+  ],
+  "86": [
+    "Component: Logic"
+  ],
+  "87": [
+    "Component: Logic"
+  ],
+  "88": [
+    "Component: Logic",
+    "Component: Storage"
+  ],
+  "89": [
+    "Component: Logic"
+  ],
+  "90": [
+    "Component: Logic"
+  ],
+  "91": [
+    "Component: Logic"
+  ],
+  "92": [
+    "Component: Logic"
+  ],
+  "93": [
+    "Component: Logic"
+  ],
+  "94": [
+    "Component: Logic"
+  ],
+  "95": [
+    "Component: Logic"
+  ],
+  "96": [
+    "Component: Logic"
+  ],
+  "97": [
+    "Component: Logic",
+    "Component: UI"
+  ],
+  "98": [
+    "Component: Logic"
+  ],
+  "99": [
+    "Component: Logic"
+  ],
+  "100": [
+    "Component: Logic"
+  ],
+  "101": [
+    "Component: Logic",
+    "Component: Storage"
+  ],
+  "102": [
+    "Component: Logic"
+  ],
+  "103": [
+    "Component: Logic"
+  ],
+  "104": [
+    "Component: Logic"
+  ],
+  "105": [
+    "Component: Logic"
+  ],
+  "106": [
+    "Component: Logic"
+  ],
+  "107": [
+    "Component: Logic"
+  ],
+  "108": [
+    "Component: Logic"
+  ],
+  "109": [
+    "Component: Logic"
+  ],
+  "110": [
+    "Component: Logic"
+  ],
+  "111": [
+    "Component: Logic"
+  ],
+  "112": [
+    "Component: Logic"
+  ],
+  "113": [
+    "Component: Logic"
+  ],
+  "114": [
+    "Component: Logic"
+  ],
+  "115": [
+    "Component: Logic"
+  ],
+  "116": [
+    "Component: Logic"
+  ],
+  "117": [
+    "Component: Logic"
+  ],
+  "118": [
+    "Component: Storage"
+  ],
+  "119": [
+    "Component: Storage"
+  ],
+  "120": [
+    "Component: Storage"
+  ],
+  "121": [
+    "Component: Storage"
+  ],
+  "122": [
+    "Component: Storage",
+    "Component: Logic"
+  ],
+  "123": [
+    "Component: Storage"
+  ],
+  "124": [
+    "Component: Storage"
+  ],
+  "125": [
+    "Component: Storage"
+  ],
+  "126": [
+    "Component: Storage",
+    "Component: Common"
+  ],
+  "127": [
+    "Component: Common"
+  ],
+  "128": [
+    "Component: Storage",
+    "Component: Logic"
+  ],
+  "129": [
+    "Component: Logic",
+    "Component: Storage"
+  ],
+  "130": [
+    "Component: Storage"
+  ],
+  "131": [
+    "Component: Storage",
+    "Component: Logic"
+  ],
+  "132": [
+    "Component: Storage"
+  ],
+  "133": [
+    "Component: Storage"
+  ],
+  "134": [
+    "Component: Storage"
+  ],
+  "135": [
+    "Component: Storage"
+  ],
+  "136": [
+    "Component: Storage"
+  ],
+  "137": [
+    "Component: Storage"
+  ],
+  "138": [
+    "Component: Storage"
+  ],
+  "139": [
+    "Component: Storage"
+  ],
+  "140": [
+    "Component: Storage"
+  ],
+  "141": [
+    "Component: Storage"
+  ],
+  "142": [
+    "Component: Storage"
+  ],
+  "143": [
+    "Component: Storage"
+  ],
+  "144": [
+    "Component: Storage"
+  ],
+  "145": [
+    "Component: Storage"
+  ],
+  "146": [
+    "Component: Storage"
+  ],
+  "147": [
+    "Component: Storage"
+  ],
+  "148": [
+    "Component: Storage"
+  ],
+  "149": [
+    "Component: Storage"
+  ],
+  "150": [
+    "Component: Storage"
+  ],
+  "151": [
+    "Component: Storage"
+  ],
+  "152": [
+    "Component: Storage"
+  ],
+  "153": [
+    "Component: Storage"
+  ],
+  "154": [
+    "Component: Storage"
+  ],
+  "155": [
+    "Component: Common"
+  ],
+  "156": [
+    "Component: Common"
+  ],
+  "157": [
+    "Component: Common"
+  ],
+  "158": [
+    "Component: Common"
+  ],
+  "159": [
+    "Component: Common"
+  ],
+  "160": [
+    "Component: Common"
+  ],
+  "161": [
+    "Component: Common"
+  ],
+  "162": [
+    "Component: Common"
+  ],
+  "163": [
+    "Component: Common",
+    "Component: Test Driver"
+  ],
+  "164": [
+    "Component: Common",
+    "Component: Logic"
+  ],
+  "165": [
+    "Component: Common",
+    "Component: Logic"
+  ],
+  "166": [
+    "Component: Common"
+  ],
+  "167": [
+    "Component: Common"
+  ],
+  "168": [
+    "Component: Test Driver"
+  ],
+  "169": [
+    "Component: Test Driver"
+  ],
+  "170": [
+    "Component: Test Driver"
+  ],
+  "171": [
+    "Component: Test Driver"
+  ],
+  "172": [
+    "Component: Test Driver"
+  ],
+  "173": [
+    "Component: Test Driver"
+  ],
+  "174": [
+    "Component: Test Driver",
+    "Component: Common"
+  ],
+  "175": [
+    "Component: Test Driver",
+    "Component: Common"
+  ],
+  "176": [
+    "Component: Test Driver",
+    "Component: Logic"
+  ],
+  "177": [
+    "Component: Test Driver",
+    "Component: Storage"
+  ],
+  "178": [
+    "Component: Test Driver",
+    "Component: Storage"
+  ],
+  "179": [
+    "Component: Test Driver",
+    "Component: UI"
+  ],
+  "180": [
+    "Component: Test Driver",
+    "Component: UI"
+  ],
+  "181": [
+    "Component: Test Driver"
+  ],
+  "182": [
+    "Component: Test Driver",
+    "Component: UI"
+  ],
+  "183": [
+    "Component: Test Driver",
+    "Component: UI"
+  ],
+  "184": [
+    "Component: Test Driver"
+  ],
+  "185": [
+    "Component: E2E"
+  ],
+  "186": [
+    "Component: E2E"
+  ],
+  "187": [
+    "Component: E2E"
+  ],
+  "188": [
+    "Component: E2E"
+  ],
+  "189": [
+    "Component: E2E"
+  ],
+  "190": [
+    "Component: E2E"
+  ],
+  "191": [
+    "Component: E2E"
+  ],
+  "192": [
+    "Component: E2E"
+  ],
+  "193": [
+    "Component: E2E"
+  ],
+  "194": [
+    "Component: Client"
+  ],
+  "195": [
+    "Component: Client"
+  ],
+  "196": [
+    "Component: Client"
+  ],
+  "197": [
+    "Component: Client"
+  ],
+  "198": [
+    "Component: Client"
+  ]
+}

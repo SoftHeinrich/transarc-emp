@@ -1,0 +1,139 @@
+{
+  "sections": [
+    {
+      "header_sent": 4,
+      "header_text": "HTML5 client.",
+      "component": "Component: HTML5 Client",
+      "end_sent": 14
+    },
+    {
+      "header_sent": 15,
+      "header_text": "Scalability of HTML5 server component.",
+      "component": "Component: HTML5 Server",
+      "end_sent": 35
+    },
+    {
+      "header_sent": 36,
+      "header_text": "BBB web.",
+      "component": "Component: BBB web",
+      "end_sent": 45
+    },
+    {
+      "header_sent": 46,
+      "header_text": "Redis PubSub.",
+      "component": "Component: Redis PubSub",
+      "end_sent": 47
+    },
+    {
+      "header_sent": 48,
+      "header_text": "Redis DB.",
+      "component": "Component: Redis DB",
+      "end_sent": 50
+    },
+    {
+      "header_sent": 51,
+      "header_text": "Apps akka.",
+      "component": "Component: Apps",
+      "end_sent": 56
+    },
+    {
+      "header_sent": 57,
+      "header_text": "FSESL akka.",
+      "component": "Component: FSESL",
+      "end_sent": 60
+    },
+    {
+      "header_sent": 61,
+      "header_text": "FreeSWITCH.",
+      "component": "Component: FreeSWITCH",
+      "end_sent": 66
+    },
+    {
+      "header_sent": 67,
+      "header_text": "Kurento and WebRTC-SFU.",
+      "component": "Component: WebRTC-SFU",
+      "end_sent": 70
+    },
+    {
+      "header_sent": 71,
+      "header_text": "Joining a voice conference.",
+      "component": "Component: FreeSWITCH",
+      "end_sent": 74
+    },
+    {
+      "header_sent": 75,
+      "header_text": "Uploading a presentation.",
+      "component": "Component: Presentation Conversion",
+      "end_sent": 85
+    }
+  ],
+  "aliases": {
+    "Component: HTML5 Client": [
+      "HTML5 client",
+      "bbb-html5",
+      "the client",
+      "BigBlueButton client"
+    ],
+    "Component: HTML5 Server": [
+      "HTML5 server",
+      "bbb-html5",
+      "frontend",
+      "frontends",
+      "backend",
+      "backends"
+    ],
+    "Component: BBB web": [
+      "BBB web",
+      "bbb-web",
+      "BigBlueButton web application"
+    ],
+    "Component: Redis PubSub": [
+      "Redis PubSub",
+      "Redis pubsub",
+      "redis pubsub"
+    ],
+    "Component: Redis DB": [
+      "Redis DB"
+    ],
+    "Component: Apps": [
+      "Apps akka",
+      "Apps Akka",
+      "BigBlueButton Apps",
+      "akka-apps",
+      "MeetingActor"
+    ],
+    "Component: FSESL": [
+      "FSESL akka",
+      "FreeSWITCH Event Socket Layer",
+      "fsels"
+    ],
+    "Component: FreeSWITCH": [
+      "FreeSWITCH"
+    ],
+    "Component: WebRTC-SFU": [
+      "WebRTC-SFU",
+      "Kurento",
+      "Kurento Media Server",
+      "KMS"
+    ],
+    "Component: Presentation Conversion": [
+      "presentation conversion",
+      "conversion process"
+    ],
+    "Component: Recording Service": [
+      "Recording Processor"
+    ]
+  },
+  "cooccurrence_pairs": [
+    {
+      "comp_a": "Component: FSESL",
+      "comp_b": "Component: FreeSWITCH",
+      "rule": "91% file overlap: when a sentence mentions FSESL or FreeSWITCH Event Socket Layer, co-assign FreeSWITCH and vice versa"
+    },
+    {
+      "comp_a": "Component: HTML5 Client",
+      "comp_b": "Component: HTML5 Server",
+      "rule": "100% file overlap: when a sentence mentions bbb-html5 generically without distinguishing client or server, co-assign both HTML5 Client and HTML5 Server"
+    }
+  ]
+}

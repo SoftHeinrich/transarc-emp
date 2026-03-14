@@ -1,0 +1,80 @@
+{
+  "32": [
+    "Interface: IDB",
+    "Component: DB"
+  ],
+  "23": [
+    "Component: DB",
+    "Interface: IDB"
+  ],
+  "1": [
+    "Component: Facade"
+  ],
+  "34": [
+    "Interface: IDB",
+    "Component: MediaAccess",
+    "Component: DB"
+  ],
+  "31": [
+    "Component: DB",
+    "Interface: IDB"
+  ],
+  "19": [
+    "Component: Packaging"
+  ],
+  "25": [
+    "Component: MediaAccess",
+    "Component: DB",
+    "Interface: IDB"
+  ],
+  "17": [
+    "Component: TagWatermarking",
+    "Component: MediaManagement"
+  ],
+  "12": [
+    "Component: UserDBAdapter"
+  ],
+  "26": [
+    "Component: MediaAccess"
+  ],
+  "24": [
+    "Component: DB",
+    "Interface: IDB"
+  ],
+  "28": [
+    "Component: MediaAccess"
+  ],
+  "11": [
+    "Component: UserManagement"
+  ],
+  "27": [
+    "Component: MediaAccess"
+  ],
+  "3": [
+    "Component: Facade"
+  ],
+  "8": [
+    "Component: MediaManagement"
+  ],
+  "6": [
+    "Component: Facade"
+  ],
+  "20": [
+    "Component: Reencoding"
+  ],
+  "9": [
+    "Component: MediaManagement"
+  ],
+  "30": [
+    "Component: UserDBAdapter"
+  ],
+  "16": [
+    "Component: TagWatermarking"
+  ],
+  "29": [
+    "Component: UserDBAdapter"
+  ],
+  "7": [
+    "Component: MediaManagement"
+  ]
+}

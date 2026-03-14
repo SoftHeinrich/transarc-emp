@@ -1,0 +1,99 @@
+{
+  "2": [
+    "Component: WebUI",
+    "Component: ImageProvider"
+  ],
+  "3": [
+    "Component: Auth",
+    "Interface: AuthCart"
+  ],
+  "4": [
+    "Component: Persistence",
+    "Component: Recommender",
+    "Interface: RecommenderStrategy"
+  ],
+  "5": [
+    "Component: WebUI"
+  ],
+  "6": [
+    "Component: WebUI"
+  ],
+  "7": [
+    "Component: WebUI",
+    "Component: ImageProvider"
+  ],
+  "8": [
+    "Component: WebUI"
+  ],
+  "10": [
+    "Component: ImageProvider",
+    "Component: WebUI"
+  ],
+  "11": [
+    "Component: ImageProvider"
+  ],
+  "12": [
+    "Component: ImageProvider"
+  ],
+  "13": [
+    "Component: ImageProvider"
+  ],
+  "14": [
+    "Component: ImageProvider"
+  ],
+  "15": [
+    "Component: ImageProvider"
+  ],
+  "18": [
+    "Component: Auth",
+    "Interface: AuthCart"
+  ],
+  "22": [
+    "Component: Persistence"
+  ],
+  "23": [
+    "Component: Persistence"
+  ],
+  "24": [
+    "Component: Persistence"
+  ],
+  "27": [
+    "Component: Recommender",
+    "Interface: RecommenderStrategy"
+  ],
+  "28": [
+    "Component: Recommender",
+    "Interface: RecommenderStrategy"
+  ],
+  "29": [
+    "Component: Recommender",
+    "Interface: RecommenderStrategy"
+  ],
+  "31": [
+    "Component: PopularityBasedRecommender",
+    "Component: Recommender",
+    "Interface: RecommenderStrategy"
+  ],
+  "32": [
+    "Component: SlopeOneRecommender",
+    "Component: Recommender",
+    "Interface: RecommenderStrategy"
+  ],
+  "35": [
+    "Component: OrderBasedRecommender",
+    "Component: Recommender",
+    "Interface: RecommenderStrategy"
+  ],
+  "37": [
+    "Component: Registry"
+  ],
+  "38": [
+    "Component: Registry"
+  ],
+  "39": [
+    "Component: Registry"
+  ],
+  "40": [
+    "Component: Registry"
+  ]
+}
