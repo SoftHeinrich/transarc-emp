@@ -1,0 +1,867 @@
+% ICSE Approach Paper
+% Beyond F1: Why Standard Metrics Fail for Transitive Traceability Link Recovery
+\documentclass[sigconf,review]{acmart}
+
+% Copyright/DOI setup for submission
+\setcopyright{none}
+\settopmatter{printacmref=false}
+\renewcommand\footnotetextcopyrightpermission[1]{}
+\pagestyle{plain}
+
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{xspace}
+\usepackage{xcolor}
+\usepackage{balance}
+
+\newcommand{\sadcode}{SAD-CODE\xspace}
+\newcommand{\sadsam}{SAD-SAM\xspace}
+\newcommand{\samcode}{SAM-CODE\xspace}
+\newcommand{\transarc}{TransArc\xspace}
+\newcommand{\fone}{F\textsubscript{1}\xspace}
+\newcommand{\acfone}{ACF\textsubscript{1}\xspace}
+
+\begin{document}
+
+\title{Beyond F\textsubscript{1}: Why Standard Metrics Fail for Transitive Traceability Link Recovery}
+
+% Anonymized for review
+\author{Anonymous}
+
+\begin{abstract}
+Transitive traceability link recovery (TLR) connects software architecture
+documentation to source code by composing sentence-to-model-element and
+model-element-to-code links. The standard evaluation metric for this task is
+micro-averaged file-level \fone computed on enrollment-expanded gold standards.
+Through a systematic empirical study of five benchmark projects, we demonstrate
+that this metric is fundamentally misleading: (1)~gold standard enrollment
+inflates 525 annotator decisions into 18,660 file-level data points (35.5$\times$
+on average), creating blocks of perfectly correlated observations that violate
+the independence assumption; (2)~a keyword-grep baseline with zero NLP
+matches or exceeds the state-of-the-art on 2 of 5~projects; (3)~an
+oracle component-level classifier achieves average \fone=0.983 without any
+file-level precision, revealing that the task reduces to sentence-level
+component classification under current metrics; and (4)~alternative metrics
+at decision-level and component-level produce 6 out of 10 pairwise ranking
+disagreements with file-level \fone across projects. We propose and evaluate
+a suite of complementary metrics---including amplification-corrected \fone
+(ACF\textsubscript{1}), normalized discrimination gain~(NDG), and harmonic
+usefulness score~(HUS)---that address the identified blind spots and enable
+fairer evaluation of TLR approaches.
+\end{abstract}
+
+\begin{CCSXML}
+<ccs2012>
+<concept>
+<concept_id>10011007.10011006.10011039</concept_id>
+<concept_desc>Software and its engineering~Software maintenance tools</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10011007.10011074.10011099.10011102</concept_id>
+<concept_desc>Software and its engineering~Software verification and validation</concept_desc>
+<concept_significance>300</concept_significance>
+</concept>
+</ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Software and its engineering~Software maintenance tools}
+\ccsdesc[300]{Software and its engineering~Software verification and validation}
+
+\keywords{traceability link recovery, evaluation metrics, software architecture, benchmark bias}
+
+\maketitle
+
+%% ============================================================
+\section{Introduction}
+\label{sec:intro}
+
+Traceability link recovery (TLR) between software architecture documentation
+(SAD) and source code is essential for architecture conformance
+checking~\cite{Keim2024}, inconsistency detection~\cite{Keim2024}, and
+software comprehension. The transitive approach composes two intermediate
+mappings: \emph{\sadsam} (sentences to architectural model elements) and
+\emph{\samcode} (model elements to code entities), yielding
+\emph{\sadcode} trace links from documentation sentences to source code
+files~\cite{Keim2024}.
+
+The de facto evaluation metric is micro-averaged precision, recall, and \fone
+computed on file-level gold standards. Before evaluation, gold standard entries
+annotated at the directory level are \emph{enrolled}---expanded to individual
+files using the project's code model. This creates a fundamental mismatch: annotators
+made directory-level or component-level decisions, but evaluation treats each
+enrolled file as an independent data point.
+
+In this paper, we present a systematic empirical study exposing three
+compounding biases in this evaluation methodology and propose metrics that
+correct them:
+
+\begin{enumerate}
+\item \textbf{Enrollment inflation.} 525~annotator decisions expand to
+  18,660~file-level entries (35.5$\times$). Block homogeneity is 96--100\%:
+  files within a directory block share the same TP/FN outcome, violating the
+  independence assumption of precision/recall.
+
+\item \textbf{Component-size amplification.} A single error on a large
+  component (e.g., JabRef's \texttt{logic}, 972~files) generates 972~false
+  positives. The same error on a small component generates 1. File-level \fone
+  weights errors by code size, not by semantic importance.
+
+\item \textbf{Task reduction.} An oracle that only classifies which
+  architectural components a sentence describes---without any file-level
+  precision---achieves average \fone=0.983 across five projects. Under current
+  metrics, the ``hard problem'' of fine-grained traceability is invisible.
+\end{enumerate}
+
+We evaluate six alternative metrics on the ARDoCo benchmark~\cite{Keim2024}
+across five open-source projects and show that they expose qualitative
+differences hidden by standard \fone. Our contributions are:
+
+\begin{itemize}
+\item An empirical demonstration that file-level micro \fone is structurally
+  inadequate for transitive TLR evaluation (\Cref{sec:problems}).
+\item A suite of six complementary metrics addressing specific blind spots,
+  with formal definitions and empirical measurements (\Cref{sec:metrics}).
+\item A baseline study showing the \fone hierarchy from trivial to oracle
+  approaches, establishing what each metric actually measures
+  (\Cref{sec:baselines}).
+\item Actionable recommendations for how future TLR evaluations should report
+  results (\Cref{sec:recommendations}).
+\end{itemize}
+
+
+%% ============================================================
+\section{Background and Benchmark}
+\label{sec:background}
+
+\subsection{The ARDoCo Benchmark}
+
+We study the ARDoCo benchmark~\cite{Keim2024}, which provides gold standards
+for three traceability tasks across five open-source Java projects:
+MediaStore, TeaStore, Teammates, BigBlueButton~(BBB), and JabRef.
+
+\textbf{\sadsam:} Maps documentation sentences to architectural model elements
+(components and interfaces). Gold entries are \texttt{(modelElementID,
+sentenceNumber)} pairs.
+
+\textbf{\samcode:} Maps architectural elements to code entities. Gold entries
+are \texttt{(architecturalElementID, codePath)} pairs, where paths may
+reference directories (ending with~\texttt{/}) or individual files.
+
+\textbf{\sadcode:} The transitive composition. Gold entries are
+\texttt{(sentenceID, codePath)} pairs with the same mixed granularity.
+
+\subsection{Enrollment}
+\label{sec:enrollment}
+
+Before evaluation, directory-level gold entries are \emph{enrolled}: each
+directory is expanded to all files listed under it in the project's code model
+(\texttt{.acm} file). This converts annotator decisions at directory or
+component granularity into file-level data points.
+
+\Cref{tab:enrollment} shows the enrollment expansion across projects.
+
+\begin{table}[t]
+\caption{Gold standard enrollment expansion for \sadcode.}
+\label{tab:enrollment}
+\centering\small
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Project} & \textbf{Raw} & \textbf{Dirs} & \textbf{Enrolled} & \textbf{Factor} \\
+\midrule
+MediaStore       & 57   & 3 (5\%)    & 59    & 1.0$\times$ \\
+TeaStore         & 70   & 43 (61\%)  & 707   & 10.1$\times$ \\
+Teammates        & 228  & 151 (66\%) & 8,097 & 35.5$\times$ \\
+BBB              & 132  & 116 (88\%) & 1,529 & 11.6$\times$ \\
+JabRef           & 38   & 38 (100\%) & 8,268 & 217.6$\times$ \\
+\midrule
+\textbf{Total}   & \textbf{525} &  & \textbf{18,660} & \textbf{35.5$\times$} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{TransArc Pipeline}
+
+\transarc~\cite{Keim2024} is the state-of-the-art transitive TLR approach. It
+uses SWATTR~\cite{Keim2024} for \sadsam and ARCOTL for \samcode, composing
+them transitively: a sentence~$s$ is linked to file~$f$ if there exists a
+model element~$m$ such that $(s,m)$ is in the \sadsam result and $(m,f)$ is in
+the \samcode result.
+
+
+%% ============================================================
+\section{Problems with File-Level \fone}
+\label{sec:problems}
+
+\subsection{Problem 1: Enrollment Inflation}
+\label{sec:inflation}
+
+As shown in \Cref{tab:enrollment}, enrollment inflates 525 annotator decisions
+to 18,660 file-level entries. The inflation factor varies from 1.0$\times$
+(MediaStore, mostly file-level annotations) to 217.6$\times$ (JabRef, 100\%
+directory annotations). This creates two statistical distortions.
+
+\textbf{Non-uniform weighting.} Each raw annotator decision carries weight
+proportional to the number of files in its directory. A single JabRef
+directory entry for \texttt{logic/} expands to 972~file-level links, accounting
+for 47\% of the entire enrolled gold standard. Getting this one directory
+right or wrong swings \fone by up to 4~percentage points.
+
+\textbf{Illusory precision.} The metric appears computed over 18,660 data
+points, but reflects only $\sim$525 independent decisions. The implied 95\%
+confidence interval (using enrolled count) is $\pm$0.005 for JabRef; the
+actual CI (using raw decisions) is $\pm$0.074---15$\times$ wider.
+
+\subsection{Problem 2: Block Correlation}
+\label{sec:block}
+
+Precision and recall assume independent data points. Enrollment creates
+\emph{blocks} of correlated entries: all files under one directory share the
+same TP/FN outcome because the system either identifies the directory's
+component or it does not.
+
+We measure block homogeneity by checking, for each directory block of
+$\geq$2~files, whether all files are TPs or all are FNs. \Cref{tab:homogeneity}
+shows that block homogeneity ranges from 96\% to 100\% across all projects.
+Files within a directory block are not independent observations---they are
+redundant copies of a single component-level decision.
+
+\begin{table}[t]
+\caption{Block homogeneity: fraction of directory blocks where all files
+share the same TP/FN outcome (TransArc results).}
+\label{tab:homogeneity}
+\centering\small
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Project} & \textbf{Blocks} & \textbf{All-TP} & \textbf{All-FN} & \textbf{Homog.} \\
+\midrule
+MediaStore  & 2   & 2   & 0  & 100\% \\
+TeaStore    & 43  & 31  & 12 & 100\% \\
+Teammates   & 149 & 130 & 19 & 100\% \\
+BBB         & 107 & 79  & 24 & 96\%  \\
+JabRef      & 38  & 38  & 0  & 100\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Problem 3: Error Amplification Asymmetry}
+\label{sec:amplification}
+
+In the transitive pipeline, each \sadsam false positive for model element~$m$
+generates $|\text{files}(m)|$ \sadcode false positives. This amplification is
+highly asymmetric across components.
+
+\begin{table}[t]
+\caption{Error amplification: \sadsam false positives cascade to file-level
+\sadcode false positives via \samcode composition.}
+\label{tab:amplification}
+\centering\small
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Project} & \textbf{SAD-SAM} & \textbf{Induced} & \textbf{Mean} & \textbf{Max Single} \\
+ & \textbf{FPs} & \textbf{File FPs} & \textbf{Amplif.} & \textbf{FP Cascade} \\
+\midrule
+MediaStore  & 1  & 1     & 1.0$\times$   & 1   \\
+TeaStore    & 0  & 0     & ---           & --- \\
+Teammates   & 28 & 2,395 & 85.5$\times$  & 348 \\
+BBB         & 5  & 71    & 14.2$\times$  & 24  \\
+JabRef      & 2  & 990   & 495.0$\times$ & 972 \\
+\midrule
+\textbf{Total} & \textbf{36} & \textbf{3,457} & \textbf{96.0$\times$} & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+As shown in \Cref{tab:amplification}, 36~component-level false positives
+cascade to 3,457~file-level false positives, with a single JabRef
+error (\texttt{logic}, sentence~5) producing 972~FPs alone---26.5\% of all
+TransArc false positives across all five projects.
+
+\subsection{Problem 4: Cross-Project Incomparability}
+\label{sec:incomparable}
+
+The same file-level \fone does not reflect the same quality across projects.
+MediaStore has 57~raw decisions, mostly individual files, while JabRef has
+38~raw decisions inflated to 8,268~enrolled links. Their \fone scores
+(0.588 vs.\ 0.943) appear dramatically different, but at the component level,
+MediaStore makes 1~FP with 14~FNs while JabRef makes 2~FPs with 0~FNs.
+The \fone gap is an artifact of component file counts, not system quality.
+
+\subsection{Problem 5: Ranking Instability}
+\label{sec:ranking}
+
+When we compute \fone at different granularities (file, decision, component,
+weighted), the project ranking changes dramatically (\Cref{tab:ranking}).
+
+\begin{table}[t]
+\caption{TransArc project rankings at different \fone granularities. Bold
+marks the \#1-ranked project.}
+\label{tab:ranking}
+\centering\small
+\begin{tabular}{clllll}
+\toprule
+\textbf{Rank} & \textbf{File} & \textbf{Decision} & \textbf{Component} & \textbf{Weighted} \\
+\midrule
+1 & \textbf{JabRef}  & \textbf{TeaStore} & \textbf{JabRef}  & \textbf{TeaStore} \\
+2 & BBB              & BBB               & TeaStore          & BBB \\
+3 & TeaStore         & MediaStore        & Teammates         & MediaStore \\
+4 & Teammates        & Teammates         & MediaStore        & Teammates \\
+5 & MediaStore       & JabRef            & BBB               & JabRef \\
+\midrule
+\multicolumn{2}{l}{Discordant pairs vs.\ File:} & 6/10 & 3/10 & 6/10 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Six out of 10~pairwise rankings disagree between file-level and decision-level
+\fone. JabRef drops from 1st to 5th. This means the apparent ``best'' and
+``worst'' projects depend entirely on the (arbitrary) choice of evaluation
+granularity.
+
+
+%% ============================================================
+\section{Proposed Metrics}
+\label{sec:metrics}
+
+We propose six metrics that address specific blind spots of file-level \fone.
+Each metric captures a distinct dimension of TLR quality.
+
+\subsection{N1: Matthews Correlation Coefficient (MCC)}
+\label{sec:mcc}
+
+\textbf{Problem addressed:} \fone ignores true negatives. Most (sentence,
+component) pairs are negative. A system that correctly \emph{excludes}
+non-matching components gets zero credit.
+
+\textbf{Definition:} For each (sentence, component) pair in the evaluation
+universe, classify as positive (linked) or negative (not linked):
+\[
+\text{MCC} = \frac{\text{TP}\cdot\text{TN} - \text{FP}\cdot\text{FN}}
+{\sqrt{(\text{TP}{+}\text{FP})(\text{TP}{+}\text{FN})(\text{TN}{+}\text{FP})(\text{TN}{+}\text{FN})}}
+\]
+
+Range: $[-1,+1]$. A random classifier scores MCC=0 regardless of class
+imbalance. MCC properly rewards correct rejection of the $\sim$95\% of
+pairs that should not be linked.
+
+\subsection{N2: Sentence-Level Exact Match Rate (EMR)}
+\label{sec:emr}
+
+\textbf{Problem addressed:} \fone gives partial credit for partially-correct
+predictions. A developer looking up ``which components does sentence~47
+discuss?'' needs the exact set, not partial overlap.
+
+\textbf{Definition:} For each gold sentence~$s$, check whether the predicted
+component set equals the gold set:
+\[
+\text{EMR} = \frac{|\{s : \text{pred}(s) = \text{gold}(s)\}|}{|\text{gold sentences}|}
+\]
+
+We also report mean Jaccard similarity as a softer companion metric.
+
+\subsection{N3: Amplification-Corrected \fone (\acfone)}
+\label{sec:acf1}
+
+\textbf{Problem addressed:} Enrollment inflates metrics by component size.
+One error on JabRef's \texttt{logic} (972~files) counts as 972~FPs;
+one error on \texttt{globals} (1~file) counts as 1.
+
+\textbf{Definition:} Weight each file-level link by the inverse of its
+component's file count:
+\[
+w(s, f) = \frac{1}{|\text{files}(\text{component}(f))|}
+\]
+\[
+\text{ACF}_1 = \fone\!\left(\sum w \cdot \text{TP},\ \sum w \cdot \text{FP},\ \sum w \cdot \text{FN}\right)
+\]
+
+Every component-level decision contributes equally, regardless of how many
+files the component contains. This directly corrects enrollment inflation.
+
+\subsection{N4: Normalized Discrimination Gain (NDG)}
+\label{sec:ndg}
+
+\textbf{Problem addressed:} Raw \fone is incomparable across projects.
+JabRef \fone=0.943 (6~components, 13~sentences) looks better than Teammates
+\fone=0.821 (14~components, 198~sentences), but Teammates may require
+more intelligence.
+
+\textbf{Definition:} Normalize system \fone between random and oracle
+baselines:
+\[
+\text{NDG} = \frac{F_1^{\text{sys}} - F_1^{\text{random}}}
+{F_1^{\text{oracle}} - F_1^{\text{random}}}
+\]
+
+Range: $[0,1]$. NDG=0 means no better than random; NDG=1 means
+oracle-level performance. This enables fair cross-project comparison of
+``intelligence added.''
+
+\subsection{N5: Harmonic Usefulness Score (HUS)}
+\label{sec:hus}
+
+\textbf{Problem addressed:} Coverage and noise capture complementary developer
+needs. A system must both find relevant sentences (\emph{coverage}) and avoid
+drowning the developer in false positives (\emph{purity}).
+
+\textbf{Definition:}
+\begin{align*}
+\text{Coverage} &= \frac{|\{s \in \text{gold} : \exists\,\text{TP in } s\}|}
+{|\text{gold sentences}|} \\
+\text{Purity} &= \frac{|\{s \in \text{result} : \text{no FP in } s\}|}
+{|\text{result sentences}|} \\
+\text{HUS} &= \frac{2 \cdot \text{Coverage} \cdot \text{Purity}}
+{\text{Coverage} + \text{Purity}}
+\end{align*}
+
+HUS is the harmonic mean of coverage and purity at the sentence level,
+analogous to how \fone balances precision and recall at the link level but
+measured at the level of the developer's actual experience.
+
+\subsection{N6: Macro \fone and Wasted Effort}
+\label{sec:macro}
+
+\textbf{Macro \fone} computes per-sentence \fone and averages, giving equal
+weight to each sentence. This prevents a few high-file-count sentences from
+dominating the score.
+
+\textbf{Wasted effort} measures FP/TP---how many wrong files a developer
+must examine per correct one. A system with \fone=0.80 and wasted effort=50
+is far less useful than \fone=0.60 with wasted effort=0.1.
+
+
+%% ============================================================
+\section{Baseline Study}
+\label{sec:baselines}
+
+To understand what file-level \fone actually measures, we implement a hierarchy
+of baselines ranging from content-free to oracle.
+
+\subsection{Baseline Definitions}
+
+\begin{table}[t]
+\caption{Baseline definitions. Oracle baselines use gold standard knowledge.}
+\label{tab:baselines}
+\centering\small
+\begin{tabular}{lp{5.2cm}c}
+\toprule
+\textbf{ID} & \textbf{Description} & \textbf{Oracle?} \\
+\midrule
+B0 & \transarc (reference system) & No \\
+B6 & Keyword-Grep: substring match on component names & No \\
+B7 & Oracle best single component per sentence & Yes \\
+B8 & Oracle best component subset per sentence & Yes \\
+B9 & Round-Robin: cyclic assignment by size & No \\
+B11 & Optimal-Constant: single best component for all & No$^*$ \\
+B\textsubscript{perf} & Perfect-Transitive: gold $\times$ gold & Oracle \\
+\bottomrule
+\end{tabular}
+\vspace{2pt}
+{\footnotesize $^*$Searches over components using gold to find \fone-maximizing one.}
+\end{table}
+
+\subsection{Results}
+
+\Cref{tab:baseline_results} presents the cross-project micro \fone for all
+baselines. Three key findings emerge.
+
+\begin{table}[t]
+\caption{Cross-project micro \fone for all baselines.}
+\label{tab:baseline_results}
+\centering\small
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Baseline} & \textbf{MS} & \textbf{TS} & \textbf{TM} & \textbf{BBB} & \textbf{JR} & \textbf{Avg} \\
+\midrule
+B8: Oracle-Subset      & 1.000 & 1.000 & 0.934 & 0.981 & 1.000 & \textbf{0.983} \\
+B\textsubscript{perf}: Perfect  & 1.000 & 1.000 & 0.881 & 0.968 & 1.000 & 0.970 \\
+B7: Oracle-Comp.       & 0.956 & 0.947 & 0.881 & 0.978 & 0.767 & 0.906 \\
+B0: TransArc           & 0.588 & 0.829 & 0.821 & 0.831 & 0.943 & 0.803 \\
+B6: Keyword-Grep       & 0.595 & 0.515 & 0.608 & 0.827 & 0.944 & 0.698 \\
+B11: Optimal-Const.    & 0.352 & 0.294 & 0.181 & 0.285 & 0.432 & 0.309 \\
+B9: Round-Robin        & 0.078 & 0.028 & 0.193 & 0.042 & 0.361 & 0.140 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Finding 1: The task reduces to component classification.}
+Oracle-Subset~(B8) achieves average \fone=0.983 by selecting the correct
+component subset per sentence and linking to \emph{all} files of those
+components. It uses zero file-level precision. Even
+Oracle-Single-Component~(B7) averages 0.906. The implication is stark: under
+current metrics, \sadcode is not a file-level traceability problem but a
+sentence-level classification problem.
+
+\textbf{Finding 2: Keyword-Grep matches TransArc on 2/5 projects.}
+On MediaStore (\fone 0.595 vs.\ 0.588) and JabRef (0.944 vs.\ 0.943), a
+trivial substring match on component names performs comparably to the full NLP
+pipeline. This exposes how much of the apparent performance comes from the
+components simply being mentioned by name in the documentation.
+
+\textbf{Finding 3: Content-free baselines reveal structural \fone.}
+Round-Robin~(B9) uses zero text content and achieves JabRef \fone=0.361.
+This ``free'' \fone comes entirely from enrollment inflation: JabRef's gold
+density is 41.4\% (8,268~gold links in a universe of $10 \times
+1{,}998$~possible pairs), so random guessing already achieves non-trivial
+scores.
+
+\subsection{Holistic Exposure}
+
+The baselines that achieve competitive file-level \fone are exposed as useless
+by holistic metrics (\Cref{tab:holistic_baselines}).
+
+\begin{table}[t]
+\caption{Cross-project averages: micro \fone hides what holistic metrics
+reveal. TransArc and Keyword-Grep have similar \fone but dramatically
+different holistic profiles from trivial baselines.}
+\label{tab:holistic_baselines}
+\centering\small
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Baseline} & \textbf{Micro} & \textbf{Macro} & \textbf{Cover.} & \textbf{Useful.} & \textbf{Wasted} \\
+                   & \textbf{\fone}  & \textbf{\fone}  &  &  & \textbf{Effort} \\
+\midrule
+B0: TransArc       & 0.803 & 0.699 & 0.751 & 0.887 & 0.14 \\
+B6: Grep           & 0.698 & 0.668 & 0.763 & 0.780 & 0.30 \\
+B11: Opt-Const.    & 0.309 & 0.257 & 0.327 & 0.325 & 3.05 \\
+B9: Round-Robin    & 0.140 & 0.091 & 0.157 & 0.142 & 13.37 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Round-Robin achieves \fone=0.193 on Teammates (vs.\ TransArc's 0.821), yet
+has sentence usefulness of only 0.109 and noise of 0.896---for 90\% of
+sentences it returns, the majority of links are wrong. The macro \fone
+collapses to 0.091, correctly reflecting that the baseline works for almost
+no individual sentence.
+
+
+%% ============================================================
+\section{Metric Measurements}
+\label{sec:measurements}
+
+We compute all proposed metrics for TransArc on the five benchmark projects.
+\Cref{tab:all_metrics} presents the complete metric dashboard.
+
+\begin{table*}[t]
+\caption{Complete metric dashboard for TransArc \sadcode results. ``Std.\ \fone'' is the
+conventional file-level micro-averaged \fone.
+Metrics that diverge strongly from Std.\ \fone (|$\Delta$|$\geq$0.10) are shown in \textbf{bold}.}
+\label{tab:all_metrics}
+\centering\small
+\begin{tabular}{llccccc}
+\toprule
+\textbf{Category} & \textbf{Metric} & \textbf{MediaStore} & \textbf{TeaStore} & \textbf{Teammates} & \textbf{BBB} & \textbf{JabRef} \\
+\midrule
+Standard & Std.\ \fone & 0.588 & 0.829 & 0.821 & 0.831 & 0.943 \\
+\midrule
+\multirow{4}{*}{Granularity} & Decision-Level \fone & 0.568 & 0.824 & \textbf{0.564} & \textbf{0.629} & \textbf{0.394} \\
+& Component-Level \fone & 0.642 & 0.828 & \textbf{0.648} & \textbf{0.574} & 0.880 \\
+& Weighted \fone & 0.568 & 0.824 & \textbf{0.562} & \textbf{0.623} & \textbf{0.394} \\
+& Macro \fone & 0.620 & 0.696 & \textbf{0.515} & 0.732 & 0.933 \\
+\midrule
+\multirow{3}{*}{Proposed (N1--N3)} & MCC & 0.633 & 0.828 & 0.814 & 0.820 & 0.917 \\
+& EMR & 0.600 & 0.696 & \textbf{0.370} & \textbf{0.156} & 0.500 \\
+& \acfone & \textbf{0.739} & 0.851 & \textbf{0.624} & \textbf{0.347} & 0.857 \\
+\midrule
+\multirow{2}{*}{Proposed (N4--N5)} & NDG & 0.516 & 0.806 & 0.927 & 0.850 & 0.915 \\
+& HUS & 0.762 & 0.821 & \textbf{0.591} & \textbf{0.405} & \textbf{0.667} \\
+\midrule
+\multirow{3}{*}{Developer Exp.} & Coverage & 0.640 & 0.696 & 0.598 & 0.822 & 1.000 \\
+& Noise & 0.059 & 0.000 & 0.299 & 0.211 & 0.082 \\
+& Wasted Effort & 0.04 & 0.00 & 0.33 & 0.22 & 0.12 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{What Each Metric Reveals}
+
+\textbf{MCC (N1)} closely tracks standard \fone (average 0.802 vs.\ 0.803)
+because the evaluation universe is large and true negatives dominate. While
+MCC is theoretically superior to \fone for imbalanced binary classification,
+in our setting the class imbalance is so extreme that MCC adds limited
+discriminative value over \fone for \sadcode. \emph{Verdict: valuable for
+\sadsam (smaller universe); limited added value for \sadcode.}
+
+\textbf{EMR (N2)} drops dramatically from \fone: average 0.464 vs.\ 0.803.
+BBB's EMR=0.156 means only 15.6\% of sentences have their file sets
+predicted exactly correctly, despite \fone=0.831. This reveals that high \fone
+comes from getting the \emph{large} blocks right while making errors on many
+individual sentences. \emph{Verdict: valuable as a strict complementary metric;
+overly harsh for practical use alone.}
+
+\textbf{\acfone (N3)} corrects enrollment inflation with striking results.
+BBB drops from \fone=0.831 to \acfone=0.347 (a 0.484 gap)---the largest
+single correction. This happens because TransArc produces 139~FPs on
+small components that are invisible in standard \fone but dominate when
+each component is weighted equally. MediaStore \emph{increases} from 0.588
+to 0.739 because its annotations are mostly file-level with minimal
+enrollment distortion. \emph{Verdict: the most important correction; should
+be reported alongside standard \fone.}
+
+\textbf{NDG (N4)} reveals which projects are genuinely hard.
+MediaStore's NDG=0.516 means TransArc captures only 52\% of the achievable
+intelligence gap above random, despite \fone=0.588. Teammates' NDG=0.927
+shows TransArc is near the oracle ceiling. A system achieving uniform
+NDG across projects is uniformly capable regardless of structural difficulty.
+\emph{Verdict: essential for cross-project comparison.}
+
+\textbf{HUS (N5)} captures developer experience. JabRef has HUS=0.667 despite
+\fone=0.943. Why? Coverage=1.000 (every sentence gets results) but
+Purity=0.500 (half of result sentences contain false positives). The harmonic
+mean penalizes this imbalance. BBB's HUS=0.405 is even worse: high coverage
+(0.822) is undermined by low purity (0.268). \emph{Verdict: valuable for
+practical deployment assessment.}
+
+\textbf{Macro \fone} gives equal weight per sentence, revealing that
+Teammates' quality is far less uniform than standard \fone suggests
+(0.515 vs.\ 0.821). The gap arises because 40\% of Teammates' gold
+sentences have zero recall, but their small file counts make them invisible
+in micro-averaged \fone. \emph{Verdict: simple, essential, should always be reported.}
+
+\subsection{Bimodal Sentence Recovery}
+
+A key finding across all metrics is the \emph{all-or-nothing} recovery pattern.
+For each project, we measure the fraction of gold sentences with either
+R=0\% or R=100\%:
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{lccc}
+\toprule
+\textbf{Project} & \textbf{R=0\%} & \textbf{R=100\%} & \textbf{All-or-Nothing} \\
+\midrule
+MediaStore & 36\% & 60\% & 96\% \\
+TeaStore   & 30\% & 70\% & 100\% \\
+Teammates  & 40\% & 55\% & 96\% \\
+BBB        & 18\% & 67\% & 84\% \\
+JabRef     & 0\%  & 100\% & 100\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The system either fully recovers a sentence's code links or misses them
+entirely. This bimodal behavior---invisible in standard \fone---is the
+natural consequence of block-level recovery: enrollment means that once
+the correct component is identified, all files come as a block.
+
+
+%% ============================================================
+\section{Metric Comparison: Summary}
+\label{sec:comparison}
+
+\Cref{tab:metric_value} summarizes which metrics are valuable and which have
+limited utility, based on our empirical analysis.
+
+\begin{table}[t]
+\caption{Assessment of metric value for \sadcode evaluation.}
+\label{tab:metric_value}
+\centering\small
+\begin{tabular}{lcp{4.5cm}}
+\toprule
+\textbf{Metric} & \textbf{Value} & \textbf{Rationale} \\
+\midrule
+\acfone & High & Directly corrects the enrollment bias; largest divergence from \fone reveals hidden errors \\
+Macro \fone & High & Simple, always applicable; reveals per-sentence inequality hidden by micro avg. \\
+NDG & High & Enables fair cross-project comparison by normalizing project difficulty \\
+HUS & High & Captures developer-facing quality; penalizes coverage/purity imbalance \\
+Coverage + Noise & High & Intuitive developer experience; exposes that 30--40\% of sentences get zero results \\
+Wasted Effort & Medium & Practically meaningful (FP/TP ratio); redundant with noise in most cases \\
+EMR & Medium & Strict complement to \fone; too harsh alone (file-level exact match nearly impossible) \\
+Component \fone & Medium & Semantically right granularity for \sadcode; but requires \samcode gold \\
+MCC & Low$^*$ & Nearly identical to \fone for \sadcode due to extreme class imbalance; valuable for \sadsam \\
+Decision \fone & Low & Nearly identical to weighted \fone; adds complexity without insight \\
+\bottomrule
+\end{tabular}
+\vspace{2pt}
+{\footnotesize $^*$MCC is theoretically superior but empirically redundant for \sadcode.}
+\end{table}
+
+
+%% ============================================================
+\section{Recommendations}
+\label{sec:recommendations}
+
+Based on our findings, we propose the following evaluation protocol for
+transitive TLR:
+
+\begin{enumerate}
+\item \textbf{Always report \acfone alongside standard \fone.} The difference
+  reveals how much the result depends on enrollment inflation vs.\ genuine
+  quality. Projects where $|\fone - \text{ACF}_1| > 0.1$ have evaluation
+  dominated by a few large components.
+
+\item \textbf{Report macro \fone per sentence.} This gives equal weight to
+  each documentation sentence and reveals the fraction of sentences with
+  zero recall. A system with macro \fone$\ll$micro \fone is concentrating
+  its quality on a few high-value sentences.
+
+\item \textbf{Report coverage and noise.} These intuitive metrics directly
+  answer the developer's questions: ``Will the system find my sentence?''
+  and ``Will it give me only correct results?''
+
+\item \textbf{Use NDG for cross-project comparison.} Raw \fone is
+  incomparable across projects with different structural properties.
+  NDG normalizes by project difficulty, enabling meaningful aggregation.
+
+\item \textbf{Include trivial baselines.} Every evaluation should report
+  Keyword-Grep and Optimal-Constant baselines. If a system does not
+  substantially outperform substring matching, its NLP contribution is
+  questionable.
+
+\item \textbf{Report raw decision counts.} State how many independent gold
+  standard decisions underlie the enrolled metric, not just the enrolled
+  link count. Confidence intervals should be computed on raw decisions.
+
+\item \textbf{Sensitivity analysis.} For the top-5 most influential raw
+  entries, report $|\Delta\fone|$ when each is excluded. If removing one
+  entry changes \fone by $>$0.02, the result is fragile.
+\end{enumerate}
+
+We also identify metrics with limited value in this setting:
+\begin{itemize}
+\item \textbf{MCC} is theoretically appealing but empirically redundant for
+  \sadcode because the evaluation universe is so large ($\sim$160{,}000 pairs
+  for Teammates) that true negatives dominate, making MCC$\approx$\fone.
+\item \textbf{Decision-level \fone} is nearly identical to weighted \fone and
+  adds complexity without additional insight.
+\item \textbf{EMR at file level} is interesting but too strict: achieving exact
+  file-set prediction requires both correct component classification \emph{and}
+  perfect \samcode, making it an unrealistic target.
+\end{itemize}
+
+
+%% ============================================================
+\section{Threats to Validity}
+\label{sec:threats}
+
+\textbf{External validity.} Our findings are based on the ARDoCo benchmark
+with five Java projects. The enrollment mechanism and its biases are inherent
+to the benchmark design; other benchmarks with different annotation strategies
+may not exhibit the same distortions. However, any benchmark using
+directory-level annotations with file-level evaluation will face analogous
+issues.
+
+\textbf{Internal validity.} Our alternative metrics require the same gold
+standard as standard \fone. We do not claim they eliminate gold standard
+limitations (e.g., 50\% of sentences having no gold links). We use publicly
+available gold standards and code models without modification.
+
+\textbf{Construct validity.} The ``correct'' evaluation granularity depends on
+the downstream use case. For architecture conformance checking,
+component-level evaluation may be most appropriate. For code navigation,
+file-level precision matters. We argue not for a single replacement metric
+but for multi-faceted evaluation.
+
+
+%% ============================================================
+\section{Related Work}
+\label{sec:related}
+
+\textbf{TLR evaluation.} Prior work on TLR evaluation has focused on
+information retrieval metrics adapted for traceability~\cite{Hayes2006,
+Borg2014}. De Lucia et al.~\cite{DeLucia2012} survey IR-based traceability
+and note the sensitivity of metrics to threshold selection. Our work
+identifies a different problem: the interaction between annotation granularity
+and enrollment creates systematic bias even with fixed thresholds.
+
+\textbf{Benchmark bias.} Torralba and Efros~\cite{Torralba2011} demonstrated
+dataset bias in computer vision benchmarks. Bowman and Dahl~\cite{Bowman2021}
+identify evaluation pitfalls in NLP benchmarks. Our work applies similar
+scrutiny to software engineering benchmarks, showing that structural properties
+of the gold standard---not the system---dominate the metric.
+
+\textbf{Metric criticism.} Powers~\cite{Powers2011} argues for MCC over \fone
+for imbalanced classification. Chicco and Jurman~\cite{Chicco2020} provide
+empirical evidence for MCC's advantages. Our results partially confirm this
+at the \sadsam level but show MCC's advantage diminishes for \sadcode
+where the class imbalance is extreme.
+
+\textbf{Transitive TLR.} Keim et al.~\cite{Keim2024} introduce the TransArc
+approach and benchmark. Our work is an empirical study of this benchmark's
+evaluation methodology, not a competing approach. We use TransArc as the
+reference system for all metric comparisons.
+
+
+%% ============================================================
+\section{Conclusion}
+\label{sec:conclusion}
+
+File-level micro-averaged \fone---the standard metric for transitive
+traceability link recovery---is fundamentally misleading. Through systematic
+analysis of the ARDoCo benchmark, we showed that 525~annotator decisions
+inflate to 18,660~data points, creating blocks with 96--100\% homogeneity
+that violate independence assumptions. An oracle component classifier
+achieves \fone=0.983 without file-level precision, demonstrating that
+current metrics measure component classification, not file-level traceability.
+
+Among the six metrics we proposed and evaluated, \textbf{\acfone},
+\textbf{macro \fone}, \textbf{NDG}, and \textbf{HUS} proved most valuable.
+\acfone corrects enrollment inflation and revealed that BBB's apparent
+\fone=0.831 drops to 0.347 when each component is weighted equally---a
+hidden 139~FPs on small components. NDG enables fair cross-project comparison
+by normalizing difficulty. HUS captures the developer experience that
+aggregate \fone cannot.
+
+We recommend that future TLR evaluations report \acfone, macro \fone, and
+coverage/noise alongside standard \fone, include trivial baselines
+(keyword-grep, optimal-constant), and state the number of raw annotator
+decisions underlying the metric. Only multi-faceted evaluation can
+distinguish genuine progress from structural exploitation of benchmark properties.
+
+
+%% ============================================================
+% Placeholder references - replace with actual .bib entries
+\bibliographystyle{ACM-Reference-Format}
+\begin{thebibliography}{10}
+
+\bibitem{Keim2024}
+J.~Keim, S.~Corallo, D.~Fuch{\ss}, T.~Hey, T.~Telge, and A.~Koziolek.
+\newblock Recovering trace links between software documentation and code.
+\newblock In \emph{Proc.\ ICSE}, 2024.
+
+\bibitem{Hayes2006}
+J.~H. Hayes, A.~Dekhtyar, and S.~K. Sundaram.
+\newblock Advancing candidate link generation for requirements tracing: The
+  study of methods.
+\newblock \emph{IEEE Trans.\ Softw.\ Eng.}, 32(1):4--19, 2006.
+
+\bibitem{Borg2014}
+M.~Borg, P.~Runeson, and A.~Ard{\"o}.
+\newblock Recovering from a decade: A systematic mapping of information
+  retrieval approaches to software traceability.
+\newblock \emph{Empirical Softw.\ Eng.}, 19(6):1565--1616, 2014.
+
+\bibitem{DeLucia2012}
+A.~{De Lucia}, M.~{Di Penta}, and R.~Oliveto.
+\newblock Improving source code lexicon via traceability and information
+  retrieval.
+\newblock \emph{IEEE Trans.\ Softw.\ Eng.}, 38(2):205--227, 2012.
+
+\bibitem{Torralba2011}
+A.~Torralba and A.~A. Efros.
+\newblock Unbiased look at dataset bias.
+\newblock In \emph{Proc.\ CVPR}, pages 1521--1528, 2011.
+
+\bibitem{Bowman2021}
+S.~R. Bowman and G.~Dahl.
+\newblock What will it take to fix benchmarking in natural language
+  understanding?
+\newblock In \emph{Proc.\ NAACL}, 2021.
+
+\bibitem{Powers2011}
+D.~M.~W. Powers.
+\newblock Evaluation: From precision, recall and {F}-measure to {ROC},
+  informedness, markedness and correlation.
+\newblock \emph{J.\ Mach.\ Learn.\ Technol.}, 2(1):37--63, 2011.
+
+\bibitem{Chicco2020}
+D.~Chicco and G.~Jurman.
+\newblock The advantages of the {M}atthews correlation coefficient ({MCC})
+  over {F1} score and accuracy in binary classification evaluation.
+\newblock \emph{BMC Genomics}, 21(1):6, 2020.
+
+\end{thebibliography}
+
+\balance
+\end{document}
