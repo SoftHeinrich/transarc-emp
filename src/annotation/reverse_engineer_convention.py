@@ -520,7 +520,7 @@ def main():
     out("The gold standard only traces at the architectural level.")
     out()
 
-    with open(Path("/mnt/hostshare/ardoco-home/transarc-emp/ANNOTATION_CONVENTION.md"), "w") as f:
+    with open(Path("/mnt/hostshare/ardoco-home/transarc-emp/reports/ANNOTATION_CONVENTION.md"), "w") as f:
         f.write("\n".join(md) + "\n")
     print(f"\nWritten to ANNOTATION_CONVENTION.md")
 

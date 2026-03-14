@@ -19,9 +19,13 @@ Outputs: ENROLLMENT_BIAS_ANALYSIS.md
 import csv
 import json
 import math
+import sys
 from collections import defaultdict
 from pathlib import Path
 
+# ── Import shared infrastructure ──────────────────────────────────────────────
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "lib"))
 from transarc_error_analysis import (
     PROJECTS, BENCHMARK, RESULTS,
     GS_SAD_SAM, GS_SAM_CODE, GS_SAD_CODE, ACM_FILES, TEXT_FILES,
@@ -33,7 +37,7 @@ from transarc_error_analysis import (
     calc_metrics,
 )
 
-OUTPUT_MD = Path("/mnt/hostshare/ardoco-home/transarc-emp/ENROLLMENT_BIAS_ANALYSIS.md")
+OUTPUT_MD = Path("/mnt/hostshare/ardoco-home/transarc-emp/reports/ENROLLMENT_BIAS_ANALYSIS.md")
 
 V45_DIR = Path("/mnt/hostshare/ardoco-home/llm-sad-sam-agent/results/evaluation_results/v45_20260202_115342")
 

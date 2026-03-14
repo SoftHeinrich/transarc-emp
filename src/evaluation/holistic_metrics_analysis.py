@@ -12,9 +12,11 @@ This script computes alternative metrics and compares them to current ones.
 """
 
 import math
+import sys
 from collections import defaultdict
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "lib"))
 from transarc_error_analysis import (
     PROJECTS, BENCHMARK, RESULTS,
     load_code_model_files, enroll_gold_standard,
@@ -28,7 +30,7 @@ from transarc_error_analysis import (
     calc_metrics,
 )
 
-OUTPUT_MD = Path("/mnt/hostshare/ardoco-home/transarc-emp/HOLISTIC_METRICS.md")
+OUTPUT_MD = Path("/mnt/hostshare/ardoco-home/transarc-emp/reports/HOLISTIC_METRICS.md")
 
 
 def f1(p, r):

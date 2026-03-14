@@ -34,9 +34,11 @@ B13: Gold-Density — Link every sentence to the top-K "densest" code files (fil
 import itertools
 import math
 import random
+import sys
 from collections import defaultdict
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "lib"))
 from transarc_error_analysis import (
     PROJECTS, BENCHMARK, RESULTS,
     load_code_model_files, enroll_gold_standard,
@@ -47,7 +49,7 @@ from transarc_error_analysis import (
     calc_metrics,
 )
 
-OUTPUT_MD = Path("/mnt/hostshare/ardoco-home/transarc-emp/EXTREME_BASELINES.md")
+OUTPUT_MD = Path("/mnt/hostshare/ardoco-home/transarc-emp/reports/EXTREME_BASELINES.md")
 
 random.seed(42)
 

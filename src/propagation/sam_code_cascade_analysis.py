@@ -11,8 +11,11 @@ TPs and FPs did it produce? And how does this combine with SAD-SAM errors
 per model element?
 """
 
+import sys
 from collections import defaultdict
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "lib"))
 
 from transarc_error_analysis import (
     PROJECTS, BENCHMARK, RESULTS,
@@ -27,7 +30,7 @@ from transarc_error_analysis import (
     calc_metrics,
 )
 
-OUTPUT_MD = Path("/mnt/hostshare/ardoco-home/transarc-emp/SAM_CODE_CASCADE.md")
+OUTPUT_MD = Path("/mnt/hostshare/ardoco-home/transarc-emp/reports/SAM_CODE_CASCADE.md")
 
 
 def analyze_project(proj):

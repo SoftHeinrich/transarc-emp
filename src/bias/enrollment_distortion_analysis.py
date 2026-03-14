@@ -20,7 +20,7 @@ from pathlib import Path
 
 # ── Import shared infrastructure ──────────────────────────────────────────────
 
-sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "lib"))
 from transarc_error_analysis import (
     BENCHMARK, RESULTS, PROJECTS,
     GS_SAD_CODE, ACM_FILES,

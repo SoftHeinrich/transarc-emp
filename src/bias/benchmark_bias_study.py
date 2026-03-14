@@ -18,7 +18,7 @@ from pathlib import Path
 
 # ── Import shared infrastructure ──────────────────────────────────────────────
 
-sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "lib"))
 from transarc_error_analysis import (
     BENCHMARK, RESULTS, PROJECTS,
     GS_SAD_SAM, GS_SAM_CODE, GS_SAD_CODE, ACM_FILES, TEXT_FILES,
@@ -30,7 +30,7 @@ from transarc_error_analysis import (
 
 # ─── Paths (unique to this script) ───────────────────────────────────────────
 
-OUTPUT_MD = Path("/mnt/hostshare/ardoco-home/transarc-emp/BENCHMARK_BIAS_STUDY.md")
+OUTPUT_MD = Path("/mnt/hostshare/ardoco-home/transarc-emp/reports/BENCHMARK_BIAS_STUDY.md")
 
 # TransArc expected thresholds for exploitability comparison
 TRANSARC_F1 = {

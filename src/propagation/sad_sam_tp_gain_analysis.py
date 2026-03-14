@@ -16,8 +16,11 @@ Produces a ranked list per project and a cross-project summary.
 
 import csv
 import json
+import sys
 from collections import defaultdict
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "lib"))
 
 # Reuse infrastructure from the main analysis
 from transarc_error_analysis import (
@@ -30,7 +33,7 @@ from transarc_error_analysis import (
     load_model_element_names, load_text,
 )
 
-OUTPUT_MD = Path("/mnt/hostshare/ardoco-home/transarc-emp/SAD_SAM_TP_GAIN_STUDY.md")
+OUTPUT_MD = Path("/mnt/hostshare/ardoco-home/transarc-emp/reports/SAD_SAM_TP_GAIN_STUDY.md")
 
 
 def analyze_project(proj):

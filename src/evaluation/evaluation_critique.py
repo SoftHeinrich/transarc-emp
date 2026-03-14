@@ -21,7 +21,7 @@ from pathlib import Path
 
 # ── Import shared infrastructure ──────────────────────────────────────────────
 
-sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "lib"))
 from transarc_error_analysis import (
     BENCHMARK, RESULTS, PROJECTS,
     GS_SAD_SAM, GS_SAM_CODE, GS_SAD_CODE, ACM_FILES, TEXT_FILES,
@@ -32,7 +32,7 @@ from transarc_error_analysis import (
     load_model_element_names, calc_metrics,
 )
 
-OUTPUT_MD = Path("/mnt/hostshare/ardoco-home/transarc-emp/EVALUATION_CRITIQUE.md")
+OUTPUT_MD = Path("/mnt/hostshare/ardoco-home/transarc-emp/reports/EVALUATION_CRITIQUE.md")
 
 LLM_CLASSIFICATIONS_DIR = Path("/mnt/hostshare/ardoco-home/transarc-emp/archive/llm_classifications_improved")
 

@@ -10,9 +10,13 @@ Analyzes SAM-CODE link recovery results vs gold standard at the distribution lev
 - Standalone vs TransArc-internal SAM-CODE comparison per model element
 """
 
+import sys
 from collections import defaultdict
 from pathlib import Path
 
+# ── Import shared infrastructure ──────────────────────────────────────────────
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "lib"))
 from transarc_error_analysis import (
     PROJECTS, BENCHMARK, RESULTS,
     load_code_model_files, enroll_gold_standard,
@@ -23,7 +27,7 @@ from transarc_error_analysis import (
     calc_metrics,
 )
 
-OUTPUT_MD = Path("/mnt/hostshare/ardoco-home/transarc-emp/SAM_CODE_DISTRIBUTION.md")
+OUTPUT_MD = Path("/mnt/hostshare/ardoco-home/transarc-emp/reports/SAM_CODE_DISTRIBUTION.md")
 
 
 def file_extension(path):

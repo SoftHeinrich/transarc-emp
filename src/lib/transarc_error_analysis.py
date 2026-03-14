@@ -21,7 +21,7 @@ from pathlib import Path
 
 BENCHMARK = Path("/mnt/hostshare/ardoco-home/ardoco/core/tests-base/src/main/resources/benchmark")
 RESULTS   = Path("/mnt/hostshare/ardoco-home/transarc-emp/results")
-OUTPUT_MD = Path("/mnt/hostshare/ardoco-home/transarc-emp/TRANSARC_EMPIRICAL_STUDY.md")
+OUTPUT_MD = Path("/mnt/hostshare/ardoco-home/transarc-emp/reports/TRANSARC_EMPIRICAL_STUDY.md")
 
 PROJECTS = ["mediastore", "teastore", "teammates", "bigbluebutton", "jabref"]
 

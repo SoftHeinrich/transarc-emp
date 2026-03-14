@@ -11,8 +11,11 @@ This script attributes each actual SAD-CODE output link back to its SAD-SAM
 source(s) and counts the real TPs and FPs each SAD-SAM link produced.
 """
 
+import sys
 from collections import defaultdict
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "lib"))
 
 from transarc_error_analysis import (
     PROJECTS, BENCHMARK, RESULTS,
@@ -23,7 +26,7 @@ from transarc_error_analysis import (
     load_model_element_names, load_text,
 )
 
-OUTPUT_MD = Path("/mnt/hostshare/ardoco-home/transarc-emp/SAD_SAM_ACTUAL_CONTRIBUTION.md")
+OUTPUT_MD = Path("/mnt/hostshare/ardoco-home/transarc-emp/reports/SAD_SAM_ACTUAL_CONTRIBUTION.md")
 
 
 def analyze_project(proj):
