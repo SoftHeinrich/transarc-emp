@@ -11,62 +11,26 @@ Produces BENCHMARK_BIAS_STUDY.md.
 """
 
 import csv
-import json
 import math
-import os
 import sys
-from collections import Counter, defaultdict
+from collections import Counter
 from pathlib import Path
 
-# ─── Paths ────────────────────────────────────────────────────────────────────
+# ── Import shared infrastructure ──────────────────────────────────────────────
 
-BENCHMARK = Path("/mnt/hostshare/ardoco-home/ardoco/core/tests-base/src/main/resources/benchmark")
-RESULTS   = Path("/mnt/hostshare/ardoco-home/transarc-emp/results")
+sys.path.insert(0, str(Path(__file__).parent))
+from transarc_error_analysis import (
+    BENCHMARK, RESULTS, PROJECTS,
+    GS_SAD_SAM, GS_SAM_CODE, GS_SAD_CODE, ACM_FILES, TEXT_FILES,
+    normalize_path, load_code_model_files, enroll_gold_standard,
+    load_gs_sad_sam, load_gs_sam_code_raw, load_gs_sad_code_raw,
+    load_gs_sad_code_enrolled, load_model_element_names, load_text,
+    calc_metrics,
+)
+
+# ─── Paths (unique to this script) ───────────────────────────────────────────
+
 OUTPUT_MD = Path("/mnt/hostshare/ardoco-home/transarc-emp/BENCHMARK_BIAS_STUDY.md")
-
-PROJECTS = ["mediastore", "teastore", "teammates", "bigbluebutton", "jabref"]
-
-# ─── Gold standard / code-model file mappings (reused from transarc_error_analysis.py) ─
-
-GS_SAD_SAM = {
-    "mediastore":    BENCHMARK / "mediastore/goldstandards/goldstandard_sad_2016-sam_2016.csv",
-    "teastore":      BENCHMARK / "teastore/goldstandards/goldstandard_sad_2020-sam_2020.csv",
-    "teammates":     BENCHMARK / "teammates/goldstandards/goldstandard_sad_2021-sam_2021.csv",
-    "bigbluebutton": BENCHMARK / "bigbluebutton/goldstandards/goldstandard_sad_2021-sam_2021.csv",
-    "jabref":        BENCHMARK / "jabref/goldstandards/goldstandard_sad_2021-sam_2021.csv",
-}
-
-GS_SAM_CODE = {
-    "mediastore":    BENCHMARK / "mediastore/goldstandards/goldstandard_sam_2016-code_2016.csv",
-    "teastore":      BENCHMARK / "teastore/goldstandards/goldstandard_sam_2020-code_2022.csv",
-    "teammates":     BENCHMARK / "teammates/goldstandards/goldstandard_sam_2021-code_2023.csv",
-    "bigbluebutton": BENCHMARK / "bigbluebutton/goldstandards/goldstandard_sam_2021-code_2023.csv",
-    "jabref":        BENCHMARK / "jabref/goldstandards/goldstandard_sam_2021-code_2023.csv",
-}
-
-GS_SAD_CODE = {
-    "mediastore":    BENCHMARK / "mediastore/goldstandards/goldstandard_sad_2016-code_2016.csv",
-    "teastore":      BENCHMARK / "teastore/goldstandards/goldstandard_sad_2020-code_2022.csv",
-    "teammates":     BENCHMARK / "teammates/goldstandards/goldstandard_sad_2021-code_2023.csv",
-    "bigbluebutton": BENCHMARK / "bigbluebutton/goldstandards/goldstandard_sad_2021-code_2023.csv",
-    "jabref":        BENCHMARK / "jabref/goldstandards/goldstandard_sad_2021-code_2023.csv",
-}
-
-ACM_FILES = {
-    "mediastore":    BENCHMARK / "mediastore/model_2016/code/codeModel.acm",
-    "teastore":      BENCHMARK / "teastore/model_2022/code/codeModel.acm",
-    "teammates":     BENCHMARK / "teammates/model_2023/code/codeModel.acm",
-    "bigbluebutton": BENCHMARK / "bigbluebutton/model_2023/code/codeModel.acm",
-    "jabref":        BENCHMARK / "jabref/model_2023/code/codeModel.acm",
-}
-
-TEXT_FILES = {
-    "mediastore":    BENCHMARK / "mediastore/text_2016/mediastore.txt",
-    "teastore":      BENCHMARK / "teastore/text_2020/teastore.txt",
-    "teammates":     BENCHMARK / "teammates/text_2021/teammates.txt",
-    "bigbluebutton": BENCHMARK / "bigbluebutton/text_2021/bigbluebutton.txt",
-    "jabref":        BENCHMARK / "jabref/text_2021/jabref.txt",
-}
 
 # TransArc expected thresholds for exploitability comparison
 TRANSARC_F1 = {
@@ -78,69 +42,7 @@ LLM_F1 = {
     "bigbluebutton": 0.797, "jabref": 0.916,
 }
 
-# ─── Data loading helpers ─────────────────────────────────────────────────────
-
-def normalize_path(path):
-    """Remove 'Implementation/' prefix."""
-    if path.startswith("Implementation/"):
-        path = path[len("Implementation/"):]
-    return path
-
-
-def load_code_model_files(project):
-    """Load all file paths from the .acm code model."""
-    acm_file = ACM_FILES[project]
-    files = set()
-    with open(acm_file) as f:
-        data = json.load(f)
-    repo = data.get("codeItemRepository", {}).get("repository", {})
-    for item in repo.values():
-        if item.get("type") == "CodeCompilationUnit":
-            path_elements = item.get("pathElements", [])
-            name = item.get("name", "")
-            ext = item.get("extension", "")
-            if path_elements and name:
-                full_path = "/".join(path_elements) + "/" + name
-                if ext:
-                    full_path += "." + ext
-                files.add(normalize_path(full_path))
-    return files
-
-
-def enroll_gold_standard(gold, code_model_files):
-    """Expand directory-level gold entries to individual files."""
-    enrolled = set()
-    for g_id, g_path in gold:
-        if g_path.endswith("/"):
-            for file_path in code_model_files:
-                if file_path.startswith(g_path):
-                    enrolled.add((g_id, file_path))
-        else:
-            enrolled.add((g_id, g_path))
-    return enrolled
-
-
-# ─── Gold standard loaders ────────────────────────────────────────────────────
-
-def load_gs_sad_sam(project):
-    """Returns set of (modelElementID, sentence_str)."""
-    links = set()
-    with open(GS_SAD_SAM[project]) as f:
-        for row in csv.DictReader(f):
-            links.add((row["modelElementID"], row["sentence"]))
-    return links
-
-
-def load_gs_sam_code_raw(project):
-    """Returns set of (ae_id, normalized_ce_path) — NOT enrolled."""
-    links = set()
-    with open(GS_SAM_CODE[project]) as f:
-        for row in csv.DictReader(f):
-            ae_id = row["ae_id"]
-            ce_path = row.get("ce_ids") or row.get("ce_id")
-            links.add((ae_id, normalize_path(ce_path)))
-    return links
-
+# ─── Data loading helpers (unique to this script) ────────────────────────────
 
 def load_gs_sam_code_with_names(project):
     """Returns list of (ae_id, ae_name, normalized_ce_path) — NOT enrolled."""
@@ -152,39 +54,6 @@ def load_gs_sam_code_with_names(project):
             ce_path = row.get("ce_ids") or row.get("ce_id")
             rows.append((ae_id, ae_name, normalize_path(ce_path)))
     return rows
-
-
-def load_gs_sad_code_raw(project):
-    """Returns set of (sentenceID_str, normalized_code_path) — NOT enrolled."""
-    links = set()
-    with open(GS_SAD_CODE[project]) as f:
-        for row in csv.DictReader(f):
-            links.add((row["sentenceID"], normalize_path(row["codeID"])))
-    return links
-
-
-def load_gs_sad_code_enrolled(project, code_model_files):
-    """Returns enrolled set of (sentenceID_str, code_path)."""
-    raw = load_gs_sad_code_raw(project)
-    return enroll_gold_standard(raw, code_model_files)
-
-
-def load_model_element_names(project):
-    """Returns dict: model_element_id -> name from SAM-CODE gold standard."""
-    names = {}
-    with open(GS_SAM_CODE[project]) as f:
-        for row in csv.DictReader(f):
-            names[row["ae_id"]] = row["ae_name"]
-    return names
-
-
-def load_text(project):
-    """Returns dict: sentence_number_str -> sentence_text."""
-    sentences = {}
-    with open(TEXT_FILES[project]) as f:
-        for i, line in enumerate(f, start=1):
-            sentences[str(i)] = line.strip()
-    return sentences
 
 
 def count_sentences(project):
@@ -293,22 +162,6 @@ def ascii_histogram(counter, max_width=40, max_bins=20):
         bar = "█" * bar_len
         lines.append(f"  {str(key):>{label_width}} │ {bar} ({count})")
     return lines
-
-
-def calc_metrics(gold, result):
-    """Returns (precision, recall, f1, tp, fp, fn)."""
-    if not result:
-        return 0.0, 0.0, 0.0, 0, 0, len(gold)
-    tp_set = gold & result
-    fp_set = result - gold
-    fn_set = gold - result
-    tp = len(tp_set)
-    fp = len(fp_set)
-    fn = len(fn_set)
-    precision = tp / len(result) if result else 0
-    recall = tp / len(gold) if gold else 0
-    f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
-    return precision, recall, f1, tp, fp, fn
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

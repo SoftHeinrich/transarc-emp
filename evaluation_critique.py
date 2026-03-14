@@ -34,7 +34,7 @@ from transarc_error_analysis import (
 
 OUTPUT_MD = Path("/mnt/hostshare/ardoco-home/transarc-emp/EVALUATION_CRITIQUE.md")
 
-LLM_CLASSIFICATIONS_DIR = Path("/mnt/hostshare/ardoco-home/transarc-emp/llm_classifications_improved")
+LLM_CLASSIFICATIONS_DIR = Path("/mnt/hostshare/ardoco-home/transarc-emp/archive/llm_classifications_improved")
 
 V45_DIR = Path("/mnt/hostshare/ardoco-home/llm-sad-sam-agent/results/evaluation_results/v45_20260202_115342")
 V87_JSON = Path("/mnt/hostshare/ardoco-home/llm-sad-sam-agent/results/evaluation_results/v87_pilot_20260207_213531.json")

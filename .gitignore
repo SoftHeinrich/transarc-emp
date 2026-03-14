@@ -1,4 +1,4 @@
 __pycache__/
 *.pyc
-llm_cache_swattr/
-sentence_classification/llm_cache/
+archive/llm_cache_swattr/
+archive/sentence_classification/llm_cache/
