@@ -157,6 +157,49 @@ Result: Metrics DECREASED despite oracle correctness
 
 ---
 
+## External Data Dependencies
+
+### Hardcoded External System Paths (High)
+
+**Issue:** Multiple analysis scripts depend on external projects/systems that must exist at specific hardcoded paths to function.
+
+**Files:**
+- `src/evaluation/s12c_sadcode_comparison.py` (line 43: `/mnt/hostshare/ardoco-home/llm-sad-sam-v45/results/ablation_results`)
+- `src/evaluation/evaluation_critique.py` (line 37: `/mnt/hostshare/ardoco-home/transarc-emp/archive/llm_classifications_improved`)
+- `src/lib/new_metrics_analysis.py` (line 35: `/mnt/hostshare/ardoco-home/llm-sad-sam-agent/results/evaluation_results/v45_*`)
+
+**Impact:**
+- Scripts silently fail or produce empty results if external directories don't exist
+- No validation of path existence at script startup
+- Cannot run evaluation suite on clean system or different machine without manual setup
+- Hard dependency on `llm-sad-sam-v45` and `llm-sad-sam-agent` projects not documented
+
+**Example:**
+```python
+# In s12c_sadcode_comparison.py, line 54:
+path = ABLATION_DIR / f"{variant}_{project}_links.csv"
+# Opens without checking if ABLATION_DIR exists first
+```
+
+**Reproducibility Threat:**
+- Missing dependencies cause silently empty results
+- No clear error message if external data unavailable
+- Makes evaluation results fragile to environment changes
+
+**Recommendation:**
+- Add path validation at script startup:
+  ```python
+  def validate_dependencies():
+      if not ABLATION_DIR.exists():
+          raise FileNotFoundError(f"Required data not found: {ABLATION_DIR}\n"
+              f"Expected ablation results from llm-sad-sam-v45 project")
+  ```
+- Document all external system dependencies in README
+- For s12c_sadcode_comparison.py: handle missing ablation data gracefully (skip comparison, or make optional)
+- Consider caching results from external systems into this repository
+
+---
+
 ## Code Organization & Maintenance
 
 ### Large Monolithic Scripts (Medium)
@@ -440,6 +483,7 @@ def normalize_path(path):
 | Enrollment block homogeneity | High | Evaluation | Test at decision/component level; adjust confidence intervals |
 | Enrollment paradox (correct links hurt F1) | High | Evaluation | Acknowledge metric invalidity; weight by decision count |
 | LLM agent non-determinism | High | Reproducibility | Document as approximate; cache LLM responses in future |
+| External system path dependencies | High | Reproducibility | Add path validation; make dependencies optional or documented |
 | Hardcoded absolute paths | Medium | Maintenance | Refactor to config.py with environment variables |
 | Large monolithic scripts (1000+ lines) | Medium | Maintenance | Extract shared logic; add unit tests |
 | Scattered metric implementations | Medium | Maintenance | Centralize in metrics.py; add docstrings |

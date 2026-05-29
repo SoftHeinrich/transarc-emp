@@ -2,136 +2,149 @@
 
 **Analysis Date:** 2026-05-29
 
-## APIs & External Services
+## Data Sources & External Systems
 
-**Claude LLM (via CLI):**
-- Service: Anthropic Claude API
-- Usage: Few-shot/zero-shot classification of SAD-SAM and SAD-CODE trace links
-- Integration: `subprocess.run(['claude', ...])` with prompt text
-- Models: `sonnet` (Sonnet 3.5), configurable via `--model` flag
-- Cache: Responses cached in `llm_cache_swattr/`, `llm_cache_improved/` directories as JSON
-- Scripts using: `archive/swattr_llm_fewshot.py`, `archive/llm_improved_classifier.py`, `archive/llm_agentic_eval.py`
-- Auth: Environment-based (`.env` not committed)
-- Response format: JSON output captured from stdout and cached
+**ARDoCo Benchmark Datasets:**
+- Location: `/mnt/hostshare/ardoco-home/ardoco/core/tests-base/src/main/resources/benchmark/`
+- Contains: 5 projects (mediastore, teastore, teammates, bigbluebutton, jabref)
+- Each project has:
+  - **Text**: documentation as one sentence per line → `{project}/text_*/[projectname].txt`
+  - **Models**: PCM (XML) + Code Model (ACM binary) → `{project}/model_*/`
+  - **Gold Standards**: hand-annotated trace links (CSV) → `{project}/goldstandards/`
 
-**JavaSubprocess Integration:**
-- Tool: ARDoCo framework (Java, Maven-based)
+**ARDoCo Framework (Java/Maven):**
 - Location: `/mnt/hostshare/ardoco-home/ardoco/` (git subtree)
-- Usage: Runs TransArc pipeline to generate SAD-CODE trace link results
-- Output: CSV files at `results/{project}/{task}/`
-- No direct Python API — results consumed via CSV files only
-
-## Data Storage
-
-**Databases:**
-- None — all data is file-based
-
-**File Storage:**
-- Local filesystem only
-- Benchmark datasets: `/mnt/hostshare/ardoco-home/ardoco/core/tests-base/src/main/resources/benchmark/{project}/`
-- Results: `/mnt/hostshare/ardoco-home/transarc-emp/results/{project}/{task}/`
-- Reports: `/mnt/hostshare/ardoco-home/transarc-emp/reports/`
-
-**Caching:**
-- LLM response cache: `llm_cache_swattr/`, `llm_cache_improved/`, `llm_classifications/`, `llm_classifications_multi/`, `llm_classifications_improved/` (JSON files)
-- No database cache
+- Purpose: Runs TransArc pipeline to generate intermediate and final trace link results
+- Output format: CSV files written to `results/{project}/{task}/`
+- No direct Python API — consumed as CSV files only
 
 ## Data Formats
 
-**Input Gold Standards (CSV):**
-- SAD-SAM: `{project}/goldstandards/goldstandard_sad_*-sam_*.csv` with columns: `modelElementID`, `sentence`
-- SAM-CODE: `{project}/goldstandards/goldstandard_sam_*-code_*.csv` with columns: `ae_id`, `ae_name`, `ce_id/ce_ids`
-- SAD-CODE: `{project}/goldstandards/goldstandard_sad_*-code_*.csv` with columns: directory/file paths, `Implementation/` prefix
+**Gold Standard CSVs:**
+- **SAD-SAM**: `goldstandard_sad_*-sam_*.csv`
+  - Columns: `modelElementID`, `sentence` (sentence number)
+  - Format: Pairs of architecture model elements and documentation sentences
 
-**Input Models & Text:**
-- PCM Model: `{project}/model_*/pcm/*.repository` (XML format)
-- Code Model: `{project}/model_*/code/codeModel.acm` (custom archive format)
-- Text: `{project}/text_*/[projectname].txt` (one sentence per line, numbered 1+)
+- **SAM-CODE**: `goldstandard_sam_*-code_*.csv`
+  - Columns: `ae_id`, `ae_name`, `ce_id` or `ce_ids`
+  - Paths prefixed with `Implementation/` (stripped during processing)
+  - Can be directory paths (expanded to files during enrollment)
 
-**Output Results (CSV):**
-- SAD-SAM results: `results/{project}/sad-sam/sadSamTlr_{project}.csv` → columns: `modelElementID`, `sentence`
-- SAM-CODE results: `results/{project}/sam-code/samCodeTlr_{project}.csv` → columns: `sentenceID`, `codeID`
-- SAD-CODE results: `results/{project}/sad-code/sadCodeTlr_{project}.csv` → columns: `modelElementID`, `codeId`
+- **SAD-CODE**: `goldstandard_sad_*-code_*.csv`
+  - Columns: mixed (directory or file paths as keys)
+  - Paths prefixed with `Implementation/`
+  - Directory entries expanded using ACM code model during evaluation
+
+**Code Model (ACM format):**
+- Custom archive format parsed by `load_code_model_files()` in `src/lib/transarc_error_analysis.py`
+- Maps directory paths to individual files
+- Used for enrollment expansion: directory → set of files
+
+**Text Files:**
+- One sentence per line, numbered starting from 1
+- Read by: `load_text()` in `src/lib/transarc_error_analysis.py`
+- Example: `mediastore.txt` has 36 sentences
+
+**Result CSVs (TransArc output):**
+- **SAD-SAM**: `results/{project}/sad-sam/sadSamTlr_{project}.csv`
+  - Columns: `modelElementID`, `sentence`
+
+- **SAM-CODE**: `results/{project}/sam-code/samCodeTlr_{project}.csv`
+  - Columns: `sentenceID`, `codeID`
+
+- **SAD-CODE (final)**: `results/{project}/sad-code/sadCodeTlr_{project}.csv`
+  - Columns: `modelElementID`, `codeId` (note: lowercase 'd')
+
+## Analysis & Cache Files
 
 **LLM Classifications (JSON):**
-- Single-agent: `llm_classifications/{project}.json` → dict of `{sentence_num: [component_names]}`
-- Multi-agent: `llm_classifications_multi/{project}_{strategy}.json` → aggregated votes
-- Improved classifier: `llm_classifications_improved/{project}_*.json` → meta-analysis + multi-phase outputs
-- Cache: `llm_cache_*/batch_*.json` → raw API responses
+- Single-agent: `llm_classifications/{project}.json`
+- Multi-agent: `llm_classifications_multi/{project}_{strategy}.json`
+- Improved version: `llm_classifications_improved/{project}_*.json` + meta-analysis
+- Format: `{sentence_num: [component_names]}` or aggregated votes
 
-**Analysis Reports (Markdown):**
-- Error decomposition: `reports/TRANSARC_EMPIRICAL_STUDY.md`
-- Bias analysis: `reports/BENCHMARK_BIAS_STUDY.md`, `reports/EVALUATION_CRITIQUE.md`
-- Metric analysis: `reports/NEW_METRICS_REPORT.md`, `reports/CREATIVE_METRICS.md`
-- LLM baselines: `archive/LLM_BASELINE.md`, `archive/LLM_IMPROVED_CLASSIFIER.md`
+**LLM Cache:**
+- Directories: `archive/llm_cache_*` (responses cached as JSON)
+- Not committed (listed in `.gitignore`)
+- Purpose: Avoid re-querying Claude for identical prompts
 
-## Authentication & Identity
+**Intermediate Analysis Files:**
+- Meta-analysis JSON: `llm_classifications_improved/{project}_meta_analysis.json`
+- Discovery outputs: sections, aliases, co-occurrence patterns
 
-**Auth Provider:**
-- None required for local execution
-- LLM access: Uses system credentials from `claude` CLI (environment variable or `.env` not committed)
-- All benchmark data is public/read-only
+## File Storage
 
-## Monitoring & Observability
+**Benchmark Directory Structure:**
+```
+benchmark/
+├── {project}/
+│   ├── text_{year}/
+│   │   └── {project}.txt
+│   ├── model_{year}/
+│   │   ├── pcm/
+│   │   │   └── *.repository
+│   │   └── code/
+│   │       └── codeModel.acm
+│   └── goldstandards/
+│       ├── goldstandard_sad_*-sam_*.csv
+│       ├── goldstandard_sam_*-code_*.csv
+│       ├── goldstandard_sad_*-code_*.csv
+│       └── *_UME.csv (Undocumented Model Elements)
+```
 
-**Error Tracking:**
-- None — stderr output from subprocess calls printed to console
-- Example: `print(f"  ERROR: {e}", file=sys.stderr)`
+**Results Directory Structure:**
+```
+results/
+├── {project}/
+│   ├── sad-sam/
+│   │   └── sadSamTlr_{project}.csv
+│   ├── sam-code/
+│   │   └── samCodeTlr_{project}.csv
+│   └── sad-code/
+│       ├── sadSamTlr_{project}.csv (intermediate)
+│       ├── samCodeTlr_{project}.csv (intermediate)
+│       └── sadCodeTlr_{project}.csv (final)
+```
 
-**Logs:**
-- Console output (stdout/stderr)
-- Cached LLM responses (JSON files for reproducibility)
-- No structured logging framework
+**Reports Directory:**
+```
+reports/
+├── TRANSARC_EMPIRICAL_STUDY.md
+├── BENCHMARK_BIAS_STUDY.md
+├── EVALUATION_CRITIQUE.md
+├── S12C_VS_TRANSARC.csv
+└── *.csv (analysis outputs)
+```
 
-## CI/CD & Deployment
+## Key Concept: Enrollment
 
-**Hosting:**
-- None — local research evaluation scripts
-- Run manually: `python3 src/lib/transarc_error_analysis.py` → stdout + `reports/TRANSARC_EMPIRICAL_STUDY.md`
+Gold standard entries at directory granularity (e.g., `Implementation/src/main/java/teammates/ui/`) are expanded to individual file entries during evaluation using the ACM code model. This creates significant inflation:
 
-**CI Pipeline:**
-- None detected
+- **MediaStore**: 59 raw → 59 enrolled (1x, no directories)
+- **TeaStore**: 707 raw → 707 enrolled (1x)
+- **Teammates**: 1,051 raw → 8,097 enrolled (7.7x)
+- **BigBlueButton**: 1,529 raw → 1,529 enrolled (1x)
+- **JabRef**: 38 raw → 8,268 enrolled (217.6x)
 
-## Environment Configuration
+Enrollment expansion is critical for SAD-CODE evaluation because gold standards use directory paths but file-level metrics expect individual files.
 
-**Required env vars (for LLM integration):**
-- No Python environment variables required within scripts
-- Claude CLI authentication handled externally (system `claude` command)
+## Caching & Reproducibility
 
-**Secrets location:**
-- No secrets stored in repository
-- LLM credentials (if any) managed by `claude` CLI, not by these scripts
+**LLM Response Cache:**
+- Cached in `archive/llm_cache_swattr/`, `archive/llm_cache_improved/` as JSON
+- Prevents re-querying Claude for identical prompts
+- Not committed to git (in `.gitignore`)
 
-## Webhooks & Callbacks
+**Intermediate Results:**
+- Transitive link maps stored as JSON or dicts
+- Enables "what-if" analysis without re-running Java pipeline
 
-**Incoming:**
-- None
+## External Dependencies Summary
 
-**Outgoing:**
-- None
-
-## Benchmark Datasets (5 Projects)
-
-**Each project contains:**
-- **Artifacts:**
-  - Text: documentation sentences (1 per line)
-  - PCM Model: architectural components/interfaces (XML)
-  - Code Model: source code structure (ACM archive)
-  - Gold Standards: hand-annotated trace links (3 types: SAD-SAM, SAM-CODE, SAD-CODE)
-
-- **Projects:**
-  1. MediaStore (2016) — 19 components+interfaces, 59 enrolled SAD-CODE links
-  2. TeaStore (2020/2022) — 19 components+interfaces, 707 enrolled SAD-CODE links
-  3. Teammates (2021/2023) — 14 components+interfaces, 8,097 enrolled SAD-CODE links
-  4. BigBlueButton (2021/2023) — 22 components+interfaces, 1,529 enrolled SAD-CODE links
-  5. JabRef (2021/2023) — 6 components, 8,268 enrolled SAD-CODE links
-
-- **Location:** `/mnt/hostshare/ardoco-home/ardoco/core/tests-base/src/main/resources/benchmark/{project}/`
-
-- **Key Concept — Enrollment:**
-  - Gold standard SAD-CODE/SAM-CODE entries at directory granularity (e.g., `src/main/java/teammates/ui/`) are expanded to individual files during evaluation
-  - Expansion uses `.acm` code model to determine which files exist in each directory
-  - Creates up to 217.6x inflation (JabRef: 38 raw annotations → 8,268 enrolled links)
+- **No external Python packages** — pure standard library
+- **Only external system**: ARDoCo Java framework (adjacent directory)
+- **Only data source**: Benchmark datasets in adjacent directory
+- **Only API integration**: None (historically had Claude CLI, now using standard library only)
 
 ---
 
