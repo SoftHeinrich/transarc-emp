@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Reorganize** - Move scripts/reports into the two-pillar structure and archive out-of-scope work
 - [x] **Phase 2: Verify** - Confirm both pillars run end-to-end and all imports/paths are intact after the moves
-- [ ] **Phase 3: Paper** - Restructure eval.tex to match the two-pillar structure (Ch1=TransArc, Ch2=Bias)
+- [x] **Phase 3: Paper** - Restructure eval.tex to match the two-pillar structure (Ch1=TransArc, Ch2=Bias)
 
 ## Phase Details
 
