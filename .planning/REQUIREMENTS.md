@@ -44,8 +44,20 @@
 
 ## Traceability
 
-<!-- Filled by the roadmapper: REQ-ID → Phase. -->
+<!-- REQ-ID → Phase. -->
 
 | REQ-ID | Phase |
 |--------|-------|
-| _(pending roadmap)_ | — |
+| MTR-01 | Phase 4: Metrics API |
+| MTR-02 | Phase 4: Metrics API |
+| MTR-03 | Phase 4: Metrics API |
+| MTR-04 | Phase 4: Metrics API |
+| MTR-05 | Phase 4: Metrics API |
+| STUDY-01 | Phase 5: Consequences Study & Converged Metrics |
+| STUDY-02 | Phase 5: Consequences Study & Converged Metrics |
+| STUDY-03 | Phase 5: Consequences Study & Converged Metrics |
+| STUDY-04 | Phase 5: Consequences Study & Converged Metrics |
+| DOC-01 | Phase 6: Handoff Docs |
+| DOC-02 | Phase 6: Handoff Docs |
+
+**Coverage:** 11/11 requirements mapped ✓

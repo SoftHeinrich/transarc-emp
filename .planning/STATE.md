@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-05-30)
 
 **Core value:** Both retained pillars (TransArc empirical study + benchmark bias analysis) must stay reproducible, and their reports/paper chapters must remain consistent with the code that produced them.
-**Current focus:** Milestone v1.1 — Metrics Toolkit & Converged-Metric Motivation (defining requirements)
+**Current focus:** Milestone v1.1 — Metrics Toolkit & Converged-Metric Motivation (Phase 4: Metrics API)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-05-30 — Milestone v1.1 started
+Phase: 4 — Metrics API
+Plan: — (ready to plan)
+Status: Roadmap approved; ready for `/gsd-discuss-phase 4` then `/gsd-plan-phase 4`
+Last activity: 2026-05-30 — v1.1 roadmap created (Phases 4-6)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [░░░░░░░░░░] 0% (0/3 v1.1 phases)
 
 ## Performance Metrics
 
@@ -42,11 +42,11 @@ Progress: [░░░░░░░░░░] 0%
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- [Scoping]: Keep only TransArc empirical study + benchmark bias as active pillars
-- [Scoping]: SWATTR FP filter stays archived (intervention/tool, not a study)
-- [Scoping]: s12c comparison moves into Pillar 1 (TransArc study evidence)
-- [Scoping]: Proposed-metrics + baselines fold into Pillar 2 (benchmark bias chapter)
-- [Paper]: Paper restructures to Ch1=TransArc + Ch2=Bias (merge Distributional + Metrics chapters)
+- [Scoping]: Stdlib-only preserved — Excel output is CSV, not `.xlsx` (no openpyxl, no requirements.txt)
+- [Scoping]: Metrics API ingests the existing TransArc output format from `results/`; reuses `src/lib` + `src/bias`
+- [Scoping]: Tasks limited to sad-sam + sad-code this milestone (no sam-code)
+- [Scoping]: Consequences study + converged-metrics proposal extend Pillar 2 (benchmark bias)
+- [Paper]: No local LaTeX toolchain — Phase 5 validates via table-gen + structural check, not pdflatex
 
 ### Pending Todos
 
@@ -54,18 +54,21 @@ None yet.
 
 ### Blockers/Concerns
 
-- Phase 1 moves must preserve `sys.path.insert` import paths in all retained scripts — verify during Phase 2.
-- `src/lib/new_metrics_analysis.py` role needs clarification: it is listed under Pillar 2 proposed-metrics scope (SCOPE-05) but lives in `src/lib/`; Phase 1 plan should decide whether to move it or leave it in lib.
+- `src/lib/new_metrics_analysis.py` is the likely home for the proposed alternative metrics the API must reuse (MTR-03) — Phase 4 plan should confirm its API surface before wrapping it.
+- Phase 4 must compute the full metric set without any benchmark-derived word lists (CLAUDE.md leakage rule).
+- Phase 5 should consume Phase 4 CSV/LaTeX output as evidence where possible to avoid duplicate metric computation.
 
 ## Deferred Items
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
-| Documentation | DOC-01: Top-level README (two-pillar map) | v2 deferred | Roadmap creation |
-| Documentation | DOC-02: Per-pillar run/reproduce instructions | v2 deferred | Roadmap creation |
+| Cleanup | Rename `src/lib/transarc_error_analysis.py` → `data_loaders.py` | Future | v1.1 roadmap |
+| Paper | Real `pdflatex` PDF build of `eval.tex` | Future | v1.1 roadmap |
+| Metrics | Extend metrics API to sam-code | Future | v1.1 roadmap |
+| Metrics | True `.xlsx` workbook output (needs openpyxl) | Future | v1.1 roadmap |
 
 ## Session Continuity
 
 Last session: 2026-05-30
-Stopped at: Roadmap and state files created; no plans written yet
+Stopped at: v1.1 roadmap created (Phases 4-6); STATE set to Phase 4; no plans written yet
 Resume file: None
