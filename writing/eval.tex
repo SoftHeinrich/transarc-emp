@@ -402,6 +402,29 @@ results on the five ARDoCo benchmark projects.
 
 
 %% --------------------------------------------------------------------
+\section{Misleading \fone Across Both Tasks}
+\label{sec:eval:misleading-both}
+
+The headline \fone reported for each task hides task-specific distortions.
+For \sadcode, file-level enrollment inflates a handful of annotator
+decisions into hundreds of equally-weighted file pairs; for \sadsam, the
+single link \fone obscures its disagreement with sentence-, component-, and
+quality-oriented views. \Cref{tab:consequences} contrasts each task's
+headline metric against decision-, component-, and (for \sadsam)
+sentence-level \fone.
+
+For \sadsam, the average link \fone $=0.799$ understates per-sentence
+retrieval: on Teammates, sentence \fone is $0.916$ against a link \fone of
+$0.710$, a $0.206$ gap the headline conceals. For \sadcode, JabRef attains
+the best file \fone ($0.943$) yet the worst decision \fone ($0.394$)---the
+same trace links, reordered by aggregation level. Across projects the
+\sadcode average drops from $0.803$ (file) to $0.596$ (decision), a $0.207$
+enrollment-driven gap.
+
+\input{tables/consequences}
+
+
+%% --------------------------------------------------------------------
 \section{\fone Variants}
 
 \Cref{tab:s12c-four-level} shows how file-, decision-, component-, and weighted \fone disagree---and even reorder the projects---when applied to identical \sadcode trace links.
@@ -1002,6 +1025,22 @@ evaluation:
 \item \textbf{Raw decision count} and \textbf{enrollment factor} to
   contextualize the statistical reliability of micro \fone.
 \end{enumerate}
+
+\paragraph{A converged axis for both tasks.}
+The recommendations above harden \sadcode file-level scoring, but \sadsam
+and \sadcode are still reported on incommensurable headline metrics. We
+therefore add one unifying recommendation, layered atop---not replacing---the
+corrected metrics above: report \emph{decision-level} and
+\emph{component-level} \fone for both tasks. For \sadsam the decision is the
+\texttt{(model element, sentence)} link and the component aggregates by model
+element; for \sadcode the decision is the raw pre-enrollment
+\texttt{(sentence, file-or-directory)} pair and the component aggregates by
+architecture component. \Cref{tab:converged-framework} shows that on this
+converged axis the two tasks tell one coherent story, exposing the \sadcode
+file-versus-decision gap ($0.207$) as enrollment inflation rather than
+genuine quality.
+
+\input{tables/converged_framework}
 
 
 \end{document}
