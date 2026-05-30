@@ -177,6 +177,68 @@ def part_sad_code(out, rows, avg):
     out()
 
 
+# ── STUDY-03: Converged Decision+Component framework ──────────────────────────
+
+def part_converged(out, sam_rows, sam_avg, code_rows, code_avg):
+    out("## A Converged Decision+Component Framework (STUDY-03)")
+    out()
+    out("The two tasks distort in different ways — \\sadsam through the "
+        "sentence/quality gap, \\sadcode through enrollment inflation — but "
+        "they share ONE honest axis: **Decision-level + Component-level** "
+        "\\fone. This converged view is layered *atop* the existing corrected "
+        "metrics; it does not replace them.")
+    out()
+    out("Mapping the axis onto each task:")
+    out()
+    out("- **\\sadsam**: *decision* == the link itself, `(modelElementID, "
+        "sentence)` (no enrollment inflation); *component* == aggregate by "
+        "model element.")
+    out("- **\\sadcode**: *decision* == the raw pre-enrollment `(sentence, "
+        "dir-or-file)` decision; *component* == aggregate by architecture "
+        "component.")
+    out()
+
+    sam_link = num(sam_avg["link_f1"])
+    sam_dec = num(sam_avg["decision_f1"])
+    sam_comp = num(sam_avg["component_f1"])
+    code_file = num(code_avg["file_f1"])
+    code_dec = num(code_avg["decision_f1"])
+    code_comp = num(code_avg["component_f1"])
+
+    out("| Task | Headline F1 | Headline metric | Decision F1 | Component F1 | Headline−Decision Δ |")
+    out("|------|-------------|-----------------|-------------|--------------|---------------------|")
+    out(f"| SAD-SAM | {fmt(sam_link)} | link | {fmt(sam_dec)} | {fmt(sam_comp)} | "
+        f"{fmt(delta(sam_link, sam_dec))} |")
+    out(f"| SAD-CODE | {fmt(code_file)} | file | {fmt(code_dec)} | {fmt(code_comp)} | "
+        f"{fmt(delta(code_file, code_dec))} |")
+    out()
+    out(f"For \\sadsam the headline link \\fone ({fmt(sam_link)}) already "
+        f"coincides with the decision granularity (Δ = "
+        f"{fmt(delta(sam_link, sam_dec))}), so its distortion is the "
+        f"sentence/quality disagreement shown above, *not* enrollment. For "
+        f"\\sadcode the file headline ({fmt(code_file)}) sits "
+        f"{abs(code_file - code_dec):.3f} above the honest decision \\fone "
+        f"({fmt(code_dec)}) — the enrollment gap.")
+    out()
+
+    # ranking-disagreement count for SAD-CODE: how many projects change standing
+    by_file = sorted(PROJECT_ORDER, key=lambda p: num(code_rows[p]["file_f1"]), reverse=True)
+    by_dec = sorted(PROJECT_ORDER, key=lambda p: num(code_rows[p]["decision_f1"]), reverse=True)
+    flips = sum(1 for i, p in enumerate(by_file) if by_dec.index(p) != i)
+    out(f"Ranking disagreement under \\sadcode: of the {len(PROJECT_ORDER)} "
+        f"projects, **{flips}/{len(PROJECT_ORDER)}** change their relative "
+        f"standing between file \\fone and decision \\fone — concretely, JabRef "
+        f"ranks #{by_file.index('jabref') + 1} by file but "
+        f"#{by_dec.index('jabref') + 1} by decision.")
+    out()
+    out("Under the converged Decision+Component axis, the two tasks tell one "
+        "coherent story: report Decision and Component \\fone alongside any "
+        "headline number. This converged view *extends* (does not replace) the "
+        "corrected metrics in `reports/EVALUATION_CRITIQUE.md` and "
+        "`reports/NEW_METRICS_REPORT.md`.")
+    out()
+
+
 def main():
     md_lines = []
 
@@ -197,6 +259,7 @@ def main():
 
     part_sad_sam(out, sam_rows, sam_avg)
     part_sad_code(out, code_rows, code_avg)
+    part_converged(out, sam_rows, sam_avg, code_rows, code_avg)
 
     with open(OUTPUT_MD, "w") as f:
         f.write("\n".join(md_lines))

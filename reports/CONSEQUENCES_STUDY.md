@@ -36,3 +36,23 @@ The flagship distortion is **JabRef**: best of all projects on file \fone (0.943
 
 These consolidate the documented enrollment-inflation critique (≈35.5x expansion of raw decisions into files, 96–100% intra-directory block homogeneity, and the pairwise ranking flips) from `reports/EVALUATION_CRITIQUE.md` and `reports/BENCHMARK_BIAS_STUDY.md`. No metric is recomputed here; the anchors are read from `reports/metrics_sad-code.csv`.
 
+## A Converged Decision+Component Framework (STUDY-03)
+
+The two tasks distort in different ways — \sadsam through the sentence/quality gap, \sadcode through enrollment inflation — but they share ONE honest axis: **Decision-level + Component-level** \fone. This converged view is layered *atop* the existing corrected metrics; it does not replace them.
+
+Mapping the axis onto each task:
+
+- **\sadsam**: *decision* == the link itself, `(modelElementID, sentence)` (no enrollment inflation); *component* == aggregate by model element.
+- **\sadcode**: *decision* == the raw pre-enrollment `(sentence, dir-or-file)` decision; *component* == aggregate by architecture component.
+
+| Task | Headline F1 | Headline metric | Decision F1 | Component F1 | Headline−Decision Δ |
+|------|-------------|-----------------|-------------|--------------|---------------------|
+| SAD-SAM | 0.799 | link | 0.799 | 0.799 | 0.000 |
+| SAD-CODE | 0.803 | file | 0.596 | 0.714 | 0.207 |
+
+For \sadsam the headline link \fone (0.799) already coincides with the decision granularity (Δ = 0.000), so its distortion is the sentence/quality disagreement shown above, *not* enrollment. For \sadcode the file headline (0.803) sits 0.207 above the honest decision \fone (0.596) — the enrollment gap.
+
+Ranking disagreement under \sadcode: of the 5 projects, **3/5** change their relative standing between file \fone and decision \fone — concretely, JabRef ranks #1 by file but #5 by decision.
+
+Under the converged Decision+Component axis, the two tasks tell one coherent story: report Decision and Component \fone alongside any headline number. This converged view *extends* (does not replace) the corrected metrics in `reports/EVALUATION_CRITIQUE.md` and `reports/NEW_METRICS_REPORT.md`.
+
