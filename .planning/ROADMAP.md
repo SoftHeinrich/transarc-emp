@@ -38,7 +38,10 @@ study + Ch2=Benchmark bias with a data-driven table generator (`src/paper/genera
   3. The emitted metric set includes File, Decision, and Component P/R/F1 plus the proposed alternative metrics, computed by reusing `src/lib` + `src/bias` with no benchmark-derived word lists (MTR-03).
   4. The API writes a CSV (Excel-openable, stdlib `csv` only — no `.xlsx`) with one row per project covering the whole run in a single sheet (MTR-04).
   5. The API writes a LaTeX table of the same metrics that can be pasted into the paper without hand-editing (MTR-05).
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 04-01-PLAN.md — Build src/lib/metrics_api.py: stdlib CLI computing the unified metric set for sad-sam + sad-code, emitting reports/metrics_<task>.csv and writing/tables/metrics_<task>.tex by reusing existing functions.
 
 ### Phase 5: Consequences Study & Converged Metrics
 **Goal**: A motivation analysis shows, with numbers, how misleading F1 distorts BOTH SAD-SAM (pure F1) and SAD-CODE (file-level enrollment F1), and proposes a converged metric framework giving the two tasks one coherent evaluation story — written up as a Pillar 2 paper section.
