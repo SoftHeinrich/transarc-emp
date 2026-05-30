@@ -55,7 +55,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — Build src/bias/consequences_study.py (stdlib): read the two Phase-4 metrics CSVs, emit reports/CONSEQUENCES_STUDY.md with SAD-SAM pure-F1 consequences (STUDY-01), consolidated SAD-CODE file-level consequences (STUDY-02), and the converged Decision+Component framework (STUDY-03).
+- [x] 05-01-PLAN.md — Build src/bias/consequences_study.py (stdlib): read the two Phase-4 metrics CSVs, emit reports/CONSEQUENCES_STUDY.md with SAD-SAM pure-F1 consequences (STUDY-01), consolidated SAD-CODE file-level consequences (STUDY-02), and the converged Decision+Component framework (STUDY-03).
 - [ ] 05-02-PLAN.md — Add t_consequences + t_converged_framework builders to src/paper/generate_tables.py and write the new Ch2 motivation section + converged-framework protocol extension into writing/eval.tex (STUDY-04).
 
 ### Phase 6: Handoff Docs
