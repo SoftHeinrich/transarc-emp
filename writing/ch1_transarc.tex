@@ -1,0 +1,193 @@
+%% ====================================================================
+%% CHAPTER 1: THE TRANSARC EMPIRICAL STUDY
+%% ====================================================================
+\chapter{The TransArc Empirical Study}
+\label{ch:transarc}
+
+\transarc recovers \sadcode trace links transitively: it first links software
+architecture documentation to the architecture model (\sadsam), then links the
+architecture model to source code (\samcode), and finally composes the two into
+documentation-to-code links. Because the pipeline is a composition, every
+\sadcode link inherits the correctness---and the errors---of both upstream
+stages. This chapter dissects \transarc empirically across the five ARDoCo
+benchmark projects (MediaStore, TeaStore, Teammates, BigBlueButton, and JabRef)
+and establishes four findings: (i)~\sadsam is the dominant error source;
+(ii)~upstream false positives are amplified by one to three orders of magnitude
+through enrollment; (iii)~\sadsam links nonetheless contribute almost all
+recoverable recall; and (iv)~substituting an oracle \samcode stage closes most
+of the quality gap, confirming that the bottleneck lies in \sadsam rather than
+\samcode.
+
+\Cref{tab:transarc-overview} reports the end-to-end behaviour of \transarc.
+File-level \fone ranges from 0.694 (MediaStore) to 0.947 (JabRef), with a
+cross-project mean of 0.799. These aggregate numbers, however, conceal where the
+errors originate; the remainder of this chapter decomposes them.
+
+\input{tables/transarc_overview}
+
+%% --------------------------------------------------------------------
+\section{\sadsam as the Primary Bottleneck}
+\label{sec:transarc:bottleneck}
+
+To attribute each \transarc error to a stage, we trace every false positive
+$(s, c)$---a spurious sentence-to-code link---back to the bridging model
+element(s) that produced it, and classify the link by whether the fault lies in
+the \sadsam stage, the \samcode stage, both, or their combination.
+\Cref{tab:fp-attribution} shows the result aggregated over all projects: the
+\sadsam stage alone is responsible for 93.7\% of every \transarc false positive,
+versus 3.3\% for \samcode, 0.5\% for both, and 2.6\% for combination effects.
+
+\input{tables/fp_attribution}
+
+The same asymmetry holds for false negatives. Of the recoverable misses---those
+not blocked by a structural impossibility---687 of 720 (95.4\%) are caused by
+missing \sadsam links, against only 33 (4.6\%) caused by missing \samcode links.
+\transarc's quality is therefore almost entirely a function of \sadsam quality:
+improving the architecture model or the \samcode stage in isolation cannot move
+the end-to-end metric materially.
+
+A complementary, oracle-based view confirms the ranking. If the \sadsam stage
+were made perfect, the mean file-level \fone would rise from 0.794 to 0.943,
+whereas a perfect \samcode stage would lift it only to 0.812; for every project
+the higher-priority fix is \sadsam.
+
+A small fraction of misses are \emph{irreducible}. \Cref{tab:theoretical-limit}
+counts the gold \sadcode links for which no transitive path exists even under a
+perfect upstream pipeline (i.e.\ the documentation never mentions the relevant
+model element, so no composition can recover the link). Only Teammates (6.7\%)
+and BigBlueButton (0.5\%) are affected; for the other three projects the
+theoretical recall ceiling is 100\%. The bottleneck is thus overwhelmingly
+\emph{methodological} (\sadsam errors), not a limitation of the benchmark's
+ground truth.
+
+\input{tables/theoretical_limit}
+
+%% --------------------------------------------------------------------
+\section{Error Amplification and Cascade}
+\label{sec:transarc:amplification}
+
+A single upstream error is not a single downstream error. Enrollment expands
+directory-level gold annotations into many file-level data points
+(\cref{sec:distributional-inequality}), and the same expansion applies to a
+system's mistakes: one wrong \sadsam link from a sentence to a component is
+composed with \emph{every} code file mapped to that component, producing one
+\transarc false positive per file. The result is severe error amplification.
+
+\Cref{tab:error-amplification} quantifies this per stage and per project. A
+single incorrect \sadsam link is amplified into 85.5 \transarc false positives
+on average for Teammates (28~\sadsam false positives induce 2{,}395 \transarc
+false positives) and into 495 for JabRef (2~\sadsam false positives induce
+990). The most extreme single case is JabRef's \texttt{logic/} component: one
+incorrect directory-level decision expands to 972 file-level false positives,
+roughly half of that project's enrolled gold standard. By contrast, \samcode
+false positives amplify far less (at most 7.5$\times$ for BigBlueButton),
+because a component typically maps to many files but a sentence maps to few
+components.
+
+\input{tables/error_amplification}
+
+This cascade is the mechanism behind the ranking instability discussed in
+\cref{ch:bias}: because file-level scoring weights each annotator decision by
+its directory's file count, a handful of upstream mistakes on large components
+can dominate the metric, and the amplification factor differs by two orders of
+magnitude across projects.
+
+%% --------------------------------------------------------------------
+\section{Actual Contribution of \sadsam}
+\label{sec:transarc:contribution}
+
+Having shown that \sadsam dominates the errors, we now quantify what \sadsam
+\emph{contributes}. \Cref{tab:sadsam-contribution} lists, per project, the
+\sadsam true and false positives that seed the transitive pipeline together
+with the \sadcode links they ultimately yield. The relationship is highly
+non-linear: TeaStore's 20~correct \sadsam links expand into 501~\sadcode true
+positives, and JabRef's 18~correct links expand into 8{,}268. Correct \sadsam
+links are the engine of recall; the entire \transarc result is built on a few
+dozen architecture-level decisions per project.
+
+\input{tables/sadsam_contribution}
+
+The flip side is the recall that \emph{better} \sadsam would unlock.
+\Cref{tab:sadsam-tp-gain} estimates, for each \sadsam false negative, the
+\sadcode true positives that would become recoverable if that link were fixed.
+The average gain per recovered \sadsam false negative reaches 30.8 \sadcode true
+positives for Teammates and 29.4 for TeaStore, with single-link gains as high as
+71. \Cref{tab:sadsam-coverage} turns this into a recall ceiling: recovering all
+\sadsam false negatives would address 100\% of TeaStore's \sadcode false
+negatives, 79.4\% of MediaStore's, and 74.0\% of BigBlueButton's, but only
+31.1\% of Teammates' (the remainder being the theoretical-limit misses of
+\cref{tab:theoretical-limit}). JabRef has no \sadsam false negatives and thus no
+\sadsam-recoverable recall.
+
+\input{tables/sadsam_tp_gain}
+
+\input{tables/sadsam_coverage}
+
+Together these tables establish the central asymmetry of \transarc: \sadsam is
+simultaneously the source of almost all errors \emph{and} the lever for almost
+all recoverable recall. Effort spent on the \samcode stage yields little; effort
+spent on \sadsam yields nearly everything.
+
+%% --------------------------------------------------------------------
+\section{The \samcode Cascade}
+\label{sec:transarc:samcode}
+
+\samcode is the second link of the cascade. Although it causes only 3.3\% of
+\transarc false positives overall, its errors are concentrated in
+BigBlueButton, where the architecture model maps several components to large,
+loosely related code regions. \Cref{tab:samcode-cascade} shows that
+BigBlueButton's \samcode false positives induce 135 \sadcode false
+positives---47.9\% of that project's \transarc false positives---whereas for
+MediaStore, TeaStore, and Teammates the \samcode stage induces none.
+
+\input{tables/samcode_cascade}
+
+The lesson mirrors the \sadsam analysis: \samcode errors matter only where the
+model-to-code mapping is many-to-many and the offending component carries many
+files. Where the mapping is clean, \samcode is effectively transparent and the
+end-to-end quality is decided entirely upstream.
+
+%% --------------------------------------------------------------------
+\section{S12C/S12E versus \transarc}
+\label{sec:transarc:s12c}
+
+To isolate the contribution of each stage we compare three configurations:
+end-to-end \transarc (TA), and two variants that replace the \samcode stage with
+an oracle---S12C (oracle \samcode component mapping) and S12E (oracle \samcode
+extended). If the bottleneck were \samcode, oracle substitution would barely
+change the result; if it were \sadsam, the result would improve only to the
+extent that \sadsam is correct.
+
+\Cref{tab:s12c-four-level} first shows that even within \transarc the choice of
+aggregation level reorders the projects: JabRef is best on file-level \fone
+(0.943) but worst on decision-level \fone (0.394), because almost all of its
+gold is a single huge directory block (\cref{ch:bias}). This motivates reporting
+multiple levels rather than file-level \fone alone.
+
+\input{tables/s12c_four_level}
+
+\Cref{tab:transarc-dashboard} places \transarc beside the S12C oracle-\samcode variant.
+Substituting an oracle \samcode raises the mean file-level \fone from 0.802 to
+0.928 and the mean decision-level \fone from 0.596 to 0.817. The gap that
+remains under S12C is precisely the \sadsam error that no \samcode improvement
+can repair---confirming, from a third independent angle, that \sadsam is the
+binding constraint on \transarc. The MediaStore jump is the most dramatic
+(decision \fone 0.568~$\to$~0.926), while Teammates and BigBlueButton improve
+least, consistent with their larger share of \sadsam-caused and combination
+errors.
+
+\input{tables/dashboard}
+
+%% --------------------------------------------------------------------
+\section{Summary}
+\label{sec:transarc:summary}
+
+The empirical study yields a coherent picture. \transarc's end-to-end quality is
+governed by the \sadsam stage: \sadsam causes 93.7\% of false positives and
+95.4\% of recoverable false negatives, carries nearly all recoverable recall,
+and---once replaced downstream by an oracle \samcode---still bounds the
+achievable \fone. Enrollment amplifies each upstream error by up to three orders
+of magnitude, so a tiny number of architecture-level mistakes dominates the
+file-level metric and destabilises cross-project rankings. These two
+observations---an upstream bottleneck and an enrollment amplifier---motivate the
+benchmark-bias and evaluation-metric analysis of \cref{ch:bias}.

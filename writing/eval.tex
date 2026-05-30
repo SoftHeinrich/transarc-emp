@@ -22,10 +22,20 @@
 
 \begin{document}
 
+%% Chapter 1 (TransArc empirical study) lives in its own file.
+\input{ch1_transarc}
+
+
 %% ====================================================================
 %% CHAPTER 1: DISTRIBUTIONAL INEQUALITY
 %% ====================================================================
-\chapter{Distributional Inequality in the ARDoCo Benchmark}
+\chapter{Benchmark Bias and Evaluation Metrics}
+\label{ch:bias}
+
+This chapter examines how the structure of the ARDoCo benchmark biases the standard file-level evaluation of \sadcode traceability, and then develops a family of metrics that correct for that bias. \Cref{sec:distributional-inequality} documents the distributional inequality that makes file-level micro \fone misleading; \cref{sec:comprehensive-metrics} builds the corrected metric suite and a recommended evaluation protocol.
+
+\section{Distributional Inequality in the ARDoCo Benchmark}
+\label{sec:distributional-inequality}
 \label{ch:inequality}
 
 The standard evaluation of \sadcode traceability computes micro-averaged
@@ -376,7 +386,8 @@ statistically robust evaluation.
 %% ====================================================================
 %% CHAPTER 2: COMPREHENSIVE EVALUATION METRICS
 %% ====================================================================
-\chapter{Comprehensive Evaluation Metrics for \sadcode Traceability}
+\section{Comprehensive Evaluation Metrics for \sadcode Traceability}
+\label{sec:comprehensive-metrics}
 \label{ch:eval}
 
 Given the distributional inequalities identified in \Cref{ch:inequality}, we
@@ -392,6 +403,9 @@ results on the five ARDoCo benchmark projects.
 
 %% --------------------------------------------------------------------
 \section{\fone Variants}
+
+\Cref{tab:s12c-four-level} shows how file-, decision-, component-, and weighted \fone disagree---and even reorder the projects---when applied to identical \sadcode trace links.
+
 \label{sec:eval:f1}
 
 \subsection{Micro \fone (Standard)}
@@ -831,6 +845,9 @@ sentence fan-out. BBB's cascade \fone dips slightly (0.945) because its
 
 %% --------------------------------------------------------------------
 \section{Full Metric Dashboard}
+
+\Cref{tab:dashboard} reports \transarc beside the \samcode-oracle (S12C) variant at several aggregation levels, with cross-project averages.
+
 \label{sec:eval:dashboard}
 
 \Cref{tab:dashboard} presents all metrics side-by-side. Metrics that diverge

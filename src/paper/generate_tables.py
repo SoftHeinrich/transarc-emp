@@ -50,19 +50,38 @@ def _is_sep(line: str) -> bool:
 
 
 def extract_tables(md_text: str) -> list[list[list[str]]]:
-    """Return every Markdown table as a list of cell-rows (separator dropped)."""
+    """Return every Markdown table as ``[header_row, data_row, ...]``.
+
+    A GitHub-flavoured Markdown table is delimited by its ``|---|`` separator
+    row: the pipe-line immediately *above* the separator is the header. Because
+    the reports place consecutive tables with no blank line between them, we
+    cannot rely on blank lines to split tables; instead each separator row
+    starts a fresh table whose header is the line just before it. Pipe-lines
+    after a table's data, up to the next separator, belong to the next table's
+    header region.
+    """
+    lines = md_text.split("\n")
+    is_pipe = [l.strip().startswith("|") and l.strip().endswith("|") for l in lines]
     tables: list[list[list[str]]] = []
-    cur: list[list[str]] = []
-    for line in md_text.split("\n"):
-        s = line.strip()
-        if s.startswith("|") and s.endswith("|") and not _is_sep(s):
-            cur.append(_split_row(s))
+    i = 0
+    n = len(lines)
+    while i < n:
+        if is_pipe[i] and _is_sep(lines[i]):
+            # header is the immediately-preceding pipe line
+            header_idx = i - 1
+            if header_idx < 0 or not is_pipe[header_idx]:
+                i += 1
+                continue
+            rows = [_split_row(lines[header_idx])]
+            j = i + 1
+            while j < n and is_pipe[j] and not _is_sep(lines[j]):
+                rows.append(_split_row(lines[j]))
+                j += 1
+            if len(rows) >= 2:
+                tables.append(rows)
+            i = j
         else:
-            if len(cur) >= 2:
-                tables.append(cur)
-            cur = []
-    if len(cur) >= 2:
-        tables.append(cur)
+            i += 1
     return tables
 
 
@@ -115,7 +134,14 @@ def colspec(header: list[str]) -> str:
 
 
 def render_table(rows, caption, label, note=None, header_override=None):
-    header = header_override if header_override is not None else rows[0]
+    # header_override is hand-written LaTeX (may contain macros): emit verbatim.
+    # Auto-derived headers come from the report and must be escaped.
+    if header_override is not None:
+        header = header_override
+        header_cells = list(header)
+    else:
+        header = rows[0]
+        header_cells = [latex_escape(c) for c in header]
     data = rows[1:]
     ncols = len(header)
     align = colspec(header)
@@ -126,7 +152,7 @@ def render_table(rows, caption, label, note=None, header_override=None):
         "  \\label{%s}" % label,
         "  \\begin{tabular}{%s}" % align,
         r"    \toprule",
-        "    " + " & ".join(latex_escape(c) for c in header) + r" \\",
+        "    " + " & ".join(header_cells) + r" \\",
         r"    \midrule",
     ]
     for row in data:
@@ -414,7 +440,7 @@ def t_dashboard():
                 "(S12C) variant, scored at multiple aggregation levels with "
                 "cross-project averages"
             ),
-            label="tab:dashboard",
+            label="tab:transarc-dashboard",
             note=note,
             header_override=header,
         ),
