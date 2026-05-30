@@ -12,8 +12,8 @@ This refactor milestone narrows a sprawled research workspace down to two pillar
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Reorganize** - Move scripts/reports into the two-pillar structure and archive out-of-scope work
-- [ ] **Phase 2: Verify** - Confirm both pillars run end-to-end and all imports/paths are intact after the moves
+- [x] **Phase 1: Reorganize** - Move scripts/reports into the two-pillar structure and archive out-of-scope work
+- [x] **Phase 2: Verify** - Confirm both pillars run end-to-end and all imports/paths are intact after the moves
 - [ ] **Phase 3: Paper** - Restructure eval.tex to match the two-pillar structure (Ch1=TransArc, Ch2=Bias)
 
 ## Phase Details
@@ -49,7 +49,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   1. Chapter 1 of eval.tex covers the TransArc empirical study (SAD-SAM bottleneck, error amplification, cascade analysis, s12c comparison)
   2. Chapter 2 of eval.tex covers benchmark bias (distributional inequality, enrollment inflation, metric critique, baselines, proposed metrics) — merging current Distributional Inequality and Comprehensive Metrics chapters into one
   3. Every figure, table, and quantitative claim in the two chapters can be traced to a specific retained script or report in `reports/`
-  4. `pdflatex writing/eval.tex` (or equivalent) completes without errors
+  4. LaTeX tables are generated from data/results via a script (reproducible, not hand-typed); `eval.tex` passes structural validation (balanced environments/braces, resolved `\ref`/`\label`). Full `pdflatex` compile is out of scope per user (no local toolchain; chapters are authored into a larger external paper).
 **Plans**: TBD
 
 ## Progress
