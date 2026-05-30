@@ -57,32 +57,30 @@ Deferred. Tracked but not in this milestone.
 
 ## Traceability
 
-Populated during roadmap creation.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SCOPE-01 | TBD | Pending |
-| SCOPE-02 | TBD | Pending |
-| SCOPE-03 | TBD | Pending |
-| SCOPE-04 | TBD | Pending |
-| SCOPE-05 | TBD | Pending |
-| ARCH-01 | TBD | Pending |
-| ARCH-02 | TBD | Pending |
-| ARCH-03 | TBD | Pending |
-| ARCH-04 | TBD | Pending |
-| REPRO-01 | TBD | Pending |
-| REPRO-02 | TBD | Pending |
-| REPRO-03 | TBD | Pending |
-| PAPER-01 | TBD | Pending |
-| PAPER-02 | TBD | Pending |
-| PAPER-03 | TBD | Pending |
-| PAPER-04 | TBD | Pending |
+| SCOPE-01 | Phase 1 | Pending |
+| SCOPE-02 | Phase 1 | Pending |
+| SCOPE-03 | Phase 1 | Pending |
+| SCOPE-04 | Phase 1 | Pending |
+| SCOPE-05 | Phase 1 | Pending |
+| ARCH-01 | Phase 1 | Pending |
+| ARCH-02 | Phase 1 | Pending |
+| ARCH-03 | Phase 1 | Pending |
+| ARCH-04 | Phase 1 | Pending |
+| REPRO-01 | Phase 2 | Pending |
+| REPRO-02 | Phase 2 | Pending |
+| REPRO-03 | Phase 2 | Pending |
+| PAPER-01 | Phase 3 | Pending |
+| PAPER-02 | Phase 3 | Pending |
+| PAPER-03 | Phase 3 | Pending |
+| PAPER-04 | Phase 3 | Pending |
 
 **Coverage:**
 - v1 requirements: 16 total
-- Mapped to phases: 0 (roadmap pending)
-- Unmapped: 16 ⚠️ (resolved by roadmapper)
+- Mapped to phases: 16
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-05-30*
-*Last updated: 2026-05-30 after initial definition*
+*Last updated: 2026-05-30 — traceability populated by roadmapper*
