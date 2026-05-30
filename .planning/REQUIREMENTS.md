@@ -34,7 +34,8 @@
 **: An analysis quantifies the misleading consequences of **SAD-CODE file-level (enrollment) F1**, consolidating prior bias findings as motivation evidence.
 - [x] **STUDY-03
 **: A **converged metric framework** is proposed that applies one common evaluation story across both SAD-SAM and SAD-CODE.
-- [ ] **STUDY-04**: The consequences findings + converged-metrics proposal are written up as a motivation section aligned to the paper (extends Ch2 Benchmark bias), citing only retained scripts/reports.
+- [x] **STUDY-04
+**: The consequences findings + converged-metrics proposal are written up as a motivation section aligned to the paper (extends Ch2 Benchmark bias), citing only retained scripts/reports.
 
 ## Future Requirements (deferred)
 

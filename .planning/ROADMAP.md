@@ -23,7 +23,7 @@ study + Ch2=Benchmark bias with a data-driven table generator (`src/paper/genera
 ### v1.1 Metrics Toolkit & Converged-Metric Motivation (Phases 4-6)
 
 - [x] **Phase 4: Metrics API** - Ingest TransArc-format sad-sam/sad-code results, compute the full metric set, emit CSV + LaTeX.
-- [ ] **Phase 5: Consequences Study & Converged Metrics** - Quantify how misleading F1 harms both tasks and propose one converged evaluation story (extends Pillar 2).
+- [x] **Phase 5: Consequences Study & Converged Metrics** - Quantify how misleading F1 harms both tasks and propose one converged evaluation story (extends Pillar 2).
 - [ ] **Phase 6: Handoff Docs** - Top-level two-pillar README + per-pillar run/reproduce instructions.
 
 ## Phase Details
@@ -56,7 +56,7 @@ Plans:
 
 Plans:
 - [x] 05-01-PLAN.md — Build src/bias/consequences_study.py (stdlib): read the two Phase-4 metrics CSVs, emit reports/CONSEQUENCES_STUDY.md with SAD-SAM pure-F1 consequences (STUDY-01), consolidated SAD-CODE file-level consequences (STUDY-02), and the converged Decision+Component framework (STUDY-03).
-- [ ] 05-02-PLAN.md — Add t_consequences + t_converged_framework builders to src/paper/generate_tables.py and write the new Ch2 motivation section + converged-framework protocol extension into writing/eval.tex (STUDY-04).
+- [x] 05-02-PLAN.md — Add t_consequences + t_converged_framework builders to src/paper/generate_tables.py and write the new Ch2 motivation section + converged-framework protocol extension into writing/eval.tex (STUDY-04).
 
 ### Phase 6: Handoff Docs
 **Goal**: A new reader can open the repo, understand the two-pillar structure, and regenerate either pillar's reports from scratch by following written instructions.
@@ -76,5 +76,5 @@ Plans:
 | 2. Verify | v1.0 | 1/1 | ✓ Complete | 2026-05-30 |
 | 3. Paper | v1.0 | 1/1 | ✓ Complete | 2026-05-30 |
 | 4. Metrics API | v1.1 | 1/1 | ✓ Complete | 2026-05-30 |
-| 5. Consequences Study & Converged Metrics | v1.1 | 0/2 | Planned | - |
+| 5. Consequences Study & Converged Metrics | v1.1 | 2/2 | ✓ Complete | 2026-05-30 |
 | 6. Handoff Docs | v1.1 | 0/0 | Not started | - |

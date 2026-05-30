@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Metrics Toolkit & Converged-Metric Motivation
-status: executing
-stopped_at: Completed 05-01-PLAN.md
-last_updated: "2026-05-30T17:16:42.373Z"
-last_activity: 2026-05-30 -- Phase --phase execution started
+status: verifying
+stopped_at: Completed 05-02-PLAN.md
+last_updated: "2026-05-30T17:20:55.407Z"
+last_activity: 2026-05-30
 progress:
   total_phases: 3
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 3
-  completed_plans: 2
-  percent: 67
+  completed_plans: 3
+  percent: 100
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-05-30)
 
 ## Current Position
 
-Phase: 5 (Consequences Study & Converged Metrics) — EXECUTING
+Phase: 5 (Consequences Study & Converged Metrics) — COMPLETE
 Plan: 2 of 2
-Status: Executing Phase 5 — Plan 05-01 complete
-Last activity: 2026-05-30 -- Completed 05-01-PLAN.md
+Status: Phase complete — ready for verification
+Last activity: 2026-05-30 -- Completed 05-02-PLAN.md
 
-Progress: [███████░░░] 67%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -54,6 +54,7 @@ Progress: [███████░░░] 67%
 *Updated after each plan completion*
 | Phase 04 P01 | 15 | 3 tasks | 5 files |
 | Phase 05 P01 | 8 | 2 tasks | 2 files |
+| Phase 05 P02 | 6 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -69,6 +70,7 @@ Recent decisions affecting current work:
 - [Paper]: No local LaTeX toolchain — Phase 5 validates via table-gen + structural check, not pdflatex
 - [04-01] Metrics API reuses existing primitives with zero metric-math reimplementation; sad-sam path never touches evaluation_critique _compute_* helpers (task asymmetry)
 - [04-01] MAP is N/A for sad-code (optional there); unified 12-column schema with em-dash N/A cells per task
+- render_table gained raw_cols= to emit macro-bearing data cells verbatim (Task column \sadsam/\sadcode) [05-02]
 
 ### Pending Todos
 
@@ -92,8 +94,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-30T17:16:42.367Z
-Stopped at: Completed 05-01-PLAN.md
+Last session: 2026-05-30T17:20:55.401Z
+Stopped at: Completed 05-02-PLAN.md
 Resume file: None
 
 **Planned Phase:** 5 (Consequences Study & Converged Metrics) — 2 plans — 2026-05-30T17:14:01.598Z
