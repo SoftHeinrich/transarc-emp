@@ -133,9 +133,12 @@ def colspec(header: list[str]) -> str:
     return "l" + "r" * (len(header) - 1)
 
 
-def render_table(rows, caption, label, note=None, header_override=None):
+def render_table(rows, caption, label, note=None, header_override=None, raw_cols=None):
     # header_override is hand-written LaTeX (may contain macros): emit verbatim.
     # Auto-derived headers come from the report and must be escaped.
+    # raw_cols: 0-based column indices whose *data* cells are hand-written LaTeX
+    # (may contain macros such as \sadsam) and must be emitted verbatim.
+    raw = set(raw_cols or ())
     if header_override is not None:
         header = header_override
         header_cells = list(header)
@@ -157,7 +160,8 @@ def render_table(rows, caption, label, note=None, header_override=None):
     ]
     for row in data:
         row = list(row) + [""] * (ncols - len(row))
-        out.append("    " + " & ".join(latex_escape(c) for c in row[:ncols]) + r" \\")
+        cells = [c if i in raw else latex_escape(c) for i, c in enumerate(row[:ncols])]
+        out.append("    " + " & ".join(cells) + r" \\")
     out.append(r"    \bottomrule")
     out.append(r"  \end{tabular}")
     if note:
@@ -350,6 +354,140 @@ def _fmt_f1(v: str) -> str:
     return "%.3f" % (float(v) / 100.0)
 
 
+# ---------------------------------------------------------------------------
+# Phase-4 metrics CSVs (already 0-1 decimals; include an ``Average`` row)
+# ---------------------------------------------------------------------------
+METRICS_CSV = {
+    "sad-sam": REPORTS / "metrics_sad-sam.csv",
+    "sad-code": REPORTS / "metrics_sad-code.csv",
+}
+
+
+def _load_metrics(task):
+    with METRICS_CSV[task].open(encoding="utf-8") as f:
+        return list(csv.DictReader(f))  # includes the Average row
+
+
+def _fmt_dec(v):
+    """metrics_*.csv stores F1 as a 0-1 decimal; em-dash = N/A."""
+    if v in ("—", "", None):
+        return "--"
+    return "%.3f" % float(v)
+
+
+def t_consequences():
+    """STUDY-01/02: headline vs honest \\fone for BOTH tasks."""
+    header = [
+        "Task",
+        "Project",
+        "Headline \\fone",
+        "Decision \\fone",
+        "Component \\fone",
+        "Sentence \\fone",
+    ]
+    data = []
+    for r in _load_metrics("sad-sam"):
+        data.append(
+            [
+                "\\sadsam",
+                r["project"],
+                _fmt_dec(r["link_f1"]),
+                _fmt_dec(r["decision_f1"]),
+                _fmt_dec(r["component_f1"]),
+                _fmt_dec(r["sentence_f1"]),
+            ]
+        )
+    for r in _load_metrics("sad-code"):
+        data.append(
+            [
+                "\\sadcode",
+                r["project"],
+                _fmt_dec(r["file_f1"]),
+                _fmt_dec(r["decision_f1"]),
+                _fmt_dec(r["component_f1"]),
+                _fmt_dec(r["sentence_f1"]),
+            ]
+        )
+    caption = (
+        "Headline versus honest \\fone for \\sadsam and \\sadcode: the headline "
+        "metric (link for \\sadsam, file for \\sadcode) against decision-, "
+        "component-, and sentence-level \\fone"
+    )
+    note = (
+        "Source: \\texttt{reports/metrics\\_sad-sam.csv}, "
+        "\\texttt{reports/metrics\\_sad-code.csv}, and "
+        "\\texttt{reports/CONSEQUENCES\\_STUDY.md}. JabRef is best on file \\fone "
+        "(0.943) yet worst on decision \\fone (0.394)."
+    )
+    return write_table(
+        "consequences",
+        render_table(
+            [header] + data,
+            caption=caption,
+            label="tab:consequences",
+            note=note,
+            header_override=header,
+            raw_cols=[0],  # Task column holds \sadsam / \sadcode macros
+        ),
+    )
+
+
+def t_converged_framework():
+    """STUDY-03: converged Decision+Component axis across both tasks."""
+    sam_avg = next(r for r in _load_metrics("sad-sam") if r["project"] == "Average")
+    code_avg = next(r for r in _load_metrics("sad-code") if r["project"] == "Average")
+    sam_delta = "%.3f" % (float(sam_avg["link_f1"]) - float(sam_avg["decision_f1"]))
+    code_delta = "%.3f" % (float(code_avg["file_f1"]) - float(code_avg["decision_f1"]))
+    header = [
+        "Task",
+        "Headline metric",
+        "Headline \\fone",
+        "Decision \\fone",
+        "Component \\fone",
+        "Headline$-$Decision $\\Delta$",
+    ]
+    data = [
+        [
+            "\\sadsam",
+            "link",
+            _fmt_dec(sam_avg["link_f1"]),
+            _fmt_dec(sam_avg["decision_f1"]),
+            _fmt_dec(sam_avg["component_f1"]),
+            sam_delta,
+        ],
+        [
+            "\\sadcode",
+            "file",
+            _fmt_dec(code_avg["file_f1"]),
+            _fmt_dec(code_avg["decision_f1"]),
+            _fmt_dec(code_avg["component_f1"]),
+            code_delta,
+        ],
+    ]
+    caption = (
+        "Converged evaluation axis: Decision- and Component-level \\fone as the "
+        "common honest story across \\sadsam and \\sadcode (cross-project "
+        "averages)"
+    )
+    note = (
+        "Source: \\texttt{reports/metrics\\_sad-sam.csv}, "
+        "\\texttt{reports/metrics\\_sad-code.csv}. The converged axis extends, "
+        "not replaces, the corrected metrics in "
+        "\\texttt{reports/EVALUATION\\_CRITIQUE.md}."
+    )
+    return write_table(
+        "converged_framework",
+        render_table(
+            [header] + data,
+            caption=caption,
+            label="tab:converged-framework",
+            note=note,
+            header_override=header,
+            raw_cols=[0],  # Task column holds \sadsam / \sadcode macros
+        ),
+    )
+
+
 def t_s12c_four_level():
     rows = _load_csv()
     header = [
@@ -462,6 +600,8 @@ def main():
         t_s12c_four_level,
         # Chapter 2 (Benchmark bias / metrics)
         t_dashboard,
+        t_consequences,         # STUDY-01/02 headline-vs-honest, both tasks
+        t_converged_framework,  # STUDY-03 converged Decision+Component
     ]
     written = [b() for b in builders]
     for p in written:
