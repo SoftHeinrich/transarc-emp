@@ -87,6 +87,7 @@ None yet.
 | Paper | Real `pdflatex` PDF build of `eval.tex` | Future | v1.1 roadmap |
 | Metrics | Extend metrics API to sam-code | Future | v1.1 roadmap |
 | Metrics | True `.xlsx` workbook output (needs openpyxl) | Future | v1.1 roadmap |
+| Metrics | NDG column non-deterministic in 2nd-3rd decimal (compute_random_f1 set-iteration order in src/lib/new_metrics_analysis.py) — reused verbatim, fix at source | Future | 04-01 exec |
 
 ## Session Continuity
 
