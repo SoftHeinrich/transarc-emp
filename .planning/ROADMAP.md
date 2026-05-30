@@ -22,7 +22,7 @@ study + Ch2=Benchmark bias with a data-driven table generator (`src/paper/genera
 
 ### v1.1 Metrics Toolkit & Converged-Metric Motivation (Phases 4-6)
 
-- [ ] **Phase 4: Metrics API** - Ingest TransArc-format sad-sam/sad-code results, compute the full metric set, emit CSV + LaTeX.
+- [x] **Phase 4: Metrics API** - Ingest TransArc-format sad-sam/sad-code results, compute the full metric set, emit CSV + LaTeX.
 - [ ] **Phase 5: Consequences Study & Converged Metrics** - Quantify how misleading F1 harms both tasks and propose one converged evaluation story (extends Pillar 2).
 - [ ] **Phase 6: Handoff Docs** - Top-level two-pillar README + per-pillar run/reproduce instructions.
 
@@ -41,7 +41,7 @@ study + Ch2=Benchmark bias with a data-driven table generator (`src/paper/genera
 **Plans**: 1 plan
 
 Plans:
-- [ ] 04-01-PLAN.md — Build src/lib/metrics_api.py: stdlib CLI computing the unified metric set for sad-sam + sad-code, emitting reports/metrics_<task>.csv and writing/tables/metrics_<task>.tex by reusing existing functions.
+- [x] 04-01-PLAN.md — Build src/lib/metrics_api.py: stdlib CLI computing the unified metric set for sad-sam + sad-code, emitting reports/metrics_<task>.csv and writing/tables/metrics_<task>.tex by reusing existing functions.
 
 ### Phase 5: Consequences Study & Converged Metrics
 **Goal**: A motivation analysis shows, with numbers, how misleading F1 distorts BOTH SAD-SAM (pure F1) and SAD-CODE (file-level enrollment F1), and proposes a converged metric framework giving the two tasks one coherent evaluation story — written up as a Pillar 2 paper section.
@@ -71,6 +71,6 @@ Plans:
 | 1. Reorganize | v1.0 | 1/1 | ✓ Complete | 2026-05-30 |
 | 2. Verify | v1.0 | 1/1 | ✓ Complete | 2026-05-30 |
 | 3. Paper | v1.0 | 1/1 | ✓ Complete | 2026-05-30 |
-| 4. Metrics API | v1.1 | 0/0 | Not started | - |
+| 4. Metrics API | v1.1 | 1/1 | ✓ Complete | 2026-05-30 |
 | 5. Consequences Study & Converged Metrics | v1.1 | 0/0 | Not started | - |
 | 6. Handoff Docs | v1.1 | 0/0 | Not started | - |

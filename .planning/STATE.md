@@ -1,3 +1,19 @@
+---
+gsd_state_version: 1.0
+milestone: v1.1
+milestone_name: Metrics Toolkit & Converged-Metric Motivation
+status: completed
+stopped_at: Completed 04-01-PLAN.md
+last_updated: "2026-05-30T16:50:08.849Z"
+last_activity: 2026-05-30 -- Phase 04 plan 01 (Metrics API) completed
+progress:
+  total_phases: 3
+  completed_phases: 1
+  total_plans: 1
+  completed_plans: 1
+  percent: 100
+---
+
 # Project State
 
 ## Project Reference
@@ -5,20 +21,21 @@
 See: .planning/PROJECT.md (updated 2026-05-30)
 
 **Core value:** Both retained pillars (TransArc empirical study + benchmark bias analysis) must stay reproducible, and their reports/paper chapters must remain consistent with the code that produced them.
-**Current focus:** Milestone v1.1 — Metrics Toolkit & Converged-Metric Motivation (Phase 4: Metrics API)
+**Current focus:** Phase 04 (Metrics API) — COMPLETE
 
 ## Current Position
 
-Phase: 4 — Metrics API
-Plan: — (ready to plan)
-Status: Roadmap approved; ready for `/gsd-discuss-phase 4` then `/gsd-plan-phase 4`
-Last activity: 2026-05-30 — v1.1 roadmap created (Phases 4-6)
+Phase: 04 (Metrics API) — COMPLETE
+Plan: 1 of 1
+Status: Phase 04 complete (plan 01 executed)
+Last activity: 2026-05-30 -- Phase 04 plan 01 (Metrics API) completed
 
-Progress: [░░░░░░░░░░] 0% (0/3 v1.1 phases)
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
+
 - Total plans completed: 0
 - Average duration: -
 - Total execution time: 0 hours
@@ -30,10 +47,12 @@ Progress: [░░░░░░░░░░] 0% (0/3 v1.1 phases)
 | - | - | - | - |
 
 **Recent Trend:**
+
 - Last 5 plans: -
 - Trend: -
 
 *Updated after each plan completion*
+| Phase 04 P01 | 15 | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -47,6 +66,8 @@ Recent decisions affecting current work:
 - [Scoping]: Tasks limited to sad-sam + sad-code this milestone (no sam-code)
 - [Scoping]: Consequences study + converged-metrics proposal extend Pillar 2 (benchmark bias)
 - [Paper]: No local LaTeX toolchain — Phase 5 validates via table-gen + structural check, not pdflatex
+- [04-01] Metrics API reuses existing primitives with zero metric-math reimplementation; sad-sam path never touches evaluation_critique _compute_* helpers (task asymmetry)
+- [04-01] MAP is N/A for sad-code (optional there); unified 12-column schema with em-dash N/A cells per task
 
 ### Pending Todos
 
@@ -69,6 +90,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-30
-Stopped at: v1.1 roadmap created (Phases 4-6); STATE set to Phase 4; no plans written yet
+Last session: 2026-05-30T16:49:45.613Z
+Stopped at: Completed 04-01-PLAN.md
 Resume file: None
+
+**Planned Phase:** 4 (Metrics API) — 1 plans — 2026-05-30T16:44:51.699Z

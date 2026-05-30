@@ -14,11 +14,16 @@
 ### Metrics API
 <!-- Ingest TransArc-format linker results → all metrics → CSV + LaTeX. Stdlib only. Reuse src/lib + src/bias. Tasks: sad-sam + sad-code only. -->
 
-- [ ] **MTR-01**: A user can point the API at a TransArc-format results file for a **sad-sam** run and get all metrics computed.
-- [ ] **MTR-02**: A user can point the API at a TransArc-format results file for a **sad-code** run (with gold-standard enrollment) and get all metrics computed.
-- [ ] **MTR-03**: The API computes the full metric set — File, Decision, and Component P/R/F1 plus the proposed alternative metrics — by reusing `src/lib` + `src/bias`, with no benchmark-derived word lists.
-- [ ] **MTR-04**: The API emits the computed metrics as CSV (Excel-openable), covering all benchmark projects for the run in one sheet.
-- [ ] **MTR-05**: The API emits a ready-to-paste LaTeX table of the same metrics.
+- [x] **MTR-01
+**: A user can point the API at a TransArc-format results file for a **sad-sam** run and get all metrics computed.
+- [x] **MTR-02
+**: A user can point the API at a TransArc-format results file for a **sad-code** run (with gold-standard enrollment) and get all metrics computed.
+- [x] **MTR-03
+**: The API computes the full metric set — File, Decision, and Component P/R/F1 plus the proposed alternative metrics — by reusing `src/lib` + `src/bias`, with no benchmark-derived word lists.
+- [x] **MTR-04
+**: The API emits the computed metrics as CSV (Excel-openable), covering all benchmark projects for the run in one sheet.
+- [x] **MTR-05
+**: The API emits a ready-to-paste LaTeX table of the same metrics.
 
 ### Consequences Study & Converged Metrics (Pillar 2 extension)
 <!-- Motivation chapter: harm of misleading F1 for BOTH tasks → one converged story. -->
