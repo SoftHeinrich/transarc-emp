@@ -169,9 +169,69 @@ def compute_sad_sam_row(proj):
 
 
 def compute_sad_code_row(proj):
+    """Compute the SAD-CODE metric row.
+
+    Reuses the evaluation_critique granularity helpers verbatim (the
+    part5_alternative_metrics caller idiom is the exact reference). Returns
+    None (skip + warn) if the results file is absent.
+    """
+    code_model = load_code_model_files(proj)
+    res = load_result_sad_code(proj)                   # set() if file absent
+    if not res:
+        print(f"WARNING: no sad-code results for {proj}, skipping",
+              file=sys.stderr)
+        return None
+
+    # Provenance maps from raw gold (matching the part5 caller). Use the
+    # provenance-tracked `enrolled` for ALL granularity calls so they agree.
+    raw_entries = load_sad_code_raw_with_provenance(proj)
+    enrolled, raw_to_enrolled, enrolled_to_raw = enroll_with_provenance(
+        raw_entries, code_model)
+
+    # file -> {component_name} map (caller idiom).
+    names = load_model_element_names(proj)
+    sam_enrolled = load_sam_code_enrolled(proj, code_model)   # (ae_id, file_path)
+    file_to_comps = defaultdict(set)
+    for ae, fp in sam_enrolled:
+        file_to_comps[fp].add(names.get(ae, ae))
+
     row = {"project": proj}
-    for col in NUMERIC_COLS:
-        row[col] = NA
+
+    # Four granularities (reuse verbatim).
+    _, _, file_f1, *_ = calc_metrics(enrolled, res)
+    row["file_f1"] = file_f1
+    row["decision_f1"] = _compute_decision_f1(enrolled, res, raw_to_enrolled)["f1"]
+    row["component_f1"] = _compute_component_f1(enrolled, res, file_to_comps)["f1"]
+    row["weighted_f1"] = _compute_weighted_f1(
+        enrolled, res, enrolled_to_raw, raw_to_enrolled)["f1"]
+
+    # Alt metrics (sad-code).
+    gs_sam_code_map, _ = load_gs_sam_code_maps(proj, code_model)  # model_id -> set(files)
+    row["acf1"] = compute_acf1(enrolled, res, gs_sam_code_map)["acf1"]
+
+    # NDG = (system_f1 - random_f1) / (oracle_f1 - random_f1).
+    system_f1 = file_f1
+    n_sentences = len({s for (s, _c) in enrolled})
+    n_components = len(gs_sam_code_map)
+    # compute_random_f1 returns a BARE FLOAT (not a tuple) — do not subscript.
+    random_f1 = compute_random_f1(enrolled, n_sentences, n_components, gs_sam_code_map)
+    sad_sam_maps = load_gs_sad_sam_maps(proj)
+    oracle_f1, _ = compute_oracle_f1(enrolled, gs_sam_code_map, sad_sam_maps)
+    row["ndg"] = compute_ndg(system_f1, random_f1, oracle_f1)
+
+    # HUS: sad-code links are (sentence, code) → groups by sentence, no flip.
+    row["hus"] = compute_hus(enrolled, res)["hus"]
+
+    # MCC over the (sentence × code-file) universe.
+    all_sents = {s for (s, _c) in enrolled}
+    all_files = set().union(*gs_sam_code_map.values()) if gs_sam_code_map else set()
+    row["mcc"] = compute_mcc(enrolled, res, all_sents, all_files)["mcc"]
+
+    # N/A: link/sentence are sad-sam-only granularities; MAP is sad-sam only
+    # here (CONTEXT: MAP at sad-code is optional → omitted).
+    row["link_f1"] = NA
+    row["sentence_f1"] = NA
+    row["map"] = NA
     return row
 
 
