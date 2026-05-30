@@ -96,9 +96,75 @@ def select_projects(args):
 # ── Placeholder computations (replaced in Tasks 2 and 3) ──────────────────────
 
 def compute_sad_sam_row(proj):
+    """Compute the SAD-SAM metric row.
+
+    SAD-SAM has NO files and NO enrollment — work directly on
+    (modelElementID, sentence) pairs. The evaluation_critique `_compute_*`
+    helpers are NOT used here (they require enrollment maps that do not
+    exist for sad-sam). Returns None (skip + warn) if the results file is
+    absent.
+    """
+    gold = load_gs_sad_sam(proj)                       # set[(modelElementID, sentence)]
+    res = load_result_sad_sam_standalone(proj)         # set() if file absent
+    if not res:
+        print(f"WARNING: no sad-sam results for {proj}, skipping",
+              file=sys.stderr)
+        return None
+
+    text = load_text(proj)
+    names = load_model_element_names(proj)             # modelElementID -> component name
+    all_sents = set(text.keys())
+    all_comps = set(names.keys())
+
     row = {"project": proj}
-    for col in NUMERIC_COLS:
-        row[col] = NA
+
+    # link_f1 = decision_f1 for sad-sam (every pair is one human decision,
+    # zero enrollment inflation).
+    _, _, link_f1, *_ = calc_metrics(gold, res)
+    row["link_f1"] = link_f1
+    row["decision_f1"] = link_f1
+
+    # sentence_f1: a sentence is a TP iff its gold and predicted component
+    # sets share at least one component. Build sentence-level link sets, then
+    # reuse calc_metrics (only the set transform is inline, sanctioned by
+    # CONTEXT "all granularities are built by transforming the link set").
+    gold_by_s = defaultdict(set)
+    res_by_s = defaultdict(set)
+    for c, s in gold:
+        gold_by_s[s].add(c)
+    for c, s in res:
+        res_by_s[s].add(c)
+    pred_correct_sentences = {
+        s for s in res_by_s
+        if gold_by_s.get(s) and (gold_by_s[s] & res_by_s[s])
+    }
+    gold_S = {(s, "*") for s in gold_by_s}
+    res_S = {(s, "*") for s in res_by_s if s in pred_correct_sentences}
+    row["sentence_f1"] = calc_metrics(gold_S, res_S)[2]
+
+    # component_f1: map ids to component names so synonymous ids collapse.
+    gold_C = {(names.get(c, c), s) for (c, s) in gold}
+    res_C = {(names.get(c, c), s) for (c, s) in res}
+    row["component_f1"] = calc_metrics(gold_C, res_C)[2]
+
+    # MCC over the (sentence × component) universe.
+    row["mcc"] = compute_mcc(gold, res, all_sents, all_comps)["mcc"]
+
+    # MAP: TransArc has no per-link confidence → uniform 0.5 ranking.
+    ranked = transarc_sad_sam_as_ranked(res)
+    row["map"] = compute_map(gold, ranked)["map"]
+
+    # HUS: compute_hus groups by element [0]; sad-sam pairs are
+    # (component, sentence) so flip to group by sentence.
+    gold_flip = {(s, c) for (c, s) in gold}
+    res_flip = {(s, c) for (c, s) in res}
+    row["hus"] = compute_hus(gold_flip, res_flip)["hus"]
+
+    # N/A: require enrollment / gold_sam_code_map which sad-sam lacks.
+    row["file_f1"] = NA
+    row["weighted_f1"] = NA
+    row["acf1"] = NA
+    row["ndg"] = NA
     return row
 
 
