@@ -75,19 +75,19 @@ When SAD-SAM assigns a sentence to the wrong model element, which confusions occ
 | Assigned (Wrong) | Should Be (Correct) | Count |
 |-----------------|--------------------|----- |
 | Component: Logic | Component: Storage | 1 |
-| Component: Storage | Component: Logic | 1 |
 | Component: Logic | Component: UI | 1 |
 | Component: Client | Component: UI | 1 |
+| Component: Storage | Component: Logic | 1 |
 
 **bigbluebutton:**
 
 | Assigned (Wrong) | Should Be (Correct) | Count |
 |-----------------|--------------------|----- |
-| Component: HTML5 Server | _oN4CMFkHEeyewPSmlgszyA | 1 |
-| Component: WebRTC-SFU | Component: HTML5 Client | 1 |
 | Component: FreeSWITCH | Component: FSESL | 1 |
 | Component: FreeSWITCH | Component: Redis PubSub | 1 |
 | Component: FreeSWITCH | Component: Apps | 1 |
+| Component: HTML5 Server | _oN4CMFkHEeyewPSmlgszyA | 1 |
+| Component: WebRTC-SFU | Component: HTML5 Client | 1 |
 
 **jabref:**
 
@@ -194,7 +194,7 @@ concentrated in one sentence. High Gini = unfair distribution of quality.
 ### Insight 5: Component Confusion Reveals Systematic Errors
 
 - **teammates**: Top confusion: Component: Logic → Component: Storage (1× — sentences about Component: Storage are assigned to Component: Logic)
-- **bigbluebutton**: Top confusion: Component: HTML5 Server → _oN4CMFkHEeyewPSmlgszyA (1× — sentences about _oN4CMFkHEeyewPSmlgszyA are assigned to Component: HTML5 Server)
+- **bigbluebutton**: Top confusion: Component: FreeSWITCH → Component: FSESL (1× — sentences about Component: FSESL are assigned to Component: FreeSWITCH)
 - **jabref**: Top confusion: Component: preferences → Component: gui (1× — sentences about Component: gui are assigned to Component: preferences)
 
 ### Insight 6: Query Success vs F1

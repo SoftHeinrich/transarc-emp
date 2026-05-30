@@ -67,7 +67,7 @@ reflecting its actual impact on the TransArc output.
 |---------|----------|------|-------|---------|------|-------|-----------|------|-------|--------|------|-------|
 | mediastore | 0.962 | 0.424 | 0.588 | 0.958 | 0.404 | 0.568 | 0.615 | 0.590 | 0.596 | 0.958 | 0.404 | 0.568 |
 | teastore | 1.000 | 0.709 | 0.829 | 1.000 | 0.700 | 0.824 | 0.696 | 0.696 | 0.696 | 1.000 | 0.700 | 0.824 |
-| teammates | 0.753 | 0.902 | 0.821 | 0.753 | 0.601 | 0.668 | 0.451 | 0.542 | 0.469 | 0.053 | 0.603 | 0.097 |
+| teammates | 0.753 | 0.902 | 0.821 | 0.753 | 0.601 | 0.668 | 0.451 | 0.542 | 0.469 | 0.052 | 0.597 | 0.096 |
 | bigbluebutton | 0.820 | 0.842 | 0.831 | 0.520 | 0.795 | 0.629 | 0.660 | 0.714 | 0.673 | 0.267 | 0.790 | 0.399 |
 | jabref | 0.893 | 1.000 | 0.943 | 0.826 | 1.000 | 0.905 | 0.918 | 1.000 | 0.933 | 0.037 | 1.000 | 0.071 |
 
@@ -92,9 +92,9 @@ perfect results and sentences with zero recall?
 - Recall=0% (all gold links missed): 9/25 (36%)
 - Precision=0% (all result links wrong): 1/17 (6%)
 - Worst 3 sentences by F1:
-  - S24: F1=0.000 (TP=0, FP=0, FN=4, Gold=4) "It stores user information and meta-data of audio files such as the na..."
-  - S33: F1=0.000 (TP=0, FP=0, FN=4, Gold=4) "By contrast, all audio files are stored in a specific location (e.g., ..."
   - S23: F1=0.000 (TP=0, FP=0, FN=4, Gold=4) "The Database component represents an actual database (e.g., MySQL)...."
+  - S31: F1=0.000 (TP=0, FP=0, FN=4, Gold=4) "The Database component then executes the actual query for files...."
+  - S33: F1=0.000 (TP=0, FP=0, FN=4, Gold=4) "By contrast, all audio files are stored in a specific location (e.g., ..."
 
 **teastore** (23 sentences involved):
 - Perfect (TP=Gold, FP=0): 16/23 (70%)
@@ -102,9 +102,9 @@ perfect results and sentences with zero recall?
 - Recall=0% (all gold links missed): 7/23 (30%)
 - Precision=0% (all result links wrong): 0/16 (0%)
 - Worst 3 sentences by F1:
-  - S24: F1=0.000 (TP=0, FP=0, FN=30, Gold=30) "It features endpoints for general CRUD-Operations (Create, Read, Updat..."
-  - S8: F1=0.000 (TP=0, FP=0, FN=19, Gold=19) "The UI provides a status page at link indicating the current state of ..."
   - S23: F1=0.000 (TP=0, FP=0, FN=30, Gold=30) "It maps the relational entities to the JSON entity objects passed betw..."
+  - S11: F1=0.000 (TP=0, FP=0, FN=64, Gold=64) "It matches the provided product ID or UI name (the filename for images..."
+  - S6: F1=0.000 (TP=0, FP=0, FN=19, Gold=19) "It contains logic to save and retireve values from cookies...."
 
 **teammates** (101 sentences involved):
 - Perfect (TP=Gold, FP=0): 34/92 (37%)
@@ -112,9 +112,9 @@ perfect results and sentences with zero recall?
 - Recall=0% (all gold links missed): 37/92 (40%)
 - Precision=0% (all result links wrong): 10/65 (15%)
 - Worst 3 sentences by F1:
-  - S179: F1=0.000 (TP=0, FP=0, FN=106, Gold=106) "x.webapi contains system test cases for testing the user-invoked actio..."
+  - S39: F1=0.000 (TP=0, FP=0, FN=2, Gold=2) "First, request forwarded to WebPageServlet...."
   - S50: F1=0.000 (TP=0, FP=0, FN=2, Gold=2) "Sixth, WebApiServlet sends the result back to the browser which will t..."
-  - S120: F1=0.000 (TP=0, FP=0, FN=59, Gold=59) "In particular, it is reponsible for the following...."
+  - S109: F1=0.000 (TP=0, FP=0, FN=1, Gold=1) "Entity not found throws EntityDoesNotExistException...."
 
 **bigbluebutton** (49 sentences involved):
 - Perfect (TP=Gold, FP=0): 7/45 (16%)
@@ -122,9 +122,9 @@ perfect results and sentences with zero recall?
 - Recall=0% (all gold links missed): 8/45 (18%)
 - Precision=0% (all result links wrong): 4/41 (10%)
 - Worst 3 sentences by F1:
-  - S21: F1=0.000 (TP=0, FP=0, FN=16, Gold=16) "As of 2.3-alpha-7, bbb-html5 uses 2 "frontend" and two "backend" proce..."
   - S37: F1=0.000 (TP=0, FP=0, FN=33, Gold=33) "BigBlueButton web application is a Java-based application written in S..."
   - S11: F1=0.000 (TP=0, FP=0, FN=16, Gold=16) "Each user's client is only aware of the their meeting's state, such th..."
+  - S38: F1=0.000 (TP=0, FP=0, FN=33, Gold=33) "It implements the BigBlueButton API and holds a copy of the meeting st..."
 
 **jabref** (10 sentences involved):
 - Perfect (TP=Gold, FP=0): 5/10 (50%)
@@ -134,7 +134,7 @@ perfect results and sentences with zero recall?
 - Worst 3 sentences by F1:
   - S5: F1=0.340 (TP=250, FP=972, FN=0, Gold=250) "The model represents the most important data structures (BibDatases, B..."
   - S7: F1=0.987 (TP=707, FP=19, FN=0, Gold=707) "Only the gui knows the user and his preferences and can interact with ..."
-  - S1: F1=1.000 (TP=1929, FP=1, FN=0, Gold=1929) "We have been successfully transitioning from a spaghetti to a more str..."
+  - S6: F1=1.000 (TP=1929, FP=1, FN=0, Gold=1929) "The logic is responsible for reading/writing/importing/exporting and m..."
 
 ## Summary: What Each Metric Reveals
 

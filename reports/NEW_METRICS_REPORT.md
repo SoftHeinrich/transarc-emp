@@ -372,13 +372,13 @@ HUS = 2 · Coverage · Purity / (Coverage + Purity)
 
 | Baseline | F1 |
 |:--|:---:|
-| Random | 0.059 |
+| Random | 0.054 |
 | Oracle (gold SAD-SAM × gold SAM-CODE) | 0.968 (TP=1521, FP=94, FN=8) |
 
 | System | F1 | NDG |
 |:--|:---:|:---:|
 | TransArc | 0.831 | **0.850** |
-| V45+GoldSAMCODE | 0.000 | **-0.065** |
+| V45+GoldSAMCODE | 0.000 | **-0.060** |
 
 **N6: Harmonic Usefulness Score (HUS):**
 
@@ -578,9 +578,9 @@ ACF1 gives a truer picture of component-level quality.
 | mediastore | 0.148 | 1.000 | 0.588 | **0.516** | 0.000 | **-0.174** |
 | teastore | 0.120 | 1.000 | 0.829 | **0.806** | 0.000 | **-0.137** |
 | teammates | 0.055 | 0.881 | 0.821 | **0.927** | 0.000 | **-0.067** |
-| bigbluebutton | 0.059 | 0.968 | 0.831 | **0.850** | 0.000 | **-0.065** |
+| bigbluebutton | 0.054 | 0.968 | 0.831 | **0.850** | 0.000 | **-0.060** |
 | jabref | 0.335 | 1.000 | 0.943 | **0.915** | 0.000 | **-0.503** |
-| **Average** | | | | **0.803** | | **-0.189** |
+| **Average** | | | | **0.803** | | **-0.188** |
 
 **Insight:** NDG reveals which projects are genuinely hard. A high F1 with a high
 oracle ceiling and low random baseline means the achievable range is wide — the system
@@ -626,7 +626,7 @@ for improvement and the metric flatters the system.
 | **N3: MAP** | SAD-SAM | 0.746 | 0.000 | -0.746 | TransArc | Ranking quality (component) |
 | **N3: MAP** | SAD-CODE | 0.697 | 0.000 | -0.697 | TransArc | Ranking quality (file) |
 | **N4: ACF1** | SAD-CODE | 0.684 | 0.000 | -0.684 | TransArc | Enrollment-corrected file-level |
-| **N5: NDG** | SAD-CODE | 0.803 | -0.189 | -0.992 | TransArc | Intelligence over random baseline |
+| **N5: NDG** | SAD-CODE | 0.803 | -0.188 | -0.991 | TransArc | Intelligence over random baseline |
 | **N6: HUS** | SAD-SAM | 0.786 | 0.000 | -0.786 | TransArc | Coverage × purity (component) |
 | **N6: HUS** | SAD-CODE | 0.649 | 0.000 | -0.649 | TransArc | Coverage × purity (file) |
 

@@ -215,7 +215,7 @@ For each project, trace how model element concentration flows through enrollment
 |---------|----------------|--------|-----------------|-------------------------------|----------------|
 | mediastore | 19 | Interface: IDownload | 16 | 0 | 0.0% |
 | teastore | 19 | Component: ImageProvider | 64 | 320 | 45.3% |
-| teammates | 14 | Component: UI | 348 | 3,622 | 44.7% |
+| teammates | 14 | Interface: UI | 348 | 3,622 | 44.7% |
 | bigbluebutton | 22 | Component: FreeSWITCH | 94 | 732 | 47.9% |
 | jabref | 6 | Component: logic | 972 | 3,888 | 47.0% |
 
