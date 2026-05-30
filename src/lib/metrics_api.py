@@ -20,9 +20,7 @@ Run:  python3 src/lib/metrics_api.py --task sad-sam
 """
 
 import csv
-import json
 import math
-import os
 import sys
 import argparse
 from collections import defaultdict
@@ -32,10 +30,10 @@ from pathlib import Path
 # metrics_api.py lives IN src/lib, so the self-import target is `parent`.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from transarc_error_analysis import (
-    PROJECTS, BENCHMARK, RESULTS, calc_metrics,
-    load_code_model_files, enroll_gold_standard,
+    PROJECTS, RESULTS, calc_metrics,
+    load_code_model_files,
     load_gs_sad_sam, load_gs_sad_sam_maps, load_gs_sam_code_maps,
-    load_gs_sad_code_enrolled, load_result_sad_sam_standalone,
+    load_result_sad_sam_standalone,
     load_result_sad_code, load_text, load_model_element_names,
 )
 from new_metrics_analysis import (
@@ -52,7 +50,7 @@ from evaluation_critique import (
 )
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "paper"))
-from generate_tables import render_table, latex_escape, colspec, write_table
+from generate_tables import render_table, write_table
 
 # ── Paths (hardcoded-absolute-path convention) ────────────────────────────────
 REPORTS = Path("/mnt/hostshare/ardoco-home/transarc-emp/reports")
