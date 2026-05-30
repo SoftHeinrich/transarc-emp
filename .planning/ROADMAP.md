@@ -28,7 +28,8 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. `src/annotation/` is empty or gone and both annotation scripts live under `archive/`
   4. `reports/ANNOTATION_CONVENTION.md` and any other gray reports live under `archive/`
   5. No retained script contains an import referencing an archived path, and no retained report links to archived work
-**Plans**: TBD
+**Plans**: 1 plan
+  - [ ] 01-01-PLAN.md — Move-only reorg: assemble src/transarc/ (Pillar 1), expand src/bias/ (Pillar 2), archive annotation scripts + report, static import/reference checks
 
 ### Phase 2: Verify
 **Goal**: Both retained pillars run reproducibly — every script executes and regenerates its report with paths intact
@@ -58,6 +59,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Reorganize | 0/TBD | Not started | - |
+| 1. Reorganize | 0/1 | Not started | - |
 | 2. Verify | 0/TBD | Not started | - |
 | 3. Paper | 0/TBD | Not started | - |
