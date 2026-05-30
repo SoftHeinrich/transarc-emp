@@ -20,9 +20,21 @@ The two retained pillars (TransArc empirical study + benchmark bias analysis) mu
 
 All 13 pillar scripts run clean and regenerate their reports deterministically.
 
-## Next Milestone Goals
+## Current Milestone: v1.1 Metrics Toolkit & Converged-Metric Motivation
 
-(none defined yet — run `/gsd-new-milestone`). Candidate v2 items: top-level README mapping the two pillars (DOC-01), per-pillar reproduce instructions (DOC-02), rename `transarc_error_analysis.py` → `data_loaders.py`, actual `pdflatex` PDF build of `eval.tex`.
+**Goal:** Ship a reproducible metrics-reporting API plus a motivation study showing how misleading F1 harms BOTH SAD-SAM and SAD-CODE, and propose a converged metric framework that gives the two tasks one coherent evaluation story — while making the workspace handoff-ready.
+
+**Target features:**
+- DOC-01: top-level README mapping the two pillars.
+- DOC-02: per-pillar run/reproduce instructions.
+- Metrics API: ingest TransArc-format linker results → compute all metrics (File/Decision/Component F1 + proposed alternatives) for **sad-sam** and **sad-code** → emit CSV (Excel-openable) + LaTeX table.
+- Empirical consequences study: harm of misleading F1 for BOTH **SAD-SAM** (pure F1) and **SAD-CODE** (file-level enrollment F1), then propose **converged metrics** so the two tasks share one evaluation story (motivation chapter, extends Pillar 2).
+
+**Key context:**
+- Stdlib-only preserved — Excel output is **CSV**, not `.xlsx` (no openpyxl, no requirements.txt).
+- Metrics API ingests the existing **TransArc output format** from `results/`; reuses `src/lib` + `src/bias` for metric computation.
+- Tasks limited to **sad-sam + sad-code** (no sam-code this milestone).
+- The consequences study + converged-metrics proposal extend Pillar 2 (benchmark bias).
 
 ## Requirements
 
@@ -104,4 +116,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-30 after v1.0 milestone*
+*Last updated: 2026-05-30 — v1.1 milestone started (Metrics Toolkit & Converged-Metric Motivation)*

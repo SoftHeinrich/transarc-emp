@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-05-30)
 
 **Core value:** Both retained pillars (TransArc empirical study + benchmark bias analysis) must stay reproducible, and their reports/paper chapters must remain consistent with the code that produced them.
-**Current focus:** Phase 1 — Reorganize
+**Current focus:** Milestone v1.1 — Metrics Toolkit & Converged-Metric Motivation (defining requirements)
 
 ## Current Position
 
-Phase: 1 of 3 (Reorganize)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-05-30 — Roadmap created
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-05-30 — Milestone v1.1 started
 
 Progress: [░░░░░░░░░░] 0%
 
