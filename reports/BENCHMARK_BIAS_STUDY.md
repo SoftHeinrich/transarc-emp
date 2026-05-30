@@ -66,10 +66,10 @@ MediaStore, TeaStore, Teammates, BigBlueButton, JabRef.
 
 #### Undocumented Model Elements (UMEs)
 
-- **mediastore**: 10 UMEs: Component: AudioWatermarking, Interface: IUserManagement, Interface: IFacade, Interface: IUserDB, Component: Cache, Interface: IPackaging, Interface: IDownload, Interface: IMediaAccess, Interface: IMediaManagement, Interface: IDB
-- **teastore**: 13 UMEs: Interface: ProductActions, Component: OrderBasedRecommender, Component: SlopeOneRecommender, Interface: Persistence, Component: DummyRecommender, Interface: ImageProvider, Interface: RecommenderStrategy, Interface: CartActions, Interface: Recommender, Component: PreprocessedSlopeOneRecommender, Interface: LoadBalancer, Component: PopularityBasedRecommender, Interface: AuthCart
-- **teammates**: 7 UMEs: Interface: E2E, Interface: Client, Interface: Logic, Interface: Storage, Interface: Common, Interface: UI, Interface: Test Driver
-- **bigbluebutton**: 12 UMEs: Interface: FreeSWITCH, Interface: Presentation Conversion, Interface: FSESL, Interface: WebRTC-SFU, Component: Recording Service, Interface: Apps, Interface: Recording Service, Interface: HTML5 Client, Interface: HTML5 Server, Interface: Redis PubSub, Interface: BBB web, Interface: Redis DB
+- **mediastore**: 10 UMEs: Interface: IMediaAccess, Interface: IMediaManagement, Interface: IUserDB, Interface: IPackaging, Component: AudioWatermarking, Interface: IDB, Component: Cache, Interface: IUserManagement, Interface: IDownload, Interface: IFacade
+- **teastore**: 13 UMEs: Component: SlopeOneRecommender, Interface: ProductActions, Interface: Recommender, Interface: RecommenderStrategy, Interface: LoadBalancer, Component: PreprocessedSlopeOneRecommender, Interface: CartActions, Interface: AuthCart, Interface: Persistence, Component: DummyRecommender, Component: PopularityBasedRecommender, Component: OrderBasedRecommender, Interface: ImageProvider
+- **teammates**: 7 UMEs: Interface: Client, Interface: E2E, Interface: Test Driver, Interface: Storage, Interface: UI, Interface: Logic, Interface: Common
+- **bigbluebutton**: 12 UMEs: Interface: FreeSWITCH, Interface: FSESL, Interface: WebRTC-SFU, Interface: Redis PubSub, Interface: HTML5 Client, Interface: Presentation Conversion, Component: Recording Service, Interface: Apps, Interface: HTML5 Server, Interface: Recording Service, Interface: Redis DB, Interface: BBB web
 - **jabref**: 1 UMEs: Component: globals
 
 ### 1.2 Sentence Fan-Out (model elements per sentence)
@@ -164,19 +164,19 @@ MediaStore, TeaStore, Teammates, BigBlueButton, JabRef.
 |----------|-----------|----------------|
 | 10 | `services/tools.descartes.teastore.image/src/main/java/tools/descartes/teastore/image/` | 38 |
 | 2 | `services/tools.descartes.teastore.image/src/main/java/tools/descartes/teastore/image/` | 38 |
+| 12 | `services/tools.descartes.teastore.image/src/main/java/tools/descartes/teastore/image/` | 38 |
 | 7 | `services/tools.descartes.teastore.image/src/main/java/tools/descartes/teastore/image/` | 38 |
 | 11 | `services/tools.descartes.teastore.image/src/main/java/tools/descartes/teastore/image/` | 38 |
-| 12 | `services/tools.descartes.teastore.image/src/main/java/tools/descartes/teastore/image/` | 38 |
 
 **teammates** (top-5 directory expansions):
 
 | Sentence | Directory | Expanded Files |
 |----------|-----------|----------------|
-| 4 | `src/main/java/teammates/ui/` | 235 |
+| 25 | `src/main/java/teammates/ui/` | 235 |
+| 7 | `src/main/java/teammates/ui/` | 235 |
+| 85 | `src/main/java/teammates/ui/` | 235 |
 | 5 | `src/main/java/teammates/ui/` | 235 |
 | 29 | `src/main/java/teammates/ui/` | 235 |
-| 7 | `src/main/java/teammates/ui/` | 235 |
-| 97 | `src/main/java/teammates/ui/` | 235 |
 
 **bigbluebutton** (top-5 directory expansions):
 
@@ -184,19 +184,19 @@ MediaStore, TeaStore, Teammates, BigBlueButton, JabRef.
 |----------|-----------|----------------|
 | 81 | `bbb-common-web/src/main/java/org/bigbluebutton/presentation/` | 70 |
 | 80 | `bbb-common-web/src/main/java/org/bigbluebutton/presentation/` | 70 |
+| 60 | `akka-bbb-fsesl/` | 59 |
 | 57 | `akka-bbb-fsesl/` | 59 |
 | 58 | `akka-bbb-fsesl/` | 59 |
-| 60 | `akka-bbb-fsesl/` | 59 |
 
 **jabref** (top-5 directory expansions):
 
 | Sentence | Directory | Expanded Files |
 |----------|-----------|----------------|
-| 7 | `src/main/java/org/jabref/gui/` | 642 |
 | 4 | `src/main/java/org/jabref/gui/` | 642 |
+| 7 | `src/main/java/org/jabref/gui/` | 642 |
 | 1 | `src/main/java/org/jabref/gui/` | 642 |
 | 6 | `src/main/java/org/jabref/gui/` | 642 |
-| 6 | `src/main/java/org/jabref/logic/` | 575 |
+| 4 | `src/main/java/org/jabref/logic/` | 575 |
 
 ## 3. SAM-CODE Long-Tail Distribution
 
@@ -219,21 +219,21 @@ MediaStore, TeaStore, Teammates, BigBlueButton, JabRef.
 | 1 | Interface: IDownload | Interface | 16 |
 | 2 | Interface: IMediaAccess | Interface | 6 |
 | 3 | Component: DB | Component | 4 |
-| 4 | Interface: IUserDB | Interface | 3 |
-| 5 | Interface: IUserManagement | Interface | 3 |
-| 6 | Component: Cache | Component | 3 |
-| 7 | Interface: IMediaManagement | Interface | 3 |
-| 8 | Interface: IFacade | Interface | 3 |
-| 9 | Interface: IPackaging | Interface | 3 |
-| 10 | Component: AudioWatermarking | Component | 3 |
-| 11 | Component: MediaAccess | Component | 2 |
-| 12 | Component: UserManagement | Component | 2 |
-| 13 | Component: UserDBAdapter | Component | 2 |
-| 14 | Interface: IDB | Interface | 2 |
+| 4 | Interface: IFacade | Interface | 3 |
+| 5 | Component: AudioWatermarking | Component | 3 |
+| 6 | Interface: IPackaging | Interface | 3 |
+| 7 | Interface: IUserDB | Interface | 3 |
+| 8 | Interface: IMediaManagement | Interface | 3 |
+| 9 | Component: Cache | Component | 3 |
+| 10 | Interface: IUserManagement | Interface | 3 |
+| 11 | Component: UserDBAdapter | Component | 2 |
+| 12 | Interface: IDB | Interface | 2 |
+| 13 | Component: MediaAccess | Component | 2 |
+| 14 | Component: UserManagement | Component | 2 |
 | 15 | Component: Packaging | Component | 1 |
-| 16 | Component: Facade | Component | 1 |
-| 17 | Component: Reencoding | Component | 1 |
-| 18 | Component: MediaManagement | Component | 1 |
+| 16 | Component: MediaManagement | Component | 1 |
+| 17 | Component: Facade | Component | 1 |
+| 18 | Component: Reencoding | Component | 1 |
 | 19 | Component: TagWatermarking | Component | 1 |
 
 **teastore**:
@@ -246,19 +246,19 @@ MediaStore, TeaStore, Teammates, BigBlueButton, JabRef.
 | 4 | Component: Recommender | Component | 14 |
 | 5 | Component: Auth | Component | 13 |
 | 6 | Component: Registry | Component | 5 |
-| 7 | Component: PreprocessedSlopeOneRecommender | Component | 2 |
-| 8 | Interface: AuthCart | Interface | 2 |
-| 9 | Component: SlopeOneRecommender | Component | 2 |
-| 10 | Component: OrderBasedRecommender | Component | 2 |
-| 11 | Component: PopularityBasedRecommender | Component | 2 |
-| 12 | Component: DummyRecommender | Component | 2 |
-| 13 | Interface: LoadBalancer | Interface | 1 |
+| 7 | Component: DummyRecommender | Component | 2 |
+| 8 | Component: SlopeOneRecommender | Component | 2 |
+| 9 | Component: PreprocessedSlopeOneRecommender | Component | 2 |
+| 10 | Interface: AuthCart | Interface | 2 |
+| 11 | Component: OrderBasedRecommender | Component | 2 |
+| 12 | Component: PopularityBasedRecommender | Component | 2 |
+| 13 | Interface: ProductActions | Interface | 1 |
 | 14 | Interface: Persistence | Interface | 1 |
-| 15 | Interface: ProductActions | Interface | 1 |
-| 16 | Interface: RecommenderStrategy | Interface | 1 |
-| 17 | Interface: CartActions | Interface | 1 |
-| 18 | Interface: ImageProvider | Interface | 1 |
-| 19 | Interface: Recommender | Interface | 1 |
+| 15 | Interface: LoadBalancer | Interface | 1 |
+| 16 | Interface: ImageProvider | Interface | 1 |
+| 17 | Interface: RecommenderStrategy | Interface | 1 |
+| 18 | Interface: Recommender | Interface | 1 |
+| 19 | Interface: CartActions | Interface | 1 |
 
 **teammates**:
 
@@ -268,33 +268,33 @@ MediaStore, TeaStore, Teammates, BigBlueButton, JabRef.
 | 2 | Interface: UI | Interface | 348 |
 | 3 | Component: Common | Component | 150 |
 | 4 | Interface: Common | Interface | 150 |
-| 5 | Component: E2E | Component | 123 |
-| 6 | Interface: E2E | Interface | 123 |
-| 7 | Component: Logic | Component | 71 |
-| 8 | Interface: Logic | Interface | 71 |
+| 5 | Interface: E2E | Interface | 123 |
+| 6 | Component: E2E | Component | 123 |
+| 7 | Interface: Logic | Interface | 71 |
+| 8 | Component: Logic | Component | 71 |
 | 9 | Component: Storage | Component | 59 |
 | 10 | Interface: Storage | Interface | 59 |
 | 11 | Component: Client | Component | 40 |
 | 12 | Interface: Client | Interface | 40 |
-| 13 | Interface: Test Driver | Interface | 17 |
-| 14 | Component: Test Driver | Component | 17 |
+| 13 | Component: Test Driver | Component | 17 |
+| 14 | Interface: Test Driver | Interface | 17 |
 
 **bigbluebutton**:
 
 | Rank | Element | Type | Files |
 |------|---------|------|-------|
-| 1 | Interface: FreeSWITCH | Interface | 94 |
-| 2 | Component: FreeSWITCH | Component | 94 |
+| 1 | Component: FreeSWITCH | Component | 94 |
+| 2 | Interface: FreeSWITCH | Interface | 94 |
 | 3 | Interface: FSESL | Interface | 92 |
 | 4 | Component: FSESL | Component | 92 |
-| 5 | Component: Presentation Conversion | Component | 70 |
-| 6 | Interface: Presentation Conversion | Interface | 70 |
-| 7 | Component: BBB web | Component | 33 |
-| 8 | Interface: BBB web | Interface | 33 |
+| 5 | Interface: Presentation Conversion | Interface | 70 |
+| 6 | Component: Presentation Conversion | Component | 70 |
+| 7 | Interface: BBB web | Interface | 33 |
+| 8 | Component: BBB web | Component | 33 |
 | 9 | Component: HTML5 Client | Component | 16 |
-| 10 | Interface: HTML5 Client | Interface | 16 |
-| 11 | Interface: HTML5 Server | Interface | 16 |
-| 12 | Component: HTML5 Server | Component | 16 |
+| 10 | Interface: HTML5 Server | Interface | 16 |
+| 11 | Component: HTML5 Server | Component | 16 |
+| 12 | Interface: HTML5 Client | Interface | 16 |
 | 13 | Component: Apps | Component | 15 |
 | 14 | Interface: Apps | Interface | 15 |
 | 15 | Interface: Recording Service | Interface | 13 |
@@ -303,8 +303,8 @@ MediaStore, TeaStore, Teammates, BigBlueButton, JabRef.
 | 18 | Interface: Redis PubSub | Interface | 7 |
 | 19 | Component: WebRTC-SFU | Component | 6 |
 | 20 | Interface: WebRTC-SFU | Interface | 6 |
-| 21 | Component: Redis DB | Component | 3 |
-| 22 | Interface: Redis DB | Interface | 3 |
+| 21 | Interface: Redis DB | Interface | 3 |
+| 22 | Component: Redis DB | Component | 3 |
 
 **jabref**:
 
@@ -494,11 +494,11 @@ Strategy: Link every sentence to the K most popular code files.
 
 | Project | Most Popular Model Element | Links | Most Popular Code File | Links |
 |---------|--------------------------|-------|----------------------|-------|
-| mediastore | Component: DB | 7 | `DbManager.java` | 7 |
-| teastore | Component: Persistence | 6 | `IndexServlet.java` | 6 |
-| teammates | Component: Logic | 15 | `EmailSender.java` | 19 |
+| mediastore | Component: DB | 7 | `UserAlreadyExistsException.java` | 7 |
+| teastore | Component: WebUI | 6 | `OrderItemRepository.java` | 6 |
+| teammates | Component: Logic | 15 | `EmailGenerator.java` | 19 |
 | bigbluebutton | Component: HTML5 Client | 14 | `run-dev.sh` | 20 |
-| jabref | Component: model | 6 | `BibEntry.java` | 6 |
+| jabref | Component: model | 6 | `ParsedEntryLink.java` | 6 |
 
 ### 7.4 Exploitability Assessment
 

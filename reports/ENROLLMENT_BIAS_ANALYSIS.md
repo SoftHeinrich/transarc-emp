@@ -19,21 +19,21 @@ File distribution Gini: **0.400** (0=equal, 1=maximally skewed)
 | Interface: IDownload | 16 | 26.7% | 26.7% |
 | Interface: IMediaAccess | 6 | 10.0% | 36.7% |
 | Component: DB | 4 | 6.7% | 43.3% |
-| Interface: IMediaManagement | 3 | 5.0% | 48.3% |
-| Interface: IPackaging | 3 | 5.0% | 53.3% |
-| Interface: IUserDB | 3 | 5.0% | 58.3% |
-| Component: Cache | 3 | 5.0% | 63.3% |
+| Component: Cache | 3 | 5.0% | 48.3% |
+| Interface: IUserDB | 3 | 5.0% | 53.3% |
+| Interface: IFacade | 3 | 5.0% | 58.3% |
+| Interface: IMediaManagement | 3 | 5.0% | 63.3% |
 | Interface: IUserManagement | 3 | 5.0% | 68.3% |
-| Interface: IFacade | 3 | 5.0% | 73.3% |
-| Component: AudioWatermarking | 3 | 5.0% | 78.3% |
+| Component: AudioWatermarking | 3 | 5.0% | 73.3% |
+| Interface: IPackaging | 3 | 5.0% | 78.3% |
 | Component: MediaAccess | 2 | 3.3% | 81.7% |
-| Component: UserManagement | 2 | 3.3% | 85.0% |
-| Component: UserDBAdapter | 2 | 3.3% | 88.3% |
-| Interface: IDB | 2 | 3.3% | 91.7% |
-| Component: MediaManagement | 1 | 1.7% | 93.3% |
+| Interface: IDB | 2 | 3.3% | 85.0% |
+| Component: UserManagement | 2 | 3.3% | 88.3% |
+| Component: UserDBAdapter | 2 | 3.3% | 91.7% |
+| Component: Facade | 1 | 1.7% | 93.3% |
 | Component: Packaging | 1 | 1.7% | 95.0% |
-| Component: TagWatermarking | 1 | 1.7% | 96.7% |
-| Component: Facade | 1 | 1.7% | 98.3% |
+| Component: MediaManagement | 1 | 1.7% | 96.7% |
+| Component: TagWatermarking | 1 | 1.7% | 98.3% |
 | Component: Reencoding | 1 | 1.7% | 100.0% |
 
 **Top 3 components control 43% of enrolled links.**
@@ -51,19 +51,19 @@ File distribution Gini: **0.694** (0=equal, 1=maximally skewed)
 | Component: Recommender | 14 | 8.5% | 77.4% |
 | Component: Auth | 13 | 7.9% | 85.4% |
 | Component: Registry | 5 | 3.0% | 88.4% |
-| Component: DummyRecommender | 2 | 1.2% | 89.6% |
-| Interface: AuthCart | 2 | 1.2% | 90.9% |
-| Component: PreprocessedSlopeOneRecommender | 2 | 1.2% | 92.1% |
-| Component: PopularityBasedRecommender | 2 | 1.2% | 93.3% |
-| Component: OrderBasedRecommender | 2 | 1.2% | 94.5% |
-| Component: SlopeOneRecommender | 2 | 1.2% | 95.7% |
-| Interface: LoadBalancer | 1 | 0.6% | 96.3% |
+| Component: PreprocessedSlopeOneRecommender | 2 | 1.2% | 89.6% |
+| Component: OrderBasedRecommender | 2 | 1.2% | 90.9% |
+| Component: SlopeOneRecommender | 2 | 1.2% | 92.1% |
+| Interface: AuthCart | 2 | 1.2% | 93.3% |
+| Component: DummyRecommender | 2 | 1.2% | 94.5% |
+| Component: PopularityBasedRecommender | 2 | 1.2% | 95.7% |
+| Interface: CartActions | 1 | 0.6% | 96.3% |
 | Interface: RecommenderStrategy | 1 | 0.6% | 97.0% |
-| Interface: Recommender | 1 | 0.6% | 97.6% |
-| Interface: CartActions | 1 | 0.6% | 98.2% |
-| Interface: ImageProvider | 1 | 0.6% | 98.8% |
-| Interface: Persistence | 1 | 0.6% | 99.4% |
-| Interface: ProductActions | 1 | 0.6% | 100.0% |
+| Interface: ProductActions | 1 | 0.6% | 97.6% |
+| Interface: Persistence | 1 | 0.6% | 98.2% |
+| Interface: LoadBalancer | 1 | 0.6% | 98.8% |
+| Interface: ImageProvider | 1 | 0.6% | 99.4% |
+| Interface: Recommender | 1 | 0.6% | 100.0% |
 
 **Top 3 components control 69% of enrolled links.**
 
@@ -78,16 +78,16 @@ File distribution Gini: **0.452** (0=equal, 1=maximally skewed)
 | Component: UI | 348 | 21.5% | 43.1% |
 | Interface: Common | 150 | 9.3% | 52.4% |
 | Component: Common | 150 | 9.3% | 61.6% |
-| Component: E2E | 123 | 7.6% | 69.2% |
-| Interface: E2E | 123 | 7.6% | 76.9% |
+| Interface: E2E | 123 | 7.6% | 69.2% |
+| Component: E2E | 123 | 7.6% | 76.9% |
 | Interface: Logic | 71 | 4.4% | 81.2% |
 | Component: Logic | 71 | 4.4% | 85.6% |
-| Component: Storage | 59 | 3.7% | 89.3% |
-| Interface: Storage | 59 | 3.7% | 92.9% |
-| Component: Client | 40 | 2.5% | 95.4% |
-| Interface: Client | 40 | 2.5% | 97.9% |
-| Component: Test Driver | 17 | 1.1% | 98.9% |
-| Interface: Test Driver | 17 | 1.1% | 100.0% |
+| Interface: Storage | 59 | 3.7% | 89.3% |
+| Component: Storage | 59 | 3.7% | 92.9% |
+| Interface: Client | 40 | 2.5% | 95.4% |
+| Component: Client | 40 | 2.5% | 97.9% |
+| Interface: Test Driver | 17 | 1.1% | 98.9% |
+| Component: Test Driver | 17 | 1.1% | 100.0% |
 
 **Top 3 components control 52% of enrolled links.**
 
@@ -104,12 +104,12 @@ File distribution Gini: **0.513** (0=equal, 1=maximally skewed)
 | Interface: FSESL | 92 | 12.6% | 51.0% |
 | Component: Presentation Conversion | 70 | 9.6% | 60.5% |
 | Interface: Presentation Conversion | 70 | 9.6% | 70.1% |
-| Interface: BBB web | 33 | 4.5% | 74.7% |
-| Component: BBB web | 33 | 4.5% | 79.2% |
-| Component: HTML5 Server | 16 | 2.2% | 81.4% |
-| Interface: HTML5 Client | 16 | 2.2% | 83.6% |
+| Component: BBB web | 33 | 4.5% | 74.7% |
+| Interface: BBB web | 33 | 4.5% | 79.2% |
+| Interface: HTML5 Server | 16 | 2.2% | 81.4% |
+| Component: HTML5 Server | 16 | 2.2% | 83.6% |
 | Component: HTML5 Client | 16 | 2.2% | 85.8% |
-| Interface: HTML5 Server | 16 | 2.2% | 87.9% |
+| Interface: HTML5 Client | 16 | 2.2% | 87.9% |
 | Component: Apps | 15 | 2.1% | 90.0% |
 | Interface: Apps | 15 | 2.1% | 92.1% |
 | Component: Recording Service | 13 | 1.8% | 93.8% |
@@ -167,15 +167,15 @@ Unique files in gold: **15** | Total links: **59** | Top-10 files control **86%*
 | File (truncated) | Sentences Linked | % of Total |
 |:--|---:|:---:|
 | ...u/kit/ipd/sdq/mediastore/ejb/userdbadapter/DbManager.java | 7 | 11.9% |
-| ...diastore/basic/exceptions/UserAlreadyExistsException.java | 7 | 11.9% |
 | ...edu/kit/ipd/sdq/mediastore/ejb/mediaaccess/DbManager.java | 7 | 11.9% |
+| ...diastore/basic/exceptions/UserAlreadyExistsException.java | 7 | 11.9% |
 | .../kit/ipd/sdq/mediastore/basic/exceptions/DbException.java | 7 | 11.9% |
 | ...src/edu/kit/ipd/sdq/mediastore/ejb/mediaaccess/Audio.java | 5 | 8.5% |
 | ...t/ipd/sdq/mediastore/ejb/mediaaccess/MediaAccessImpl.java | 5 | 8.5% |
 | ...q/mediastore/ejb/mediamanagement/MediaManagementImpl.java | 4 | 6.8% |
 | ...src/edu/kit/ipd/sdq/mediastore/ejb/facade/FacadeImpl.java | 3 | 5.1% |
-| ...d/sdq/mediastore/ejb/userdbadapter/UserDBAdapterImpl.java | 3 | 5.1% |
 | ...rc/edu/kit/ipd/sdq/mediastore/ejb/userdbadapter/User.java | 3 | 5.1% |
+| ...d/sdq/mediastore/ejb/userdbadapter/UserDBAdapterImpl.java | 3 | 5.1% |
 
 ### Teastore
 
@@ -183,16 +183,16 @@ Unique files in gold: **145** | Total links: **707** | Top-10 files control **8%
 
 | File (truncated) | Sentences Linked | % of Total |
 |:--|---:|:---:|
-| ...ools/descartes/teastore/webui/servlet/ProductServlet.java | 6 | 0.8% |
-| ...ols/descartes/teastore/persistence/DataGeneratorTest.java | 6 | 0.8% |
-| ...descartes/teastore/persistence/repository/EMFManager.java | 6 | 0.8% |
-| ...ols/descartes/teastore/webui/servlet/DataBaseServlet.java | 6 | 0.8% |
-| .../descartes/teastore/persistence/rest/ProductEndpoint.java | 6 | 0.8% |
-| .../descartes/teastore/webui/servlet/LoginActionServlet.java | 6 | 0.8% |
-| ...ls/descartes/teastore/persistence/rest/OrderEndpoint.java | 6 | 0.8% |
-| ...cartes/teastore/persistence/domain/ProductRepository.java | 6 | 0.8% |
-| tools/test_webui.sh | 6 | 0.8% |
-| ...eastore/persistence/repository/EMFManagerInitializer.java | 6 | 0.8% |
+| ...ols/descartes/teastore/persistence/rest/UserEndpoint.java | 6 | 0.8% |
+| ...persistence/repository/AbstractPersistenceRepository.java | 6 | 0.8% |
+| ...scartes/teastore/persistence/repository/CacheManager.java | 6 | 0.8% |
+| .../tools/descartes/teastore/webui/servlet/ErrorServlet.java | 6 | 0.8% |
+| ...a/tools/descartes/teastore/webui/servlet/CartServlet.java | 6 | 0.8% |
+| ...artes/teastore/persistence/domain/PersistenceProduct.java | 6 | 0.8% |
+| ...escartes/teastore/persistence/rest/OrderItemEndpoint.java | 6 | 0.8% |
+| ...s/descartes/teastore/webui/servlet/CartActionServlet.java | 6 | 0.8% |
+| ...stence/domain/converters/LocalDateAttributeConverter.java | 6 | 0.8% |
+| ...escartes/teastore/persistence/domain/OrderRepository.java | 6 | 0.8% |
 
 ### Teammates
 
@@ -200,16 +200,16 @@ Unique files in gold: **828** | Total links: **8097** | Top-10 files control **2
 
 | File (truncated) | Sentences Linked | % of Total |
 |:--|---:|:---:|
-| src/test/java/teammates/logic/api/EmailGeneratorTest.java | 19 | 0.2% |
-| src/main/java/teammates/logic/api/EmailGenerator.java | 19 | 0.2% |
 | src/main/java/teammates/logic/api/TaskQueuer.java | 19 | 0.2% |
+| src/test/java/teammates/logic/api/EmailGeneratorTest.java | 19 | 0.2% |
 | src/test/java/teammates/logic/api/EmailSenderTest.java | 19 | 0.2% |
 | src/main/java/teammates/logic/api/EmailSender.java | 19 | 0.2% |
-| ...ain/java/teammates/logic/core/FeedbackQuestionsLogic.java | 18 | 0.2% |
-| ...java/teammates/logic/core/FeedbackQuestionsLogicTest.java | 18 | 0.2% |
+| src/main/java/teammates/logic/api/EmailGenerator.java | 19 | 0.2% |
+| src/test/java/teammates/logic/api/MockAuthProxy.java | 18 | 0.2% |
 | .../java/teammates/logic/core/FeedbackSessionsLogicTest.java | 18 | 0.2% |
-| src/main/java/teammates/logic/core/LogicStarter.java | 18 | 0.2% |
-| ...t/java/teammates/logic/core/AccountRequestsLogicTest.java | 18 | 0.2% |
+| src/main/java/teammates/logic/api/package-info.java | 18 | 0.2% |
+| src/main/java/teammates/logic/core/InstructorsLogic.java | 18 | 0.2% |
+| src/main/java/teammates/logic/core/StudentsLogic.java | 18 | 0.2% |
 
 ### Bigbluebutton
 
@@ -217,16 +217,16 @@ Unique files in gold: **252** | Total links: **1529** | Top-10 files control **1
 
 | File (truncated) | Sentences Linked | % of Total |
 |:--|---:|:---:|
-| build/packages-template/bbb-html5/kill_mongo.sh | 20 | 1.3% |
-| build/packages-template/bbb-html5/after-remove.sh | 20 | 1.3% |
-| build/packages-template/bbb-html5/build.sh | 20 | 1.3% |
-| build/packages-template/bbb-html5/mongod_start_pre.sh | 20 | 1.3% |
-| bigbluebutton-html5/run-dev.sh | 20 | 1.3% |
-| build/packages-template/bbb-html5/systemd_start.sh | 20 | 1.3% |
-| bigbluebutton-html5/test-html5.sh | 20 | 1.3% |
 | build/packages-template/bbb-html5/systemd_start_frontend.sh | 20 | 1.3% |
 | build/packages-template/bbb-html5/run_mongo.sh | 20 | 1.3% |
+| build/packages-template/bbb-html5/systemd_start.sh | 20 | 1.3% |
+| build/packages-template/bbb-html5/kill_mongo.sh | 20 | 1.3% |
+| bigbluebutton-html5/transifex.sh | 20 | 1.3% |
 | bigbluebutton-html5/deploy_to_usr_share.sh | 20 | 1.3% |
+| build/packages-template/bbb-html5/mongod_start_pre.sh | 20 | 1.3% |
+| build/packages-template/bbb-html5/opts-jammy.sh | 20 | 1.3% |
+| build/packages-template/bbb-html5/after-remove.sh | 20 | 1.3% |
+| build/packages-template/bbb-html5/build.sh | 20 | 1.3% |
 
 ### Jabref
 
@@ -234,16 +234,16 @@ Unique files in gold: **1955** | Total links: **8268** | Top-10 files control **
 
 | File (truncated) | Sentences Linked | % of Total |
 |:--|---:|:---:|
-| ...t/java/org/jabref/model/entry/field/SpecialFieldTest.java | 6 | 0.1% |
-| ...main/java/org/jabref/model/metadata/ContentSelectors.java | 6 | 0.1% |
-| .../java/org/jabref/model/schema/DublinCoreSchemaCustom.java | 6 | 0.1% |
-| ...java/org/jabref/model/openoffice/uno/UnoTextDocument.java | 6 | 0.1% |
-| .../java/org/jabref/model/entry/event/FieldChangedEvent.java | 6 | 0.1% |
-| ...jabref/model/search/rules/GrammarBasedSearchRuleTest.java | 6 | 0.1% |
-| ...org/jabref/model/metadata/event/MetaDataChangedEvent.java | 6 | 0.1% |
-| .../java/org/jabref/model/openoffice/uno/UnoTextSection.java | 6 | 0.1% |
-| src/main/java/org/jabref/model/openoffice/uno/UnoUndo.java | 6 | 0.1% |
-| ...g/jabref/model/entry/types/BiblatexSoftwareEntryType.java | 6 | 0.1% |
+| ...abref/model/entry/types/BiblatexEntryTypeDefinitions.java | 6 | 0.1% |
+| ...main/java/org/jabref/model/groups/GroupHierarchyType.java | 6 | 0.1% |
+| src/main/java/org/jabref/model/entry/field/IEEEField.java | 6 | 0.1% |
+| ...ain/java/org/jabref/model/openoffice/uno/UnoCrossRef.java | 6 | 0.1% |
+| src/main/java/org/jabref/model/entry/LinkedFile.java | 6 | 0.1% |
+| src/main/java/org/jabref/model/openoffice/CitationEntry.java | 6 | 0.1% |
+| .../java/org/jabref/model/entry/identifier/MathSciNetId.java | 6 | 0.1% |
+| src/main/java/org/jabref/model/groups/KeywordGroup.java | 6 | 0.1% |
+| src/main/java/org/jabref/model/study/FetchResult.java | 6 | 0.1% |
+| src/main/java/org/jabref/model/openoffice/uno/UnoStyle.java | 6 | 0.1% |
 
 ---
 
@@ -262,7 +262,7 @@ We apply three strategies to de-bias the enrollment-inflated metrics:
 | Standard (biased) | 0.588 | 0.000 | -0.588 |
 | IDF-Weighted | 0.612 | 0.000 | -0.612 |
 | Component-Macro | 0.661 | 0.000 | -0.661 |
-| Popularity-Debiased | 0.687 | 0.000 | -0.687 |
+| Popularity-Debiased | 0.739 | 0.000 | -0.739 |
 
 **Per-component breakdown (Component-Macro):**
 
@@ -298,13 +298,13 @@ We apply three strategies to de-bias the enrollment-inflated metrics:
 | Component: Recommender | 14 | 0.800 | 0.000 | -0.800 |
 | Component: Auth | 13 | 1.000 | 0.000 | -1.000 |
 | Component: Registry | 5 | 1.000 | 0.000 | -1.000 |
-| Interface: ProductActions | 1 | 0.800 | 0.000 | -0.800 |
 | Interface: CartActions | 1 | 0.800 | 0.000 | -0.800 |
 | Interface: Persistence | 1 | 0.667 | 0.000 | -0.667 |
+| Interface: ProductActions | 1 | 0.800 | 0.000 | -0.800 |
 | Interface: ImageProvider | 1 | 0.889 | 0.000 | -0.889 |
 | Interface: AuthCart | 2 | 1.000 | 0.000 | -1.000 |
-| Interface: Recommender | 1 | 0.800 | 0.000 | -0.800 |
 | Interface: RecommenderStrategy | 1 | 0.800 | 0.000 | -0.800 |
+| Interface: Recommender | 1 | 0.800 | 0.000 | -0.800 |
 
 ### Teammates
 
@@ -319,20 +319,20 @@ We apply three strategies to de-bias the enrollment-inflated metrics:
 
 | Component | Files | TransArc F1 | V45 F1 | Δ |
 |:--|---:|:---:|:---:|:---:|
-| Interface: UI | 348 | 0.835 | 0.000 | -0.835 |
 | Component: UI | 348 | 0.835 | 0.000 | -0.835 |
+| Interface: UI | 348 | 0.835 | 0.000 | -0.835 |
 | Component: Common | 150 | 0.844 | 0.000 | -0.844 |
 | Interface: Common | 150 | 0.844 | 0.000 | -0.844 |
 | Component: Logic | 71 | 0.832 | 0.000 | -0.832 |
 | Interface: Logic | 71 | 0.832 | 0.000 | -0.832 |
-| Component: E2E | 123 | 0.824 | 0.000 | -0.824 |
 | Interface: E2E | 123 | 0.824 | 0.000 | -0.824 |
-| Component: Storage | 59 | 0.798 | 0.000 | -0.798 |
+| Component: E2E | 123 | 0.824 | 0.000 | -0.824 |
 | Interface: Storage | 59 | 0.798 | 0.000 | -0.798 |
+| Component: Storage | 59 | 0.798 | 0.000 | -0.798 |
 | Interface: Client | 40 | 0.537 | 0.000 | -0.537 |
 | Component: Client | 40 | 0.537 | 0.000 | -0.537 |
-| Interface: Test Driver | 17 | 0.750 | 0.000 | -0.750 |
 | Component: Test Driver | 17 | 0.750 | 0.000 | -0.750 |
+| Interface: Test Driver | 17 | 0.750 | 0.000 | -0.750 |
 
 ### Bigbluebutton
 
@@ -341,32 +341,32 @@ We apply three strategies to de-bias the enrollment-inflated metrics:
 | Standard (biased) | 0.831 | 0.000 | -0.831 |
 | IDF-Weighted | 0.806 | 0.000 | -0.806 |
 | Component-Macro | 0.863 | 0.000 | -0.863 |
-| Popularity-Debiased | 0.348 | 0.000 | -0.348 |
+| Popularity-Debiased | 0.347 | 0.000 | -0.347 |
 
 **Per-component breakdown (Component-Macro):**
 
 | Component | Files | TransArc F1 | V45 F1 | Δ |
 |:--|---:|:---:|:---:|:---:|
-| Interface: FreeSWITCH | 94 | 0.934 | 0.000 | -0.934 |
 | Component: FreeSWITCH | 94 | 0.934 | 0.000 | -0.934 |
-| Component: FSESL | 92 | 0.932 | 0.000 | -0.932 |
+| Interface: FreeSWITCH | 94 | 0.934 | 0.000 | -0.934 |
 | Interface: FSESL | 92 | 0.932 | 0.000 | -0.932 |
+| Component: FSESL | 92 | 0.932 | 0.000 | -0.932 |
+| Component: HTML5 Client | 16 | 0.743 | 0.000 | -0.743 |
 | Component: HTML5 Server | 16 | 0.743 | 0.000 | -0.743 |
 | Interface: HTML5 Server | 16 | 0.743 | 0.000 | -0.743 |
 | Interface: HTML5 Client | 16 | 0.743 | 0.000 | -0.743 |
-| Component: HTML5 Client | 16 | 0.743 | 0.000 | -0.743 |
-| Interface: BBB web | 33 | 0.571 | 0.000 | -0.571 |
 | Component: BBB web | 33 | 0.571 | 0.000 | -0.571 |
+| Interface: BBB web | 33 | 0.571 | 0.000 | -0.571 |
 | Interface: Presentation Conversion | 70 | 1.000 | 0.000 | -1.000 |
 | Component: Presentation Conversion | 70 | 1.000 | 0.000 | -1.000 |
 | Component: Apps | 15 | 0.909 | 0.000 | -0.909 |
 | Interface: Apps | 15 | 0.909 | 0.000 | -0.909 |
 | Interface: Redis PubSub | 7 | 1.000 | 0.000 | -1.000 |
 | Component: Redis PubSub | 7 | 1.000 | 0.000 | -1.000 |
-| Interface: WebRTC-SFU | 6 | 0.800 | 0.000 | -0.800 |
 | Component: WebRTC-SFU | 6 | 0.800 | 0.000 | -0.800 |
-| Interface: Redis DB | 3 | 1.000 | 0.000 | -1.000 |
+| Interface: WebRTC-SFU | 6 | 0.800 | 0.000 | -0.800 |
 | Component: Redis DB | 3 | 1.000 | 0.000 | -1.000 |
+| Interface: Redis DB | 3 | 1.000 | 0.000 | -1.000 |
 
 ### Jabref
 
@@ -394,21 +394,21 @@ We apply three strategies to de-bias the enrollment-inflated metrics:
 
 | Project | Std TransArc | Std V45 | IDF TransArc | IDF V45 | Macro TransArc | Macro V45 | PDR TransArc | PDR V45 |
 |:--|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| mediastore | 0.588 | 0.000 | 0.612 | 0.000 | 0.661 | 0.000 | 0.687 | 0.000 |
+| mediastore | 0.588 | 0.000 | 0.612 | 0.000 | 0.661 | 0.000 | 0.739 | 0.000 |
 | teastore | 0.829 | 0.000 | 0.830 | 0.000 | 0.839 | 0.000 | 0.830 | 0.000 |
 | teammates | 0.821 | 0.000 | 0.820 | 0.000 | 0.774 | 0.000 | 0.624 | 0.000 |
-| bigbluebutton | 0.831 | 0.000 | 0.806 | 0.000 | 0.863 | 0.000 | 0.348 | 0.000 |
+| bigbluebutton | 0.831 | 0.000 | 0.806 | 0.000 | 0.863 | 0.000 | 0.347 | 0.000 |
 | jabref | 0.943 | 0.000 | 0.943 | 0.000 | 0.948 | 0.000 | 0.880 | 0.000 |
-| **Average** | **0.803** | **0.000** | **0.802** | **0.000** | **0.817** | **0.000** | **0.674** | **0.000** |
+| **Average** | **0.803** | **0.000** | **0.802** | **0.000** | **0.817** | **0.000** | **0.684** | **0.000** |
 
 ### Metric Shift: Standard F1 → Debiased F1
 
 | Project | TransArc Std→IDF | TransArc Std→Macro | TransArc Std→PDR | V45 Std→IDF | V45 Std→Macro | V45 Std→PDR |
 |:--|:---:|:---:|:---:|:---:|:---:|:---:|
-| mediastore | +0.024 | +0.072 | +0.099 | +0.000 | +0.000 | +0.000 |
+| mediastore | +0.024 | +0.072 | +0.151 | +0.000 | +0.000 | +0.000 |
 | teastore | +0.000 | +0.010 | +0.000 | +0.000 | +0.000 | +0.000 |
 | teammates | -0.001 | -0.047 | -0.197 | +0.000 | +0.000 | +0.000 |
-| bigbluebutton | -0.025 | +0.032 | -0.483 | +0.000 | +0.000 | +0.000 |
+| bigbluebutton | -0.025 | +0.032 | -0.484 | +0.000 | +0.000 | +0.000 |
 | jabref | -0.000 | +0.005 | -0.063 | +0.000 | +0.000 | +0.000 |
 
 ---

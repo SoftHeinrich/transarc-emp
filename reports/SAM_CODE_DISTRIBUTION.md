@@ -371,16 +371,16 @@ For each project, the specific code files that are incorrectly linked to model e
 |--------------|---------|-------------|
 | Component: HTML5 Server | 8 | `bbb-graphql-server/build_hasura.sh`, `bbb-graphql-server/install-hasura.sh`, `bbb-graphql-server/after-install.sh`, `bbb-graphql-server/after-remove.sh`, `bbb-graphql-server/before-remove.sh` +3 more |
 | Interface: HTML5 Server | 8 | `bbb-graphql-server/build_hasura.sh`, `bbb-graphql-server/install-hasura.sh`, `bbb-graphql-server/after-install.sh`, `bbb-graphql-server/after-remove.sh`, `bbb-graphql-server/before-remove.sh` +3 more |
-| Interface: HTML5 Client | 5 | `bbb-graphql-client-test/deploy.sh`, `client/run-watch.sh`, `client/run.sh`, `client/stress-test.sh`, `bbb-html5-nodejs/build.sh` |
 | Component: HTML5 Client | 5 | `bbb-graphql-client-test/deploy.sh`, `client/run-watch.sh`, `client/run.sh`, `client/stress-test.sh`, `bbb-html5-nodejs/build.sh` |
-| Component: Recording Service | 5 | `service/ServiceUtils.java`, `service/SessionService.java`, `service/ValidationService.java`, `service/XmlService.java`, `impl/XmlServiceImpl.java` |
+| Interface: HTML5 Client | 5 | `bbb-graphql-client-test/deploy.sh`, `client/run-watch.sh`, `client/run.sh`, `client/stress-test.sh`, `bbb-html5-nodejs/build.sh` |
 | Interface: Recording Service | 5 | `service/ServiceUtils.java`, `service/SessionService.java`, `service/ValidationService.java`, `service/XmlService.java`, `impl/XmlServiceImpl.java` |
-| Interface: Presentation Conversion | 3 | `bbb-playback-presentation/after-install.sh`, `bbb-playback-presentation/build.sh`, `bbb-playback-presentation/opts-jammy.sh` |
+| Component: Recording Service | 5 | `service/ServiceUtils.java`, `service/SessionService.java`, `service/ValidationService.java`, `service/XmlService.java`, `impl/XmlServiceImpl.java` |
 | Component: Presentation Conversion | 3 | `bbb-playback-presentation/after-install.sh`, `bbb-playback-presentation/build.sh`, `bbb-playback-presentation/opts-jammy.sh` |
+| Interface: Presentation Conversion | 3 | `bbb-playback-presentation/after-install.sh`, `bbb-playback-presentation/build.sh`, `bbb-playback-presentation/opts-jammy.sh` |
 | Interface: Apps | 1 | `messages/BbbAppsIsAliveMessage.java` |
+| Interface: FreeSWITCH | 1 | `cron.hourly/bbb-resync-freeswitch` |
 | Component: Apps | 1 | `messages/BbbAppsIsAliveMessage.java` |
 | Component: FreeSWITCH | 1 | `cron.hourly/bbb-resync-freeswitch` |
-| Interface: FreeSWITCH | 1 | `cron.hourly/bbb-resync-freeswitch` |
 
 ### jabref (1 FPs)
 
@@ -402,10 +402,10 @@ For each project, the specific code files that should be linked but are not reco
 
 | Model Element | FN Count | Missed Files |
 |--------------|---------|-------------|
+| Interface: RecommenderStrategy | 1 | `algorithm/IRecommender.java` |
 | Interface: ProductActions | 1 | `servlet/ProductServlet.java` |
 | Interface: AuthCart | 1 | `rest/AuthUserActionsRest.java` |
 | Interface: Persistence | 1 | `repository/AbstractPersistenceRepository.java` |
-| Interface: RecommenderStrategy | 1 | `algorithm/IRecommender.java` |
 
 ### teammates: No SAM-CODE FNs
 
@@ -413,8 +413,8 @@ For each project, the specific code files that should be linked but are not reco
 
 | Model Element | FN Count | Missed Files |
 |--------------|---------|-------------|
-| Component: BBB web | 11 | `bigbluebutton-web/build.sh`, `bigbluebutton-web/deploy_to_usr_share.sh`, `bigbluebutton-web/gradlew`, `bigbluebutton-web/grailsw`, `pres-checker/build.sh` +6 more |
 | Interface: BBB web | 11 | `bigbluebutton-web/build.sh`, `bigbluebutton-web/deploy_to_usr_share.sh`, `bigbluebutton-web/gradlew`, `bigbluebutton-web/grailsw`, `pres-checker/build.sh` +6 more |
+| Component: BBB web | 11 | `bigbluebutton-web/build.sh`, `bigbluebutton-web/deploy_to_usr_share.sh`, `bigbluebutton-web/gradlew`, `bigbluebutton-web/grailsw`, `pres-checker/build.sh` +6 more |
 | Component: Recording Service | 3 | `api/RecordingServiceHelper.java`, `api2/IRecordingService.java`, `api2/RecordingServiceGW.java` |
 | Interface: Recording Service | 3 | `api/RecordingServiceHelper.java`, `api2/IRecordingService.java`, `api2/RecordingServiceGW.java` |
 
