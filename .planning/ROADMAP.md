@@ -52,7 +52,11 @@ Plans:
   2. An analysis quantifies the misleading consequences of **SAD-CODE file-level (enrollment) F1**, consolidating prior bias findings (e.g. the JabRef File 0.943 → Decision 0.394 flip) as motivation evidence (STUDY-02).
   3. A **converged metric framework** is proposed and documented that applies one common evaluation story across both SAD-SAM and SAD-CODE (STUDY-03).
   4. The consequences findings + converged-metrics proposal are written into the paper as a motivation section extending Ch2 (Benchmark bias), citing only retained scripts/reports — `writing/eval.tex` still validates structurally and tables regenerate (STUDY-04).
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — Build src/bias/consequences_study.py (stdlib): read the two Phase-4 metrics CSVs, emit reports/CONSEQUENCES_STUDY.md with SAD-SAM pure-F1 consequences (STUDY-01), consolidated SAD-CODE file-level consequences (STUDY-02), and the converged Decision+Component framework (STUDY-03).
+- [ ] 05-02-PLAN.md — Add t_consequences + t_converged_framework builders to src/paper/generate_tables.py and write the new Ch2 motivation section + converged-framework protocol extension into writing/eval.tex (STUDY-04).
 
 ### Phase 6: Handoff Docs
 **Goal**: A new reader can open the repo, understand the two-pillar structure, and regenerate either pillar's reports from scratch by following written instructions.
@@ -72,5 +76,5 @@ Plans:
 | 2. Verify | v1.0 | 1/1 | ✓ Complete | 2026-05-30 |
 | 3. Paper | v1.0 | 1/1 | ✓ Complete | 2026-05-30 |
 | 4. Metrics API | v1.1 | 1/1 | ✓ Complete | 2026-05-30 |
-| 5. Consequences Study & Converged Metrics | v1.1 | 0/0 | Not started | - |
+| 5. Consequences Study & Converged Metrics | v1.1 | 0/2 | Planned | - |
 | 6. Handoff Docs | v1.1 | 0/0 | Not started | - |
