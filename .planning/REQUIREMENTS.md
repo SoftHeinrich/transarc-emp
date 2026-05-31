@@ -8,8 +8,10 @@
 ### Documentation
 <!-- DOC-01/DOC-02 were defined and deferred in v1.0; activated this milestone. -->
 
-- [ ] **DOC-01**: A top-level README maps the two pillars — what each pillar is, and where its code, reports, and paper chapter live.
-- [ ] **DOC-02**: Each pillar has run/reproduce instructions — a reader can regenerate that pillar's reports from scratch by following them.
+- [x] **DOC-01
+**: A top-level README maps the two pillars — what each pillar is, and where its code, reports, and paper chapter live.
+- [x] **DOC-02
+**: Each pillar has run/reproduce instructions — a reader can regenerate that pillar's reports from scratch by following them.
 
 ### Metrics API
 <!-- Ingest TransArc-format linker results → all metrics → CSV + LaTeX. Stdlib only. Reuse src/lib + src/bias. Tasks: sad-sam + sad-code only. -->

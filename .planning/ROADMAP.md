@@ -24,7 +24,7 @@ study + Ch2=Benchmark bias with a data-driven table generator (`src/paper/genera
 
 - [x] **Phase 4: Metrics API** - Ingest TransArc-format sad-sam/sad-code results, compute the full metric set, emit CSV + LaTeX.
 - [x] **Phase 5: Consequences Study & Converged Metrics** - Quantify how misleading F1 harms both tasks and propose one converged evaluation story (extends Pillar 2).
-- [ ] **Phase 6: Handoff Docs** - Top-level two-pillar README + per-pillar run/reproduce instructions.
+- [x] **Phase 6: Handoff Docs** - Top-level two-pillar README + per-pillar run/reproduce instructions.
 
 ## Phase Details
 
@@ -69,7 +69,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 06-01-PLAN.md — Write top-level README.md: two-pillar map table (DOC-01) + per-pillar reproduce sections from the verified script→output map (DOC-02), covering the Phase-4 metrics API and Phase-5 consequences study; spot-validate one representative command per pillar.
+- [x] 06-01-PLAN.md — Write top-level README.md: two-pillar map table (DOC-01) + per-pillar reproduce sections from the verified script→output map (DOC-02), covering the Phase-4 metrics API and Phase-5 consequences study; spot-validate one representative command per pillar.
 
 ## Progress
 
@@ -80,4 +80,4 @@ Plans:
 | 3. Paper | v1.0 | 1/1 | ✓ Complete | 2026-05-30 |
 | 4. Metrics API | v1.1 | 1/1 | ✓ Complete | 2026-05-30 |
 | 5. Consequences Study & Converged Metrics | v1.1 | 2/2 | ✓ Complete | 2026-05-30 |
-| 6. Handoff Docs | v1.1 | 0/1 | Not started | - |
+| 6. Handoff Docs | v1.1 | 1/1 | ✓ Complete | 2026-05-31 |
