@@ -25,39 +25,28 @@ See: .planning/PROJECT.md (updated 2026-05-31)
 
 ## Current Position
 
-Phase: 06
-Plan: Not started
-Status: Milestone complete
+Milestone: v1.1 — shipped & archived (tag `v1.1`)
+Phase: — (no active phase)
+Plan: —
+Status: Milestone archived — awaiting next milestone (`/gsd-new-milestone`)
 Last activity: 2026-05-31
 
-Progress: [██████████] 100%
+Progress: [██████████] 100% (3/3 phases, 4/4 plans)
 
 ## Performance Metrics
 
-**Velocity:**
+**Velocity (v1.1):**
 
-- Total plans completed: 5
-- Average duration: -
-- Total execution time: 0 hours
+- Total plans completed: 4
+- Average duration: ~9 min/plan
 
 **By Phase:**
 
-| Phase | Plans | Total | Avg/Plan |
-|-------|-------|-------|----------|
-| 04 | 1 | - | - |
-| 05 | 2 | - | - |
-| 06 | 1 | - | - |
-
-**Recent Trend:**
-
-- Last 5 plans: -
-- Trend: -
-
-*Updated after each plan completion*
-| Phase 04 P01 | 15 | 3 tasks | 5 files |
-| Phase 05 P01 | 8 | 2 tasks | 2 files |
-| Phase 05 P02 | 6 | 2 tasks | 4 files |
-| Phase 06 P01 | 8 | 2 tasks | 1 files |
+| Phase | Plans | Tasks | Files | Duration |
+|-------|-------|-------|-------|----------|
+| 04 Metrics API | 1 | 3 | 5 | ~15 min |
+| 05 Consequences & Converged | 2 | 4 | 6 | ~14 min |
+| 06 Handoff Docs | 1 | 2 | 1 | ~8 min |
 
 ## Accumulated Context
 
@@ -82,9 +71,7 @@ None yet.
 
 ### Blockers/Concerns
 
-- `src/lib/new_metrics_analysis.py` is the likely home for the proposed alternative metrics the API must reuse (MTR-03) — Phase 4 plan should confirm its API surface before wrapping it.
-- Phase 4 must compute the full metric set without any benchmark-derived word lists (CLAUDE.md leakage rule).
-- Phase 5 should consume Phase 4 CSV/LaTeX output as evidence where possible to avoid duplicate metric computation.
+None — all v1.1 concerns resolved (metrics API reused `new_metrics_analysis.py`/`src/bias` with no leakage; Phase 5 consumed the Phase-4 CSVs as evidence). Remaining non-blocking debt tracked under Deferred Items.
 
 ## Deferred Items
 
@@ -98,8 +85,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-31T01:59:20Z
-Stopped at: Completed 06-01-PLAN.md
+Last session: 2026-05-31
+Stopped at: v1.1 milestone shipped, audited (PASSED 11/11), completed & archived; phases moved to `milestones/v1.1-phases/`; tag `v1.1` created (not pushed)
 Resume file: None
 
-**Milestone v1.1 complete:** all 3 phases (4 plans) done — next: `/gsd-complete-milestone`
+**Milestone v1.1 DONE & ARCHIVED.** audit ✅ → complete ✅ → cleanup ✅. Next: `/gsd-new-milestone` (REQUIREMENTS.md git-rm'd, fresh for next cycle). Optional: `git push origin v1.1`.
