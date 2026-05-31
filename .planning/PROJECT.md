@@ -10,31 +10,20 @@ The two retained pillars (TransArc empirical study + benchmark bias analysis) mu
 
 ## Current State
 
-**Shipped v1.0 (2026-05-30) — Two-Pillar Refactor.** The workspace is now organized as:
+**Shipped v1.1 (2026-05-31) — Metrics Toolkit & Converged-Metric Motivation** (on top of v1.0 Two-Pillar Refactor). The workspace is organized as:
 - `src/transarc/` (Pillar 1): SAD-SAM contribution, TP-gain, SAM-CODE cascade, S12C/S12E-vs-TransArc comparison.
-- `src/bias/` (Pillar 2): enrollment-inflation critique, File/Decision/Component metrics, trivial/extreme baselines, proposed alternative metrics.
-- `src/lib/` (shared): `transarc_error_analysis.py` loaders + `new_metrics_analysis.py` (serve both pillars).
-- `src/paper/generate_tables.py`: stdlib table generator → `writing/tables/*.tex`.
-- `writing/eval.tex`: Ch1 = TransArc empirical study (`\input{ch1_transarc}`), Ch2 = Benchmark bias.
-- `archive/`: out-of-scope work (annotation, SWATTR, LLM exploration), non-destructively retained.
+- `src/bias/` (Pillar 2): enrollment-inflation critique, File/Decision/Component metrics, trivial/extreme baselines, proposed alternative metrics, **`consequences_study.py`** (v1.1).
+- `src/lib/` (shared): `transarc_error_analysis.py` loaders + `new_metrics_analysis.py` + **`metrics_api.py`** (v1.1 stdlib metrics CLI).
+- `src/paper/generate_tables.py`: stdlib table generator → `writing/tables/*.tex` (now 12 tables incl. consequences + converged-framework).
+- `writing/eval.tex`: Ch1 = TransArc empirical study (`\input{ch1_transarc}`), Ch2 = Benchmark bias, now incl. `sec:eval:misleading-both` + converged-axis protocol extension.
+- `README.md` (v1.1): top-level two-pillar map + per-pillar reproduce instructions.
+- `archive/`: out-of-scope work, non-destructively retained.
 
-All 13 pillar scripts run clean and regenerate their reports deterministically.
+All pillar scripts run clean and regenerate their reports deterministically (NDG/weighted columns jitter in low decimals — deferred source-level fix).
 
-## Current Milestone: v1.1 Metrics Toolkit & Converged-Metric Motivation
+## Next Milestone
 
-**Goal:** Ship a reproducible metrics-reporting API plus a motivation study showing how misleading F1 harms BOTH SAD-SAM and SAD-CODE, and propose a converged metric framework that gives the two tasks one coherent evaluation story — while making the workspace handoff-ready.
-
-**Target features:**
-- DOC-01: top-level README mapping the two pillars.
-- DOC-02: per-pillar run/reproduce instructions.
-- Metrics API: ingest TransArc-format linker results → compute all metrics (File/Decision/Component F1 + proposed alternatives) for **sad-sam** and **sad-code** → emit CSV (Excel-openable) + LaTeX table.
-- Empirical consequences study: harm of misleading F1 for BOTH **SAD-SAM** (pure F1) and **SAD-CODE** (file-level enrollment F1), then propose **converged metrics** so the two tasks share one evaluation story (motivation chapter, extends Pillar 2).
-
-**Key context:**
-- Stdlib-only preserved — Excel output is **CSV**, not `.xlsx` (no openpyxl, no requirements.txt).
-- Metrics API ingests the existing **TransArc output format** from `results/`; reuses `src/lib` + `src/bias` for metric computation.
-- Tasks limited to **sad-sam + sad-code** (no sam-code this milestone).
-- The consequences study + converged-metrics proposal extend Pillar 2 (benchmark bias).
+No active milestone. Define the next one with `/gsd-new-milestone`. Candidate carry-overs (deferred): NDG non-determinism fix in `compute_random_f1`; extend the metrics API to **sam-code**; true `.xlsx` output (needs openpyxl); real `pdflatex` PDF build; rename `transarc_error_analysis.py` → `data_loaders.py`.
 
 ## Requirements
 
@@ -51,12 +40,16 @@ All 13 pillar scripts run clean and regenerate their reports deterministically.
 - ✓ Both pillars verified reproducible (13/13 scripts, reports regenerate) — v1.0 (Phase 2)
 - ✓ `writing/eval.tex` restructured: Ch1 = TransArc study, Ch2 = Benchmark bias — v1.0 (Phase 3)
 - ✓ Data-driven LaTeX table generation (`src/paper/generate_tables.py`) — v1.0 (Phase 3)
+- ✓ Stdlib metrics API: TransArc-format sad-sam/sad-code → full per-task metric set → CSV + LaTeX (`src/lib/metrics_api.py`) — v1.1 (MTR-01..05)
+- ✓ SAD-SAM pure-F1 + SAD-CODE file-level consequences study (`src/bias/consequences_study.py`, `reports/CONSEQUENCES_STUDY.md`) — v1.1 (STUDY-01/02)
+- ✓ Converged metric framework (Decision + Component common axis), written into `eval.tex` Ch2 — v1.1 (STUDY-03/04)
+- ✓ Top-level two-pillar README with per-pillar reproduce instructions (`README.md`) — v1.1 (DOC-01/02)
 
 ### Active
 
 <!-- Empty — next milestone defines new requirements via /gsd-new-milestone. -->
 
-(none — v1.0 shipped; define next milestone's requirements with `/gsd-new-milestone`)
+(none — v1.1 shipped; define next milestone's requirements with `/gsd-new-milestone`)
 
 ### Out of Scope
 
@@ -97,6 +90,10 @@ All 13 pillar scripts run clean and regenerate their reports deterministically.
 | `new_metrics_analysis.py` stays in `src/lib` | Imported as a library by both pillars, not a standalone script | ✓ Good (v1.0) |
 | Keep depth-2 `src/<pillar>/x.py` layout | Preserves `parent.parent/lib` import resolution with zero code edits | ✓ Good (v1.0) |
 | Reframe paper SC4 (table-gen + structural validation, not pdflatex) | No local LaTeX toolchain; chapters feed a larger external paper | ✓ Good (v1.0) |
+| SAD-SAM has no file/enrollment granularity (link/sentence/component only) | File/Decision/Component is a SAD-CODE enrollment construct; sad-sam pairs are direct, uninflated | ✓ Good (v1.1) |
+| Converged metric = Decision + Component common axis (not a single composite), layered atop existing corrected metrics | Gives both tasks one honest evaluation story without discarding the v1.0 metric suite | ✓ Good (v1.1) |
+| Metrics API reuses existing primitives, zero metric-math reimplementation | Guarantees numbers match published reports; cheaper to verify | ✓ Good (v1.1) |
+| NDG/weighted column low-decimal non-determinism deferred | Root cause is set-iteration order in `compute_random_f1` (source-level); not goal-blocking | ⚠️ Revisit (v1.1) |
 
 ## Evolution
 
@@ -116,4 +113,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-30 — v1.1 milestone started (Metrics Toolkit & Converged-Metric Motivation)*
+*Last updated: 2026-05-31 — v1.1 milestone shipped (Metrics Toolkit & Converged-Metric Motivation)*

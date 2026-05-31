@@ -2,26 +2,26 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Metrics Toolkit & Converged-Metric Motivation
-status: milestone_complete
-stopped_at: Completed 06-01-PLAN.md
-last_updated: "2026-05-31T01:59:59.243Z"
-last_activity: 2026-05-31 -- Phase 6 (Handoff Docs) complete; v1.1 milestone done
+status: milestone_archived
+stopped_at: v1.1 shipped & archived (tag v1.1)
+last_updated: "2026-05-31T00:00:00.000Z"
+last_activity: 2026-05-31 -- v1.1 milestone archived; ready for next milestone
 progress:
   total_phases: 3
-  completed_phases: 4
+  completed_phases: 3
   total_plans: 4
   completed_plans: 4
-  percent: 133
+  percent: 100
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-05-30)
+See: .planning/PROJECT.md (updated 2026-05-31)
 
 **Core value:** Both retained pillars (TransArc empirical study + benchmark bias analysis) must stay reproducible, and their reports/paper chapters must remain consistent with the code that produced them.
-**Current focus:** Phase 6 (Handoff Docs) complete — v1.1 milestone done
+**Current focus:** v1.1 shipped & archived — define the next milestone with `/gsd-new-milestone`
 
 ## Current Position
 
