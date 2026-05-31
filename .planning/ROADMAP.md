@@ -66,7 +66,10 @@ Plans:
   1. A top-level README maps the two pillars — what each pillar is, and where its code, reports, and paper chapter live (DOC-01).
   2. Each pillar has run/reproduce instructions a reader can follow to regenerate that pillar's reports from scratch (DOC-02).
   3. The instructions cover the new metrics API (Phase 4) and the consequences study (Phase 5), so the documented commands match the shipped scripts.
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 06-01-PLAN.md — Write top-level README.md: two-pillar map table (DOC-01) + per-pillar reproduce sections from the verified script→output map (DOC-02), covering the Phase-4 metrics API and Phase-5 consequences study; spot-validate one representative command per pillar.
 
 ## Progress
 
@@ -77,4 +80,4 @@ Plans:
 | 3. Paper | v1.0 | 1/1 | ✓ Complete | 2026-05-30 |
 | 4. Metrics API | v1.1 | 1/1 | ✓ Complete | 2026-05-30 |
 | 5. Consequences Study & Converged Metrics | v1.1 | 2/2 | ✓ Complete | 2026-05-30 |
-| 6. Handoff Docs | v1.1 | 0/0 | Not started | - |
+| 6. Handoff Docs | v1.1 | 0/1 | Not started | - |
