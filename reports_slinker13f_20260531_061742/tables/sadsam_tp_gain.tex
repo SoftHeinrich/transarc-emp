@@ -1,0 +1,17 @@
+\begin{table}[htbp]
+  \centering
+  \caption{\sadsam true-positive gain: \sadcode true positives that would become recoverable if each \sadsam false negative were fixed}
+  \label{tab:sadsam-tp-gain}
+  \begin{tabular}{lrrrr}
+    \toprule
+    Project & SAD-SAM FNs & Total Potential New SAD-CODE TPs & Max Single-Link Gain & Avg Gain/FN \\
+    \midrule
+    mediastore & 14 & 27 & 3 & 1.9 \\
+    teastore & 7 & 206 & 64 & 29.4 \\
+    teammates & 8 & 246 & 71 & 30.8 \\
+    bigbluebutton & 18 & 195 & 22 & 10.8 \\
+    jabref & 0 & 0 & 0 & 0.0 \\
+    \bottomrule
+  \end{tabular}
+  \par\smallskip\footnotesize Source: \texttt{reports/SAD\_SAM\_TP\_GAIN\_STUDY.md}.
+\end{table}
