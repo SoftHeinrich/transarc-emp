@@ -94,7 +94,7 @@ def select_projects(args):
 # ── Placeholder computations (replaced in Tasks 2 and 3) ──────────────────────
 
 def compute_sad_sam_row(proj):
-    """Compute the SAD-SAM metric row.
+    """Compute the SAD-SAM metric row for the standalone (TransArc) result.
 
     SAD-SAM has NO files and NO enrollment — work directly on
     (modelElementID, sentence) pairs. The evaluation_critique `_compute_*`
@@ -102,12 +102,23 @@ def compute_sad_sam_row(proj):
     exist for sad-sam). Returns None (skip + warn) if the results file is
     absent.
     """
-    gold = load_gs_sad_sam(proj)                       # set[(modelElementID, sentence)]
     res = load_result_sad_sam_standalone(proj)         # set() if file absent
     if not res:
         print(f"WARNING: no sad-sam results for {proj}, skipping",
               file=sys.stderr)
         return None
+    return compute_sad_sam_metrics(proj, res)
+
+
+def compute_sad_sam_metrics(proj, res):
+    """Compute the full SAD-SAM metric suite for an arbitrary result set.
+
+    Single source of truth for SAD-SAM metrics — used both by the standalone
+    metrics CLI (``compute_sad_sam_row``) and by multi-system comparators that
+    pass e.g. an LLM linker's links. ``res`` is a set[(modelElementID,
+    sentence)]. Returns the row dict (caller may overwrite "project").
+    """
+    gold = load_gs_sad_sam(proj)                       # set[(modelElementID, sentence)]
 
     text = load_text(proj)
     names = load_model_element_names(proj)             # modelElementID -> component name
@@ -167,18 +178,30 @@ def compute_sad_sam_row(proj):
 
 
 def compute_sad_code_row(proj):
-    """Compute the SAD-CODE metric row.
+    """Compute the SAD-CODE metric row for the standalone (TransArc) result.
 
     Reuses the evaluation_critique granularity helpers verbatim (the
     part5_alternative_metrics caller idiom is the exact reference). Returns
     None (skip + warn) if the results file is absent.
     """
-    code_model = load_code_model_files(proj)
     res = load_result_sad_code(proj)                   # set() if file absent
     if not res:
         print(f"WARNING: no sad-code results for {proj}, skipping",
               file=sys.stderr)
         return None
+    return compute_sad_code_metrics(proj, res)
+
+
+def compute_sad_code_metrics(proj, res):
+    """Compute the full SAD-CODE metric suite for an arbitrary result set.
+
+    Single source of truth for SAD-CODE metrics — used both by the standalone
+    metrics CLI (``compute_sad_code_row``) and by multi-system comparators that
+    pass e.g. a composed (LLM-linker × ARCOTL) SAD-CODE result. ``res`` is a
+    set[(sentence_str, code_path)]. Returns the row dict (caller may overwrite
+    "project").
+    """
+    code_model = load_code_model_files(proj)
 
     # Provenance maps from raw gold (matching the part5 caller). Use the
     # provenance-tracked `enrolled` for ALL granularity calls so they agree.
