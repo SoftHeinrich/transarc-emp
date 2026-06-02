@@ -5,7 +5,7 @@ milestone_name: Metrics Toolkit & Converged-Metric Motivation
 status: milestone_archived
 stopped_at: v1.1 shipped & archived (tag v1.1)
 last_updated: "2026-05-31T00:00:00.000Z"
-last_activity: 2026-06-02 -- metrics correctness audit (260602-q6u): 3 WARNINGs, 4 INFOs; core math verified correct
+last_activity: 2026-06-02 -- warning investigation (260602-qwd): W1+W3=bugs, W2=false alarm; fixes specified
 progress:
   total_phases: 3
   completed_phases: 3
@@ -79,6 +79,7 @@ None — all v1.1 concerns resolved (metrics API reused `new_metrics_analysis.py
 |------|------|--------|
 | 2026-05-31 | sadsam-metrics-comparator | Holistic s_linker11 / s_linker13f / TransArc comparison for **both** SAD-SAM and SAD-CODE, reusing the canonical suite. Refactored `metrics_api.compute_sad_sam_metrics(proj, res)` and `compute_sad_code_metrics(proj, res)` out of the `*_row` fns. New `src/transarc/sadsam_comparison.py` → `reports/SADSAM_COMPARISON.md`(+CSV); `src/transarc/sadcode_comparison.py` → `reports/SADCODE_COMPARISON.md`(+CSV). s11/s13f SAD-CODE composed (SAD-SAM × ARCOTL SAM-CODE, like s12c). Avg SAD-SAM Link F1: TransArc 0.799 / s11 0.937 / s13f 0.951. Avg SAD-CODE File F1: 0.803 / 0.902 / 0.931. Both linkers beat TransArc on every metric; s13f best. SAD-SAM levels collapse to Link F1 (no enrollment); SAD-CODE levels diverge (enrollment). |
 | 2026-06-02 | 260602-q6u | Code quality + metrics correctness audit. 10 issues found: 3 WARNINGs (NDG n_sentences inconsistency metrics_api vs new_metrics_analysis; latent MCC negative-tn if result has out-of-gold files; sentence_f1 undercounts FPs for gold-negative predicted sentences), 1 WARNING design (ACF1 multi-component weight policy undocumented), 1 INFO (NDG range documented [0,1] but can return negative), 4 INFO/dead-code (unused `comp_sent_count`, `gold_by_sent`, `n_components` param in compute_random_f1). Core math in new_metrics_analysis.py verified CORRECT. Published report numbers unaffected. See `.planning/quick/260602-q6u-*/SUMMARY.md`. |
+| 2026-06-02 | 260602-qwd | Investigated 3 WARNINGs from prior audit with concrete data. W1=BUG: metrics_api NDG uses enrolled-sentence count (25–93) not total text (13–198), p inflated 1.3–2.1×, NDG systematically wrong in sadcode_comparison. W2=FALSE ALARM: TransArc result paths confirmed within gold SAM-CODE universe (mediastore verified 0/11 out-of-gold); structural argument holds for all callers. W3=BUG: sentence_f1 silently drops gold-negative FP sentences — teammates has 27/66 result sentences (41%) with no gold entry, precision overstated. Fixes specified in SUMMARY.md. |
 
 ## Deferred Items
 
