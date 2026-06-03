@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 """
-SAD-CODE holistic metric comparison — s_linker11 / s_linker13f / TransArc.
+SAD-CODE holistic metric comparison — s_linker11 / s_linker13f / s_linker15 / TransArc.
 
 Counterpart to sadsam_comparison.py, at the transitive SAD-CODE level. Reuses
 the canonical metric suite (`metrics_api.compute_sad_code_metrics`,
 `evaluation_critique`, `new_metrics_analysis`) — zero metric math reimplemented.
 
 Systems (all produce (sentence, code_path) links):
-    TransArc — full ARDoCo pipeline SAD-CODE, transarc-emp results
-    s11      — s_linker11 SAD-SAM × ARCOTL SAM-CODE (composed), like s12c
-    s13f     — s_linker13f SAD-SAM × ARCOTL SAM-CODE (composed)
+    TransArc    — full ARDoCo pipeline SAD-CODE, transarc-emp results
+    s11         — s_linker11 SAD-SAM × ARCOTL SAM-CODE (composed), like s12c
+    s13f        — s_linker13f SAD-SAM × ARCOTL SAM-CODE (composed)
+    s15_gpt     — s_linker15 v2.6.1 (GPT) SAD-SAM × ARCOTL SAM-CODE (composed)
+    s15_claude  — s_linker15 v2.6.1_claude SAD-SAM × ARCOTL SAM-CODE (composed)
 
 Metrics (SAD-CODE has directory enrollment, so the multi-level split IS
 informative here — contrast with SAD-SAM where it collapses):
@@ -40,15 +42,19 @@ from transarc_error_analysis import (  # noqa: E402
 from metrics_api import compute_sad_code_metrics, NA  # noqa: E402
 
 ABLATION_DIR = Path("/mnt/hostshare/ardoco-home/llm-sad-sam-v45/results/ablation_results")
+S15_GPT_DIR = Path("/mnt/hostshare/ardoco-home/llm-sad-sam-v45/results/v2.6.1")
+S15_CLAUDE_DIR = Path("/mnt/hostshare/ardoco-home/llm-sad-sam-v45/results/v2.6.1_claude")
 REPORTS = Path(__file__).resolve().parent.parent.parent / "reports"
 OUTPUT_CSV = REPORTS / "SADCODE_S11_S13F_VS_TRANSARC.csv"
 OUTPUT_MD = REPORTS / "SADCODE_COMPARISON.md"
 
-# (key, label, ablation_variant_or_None)
+# (key, label, loader_tag)
 SYSTEMS = [
     ("transarc", "TransArc", None),
-    ("s11", "s_linker11", "s_linker11"),
-    ("s13f", "s_linker13f", "s_linker13f"),
+    ("s11", "s_linker11", "ablation/s_linker11"),
+    ("s13f", "s_linker13f", "ablation/s_linker13f"),
+    ("s15_gpt", "s15_gpt", "s15_gpt/s_linker15"),
+    ("s15_claude", "s15_claude", "s15_claude/s_linker15"),
 ]
 
 # Suite columns meaningful for SAD-CODE (link/sentence/map are SAD-SAM-only).
@@ -66,9 +72,8 @@ METRIC_LABELS = {
 }
 
 
-def load_ablation_sad_sam(variant, project):
-    """Load ablation SAD-SAM links -> set of (component_id, sentence_str)."""
-    path = ABLATION_DIR / f"{variant}_{project}_links.csv"
+def _load_sad_sam_csv(path):
+    """Load SAD-SAM links CSV -> set of (component_id, sentence_str)."""
     links = set()
     if not path.exists():
         return links
@@ -81,25 +86,35 @@ def load_ablation_sad_sam(variant, project):
     return links
 
 
-def compose_sad_code(ablation_sad_sam, sam_code_standalone):
-    """Compose ablation SAD-SAM × ARCOTL SAM-CODE → SAD-CODE (sentence, code).
+def _load_sad_sam_for_tag(loader_tag, project):
+    if loader_tag.startswith("ablation/"):
+        variant = loader_tag[len("ablation/"):]
+        return _load_sad_sam_csv(ABLATION_DIR / f"{variant}_{project}_links.csv")
+    if loader_tag.startswith("s15_gpt/"):
+        variant = loader_tag[len("s15_gpt/"):]
+        return _load_sad_sam_csv(S15_GPT_DIR / f"{variant}_{project}_links.csv")
+    if loader_tag.startswith("s15_claude/"):
+        variant = loader_tag[len("s15_claude/"):]
+        return _load_sad_sam_csv(S15_CLAUDE_DIR / f"{variant}_{project}_links.csv")
+    raise ValueError(f"Unknown loader_tag: {loader_tag}")
 
-    Mirrors s12c_sadcode_comparison.compose_sad_code.
-    """
+
+def compose_sad_code(sad_sam_links, sam_code_standalone):
+    """Compose SAD-SAM × ARCOTL SAM-CODE → SAD-CODE (sentence, code)."""
     model_to_codes = defaultdict(set)
     for ae_id, code_path in sam_code_standalone:
         model_to_codes[ae_id].add(code_path)
     result = set()
-    for ae_id, sentence in ablation_sad_sam:
+    for ae_id, sentence in sad_sam_links:
         for code in model_to_codes.get(ae_id, ()):
             result.add((sentence, code))
     return result
 
 
-def system_links(key, variant, project):
+def system_links(key, loader_tag, project):
     if key == "transarc":
         return load_result_sad_code(project)
-    sad_sam = load_ablation_sad_sam(variant, project)
+    sad_sam = _load_sad_sam_for_tag(loader_tag, project)
     sam_code = load_result_sam_code_standalone(project)
     return compose_sad_code(sad_sam, sam_code)
 
@@ -108,8 +123,8 @@ def main():
     data = {}
     for proj in PROJECTS:
         data[proj] = {}
-        for key, label, variant in SYSTEMS:
-            res = system_links(key, variant, proj)
+        for key, label, loader_tag in SYSTEMS:
+            res = system_links(key, loader_tag, proj)
             if not res:
                 print(f"WARNING: no SAD-CODE links for {label}/{proj}", file=sys.stderr)
                 data[proj][key] = None
@@ -132,8 +147,8 @@ def main():
         w.writerow(header)
         for proj in PROJECTS:
             row = [proj]
-            for key, _, variant in SYSTEMS:
-                res = system_links(key, variant, proj)
+            for key, _, loader_tag in SYSTEMS:
+                res = system_links(key, loader_tag, proj)
                 row.append(len(res))
                 r = data[proj][key]
                 for m in METRICS:
@@ -150,10 +165,10 @@ def main():
 
     # ── Markdown ──
     L = []
-    L.append("# SAD-CODE Holistic Comparison — s_linker11 / s_linker13f / TransArc\n")
+    L.append("# SAD-CODE Holistic Comparison — s_linker11 / s_linker13f / s_linker15 / TransArc\n")
     L.append("Source: `src/transarc/sadcode_comparison.py`. Reuses the canonical metric "
              "suite (`metrics_api.compute_sad_code_metrics`, `evaluation_critique`, "
-             "`new_metrics_analysis`). s11/s13f SAD-CODE = their SAD-SAM × ARCOTL SAM-CODE "
+             "`new_metrics_analysis`). s11/s13f/s15 SAD-CODE = SAD-SAM × ARCOTL SAM-CODE "
              "(same composition as the s12c comparator); TransArc = full-pipeline output.\n")
     L.append("## Metric levels\n")
     L.append("Unlike SAD-SAM, SAD-CODE gold has **directory enrollment** (525 raw → 18,660 "

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-SAD-SAM holistic metric comparison — s_linker11 / s_linker13f / TransArc.
+SAD-SAM holistic metric comparison — s_linker11 / s_linker13f / s_linker15 / TransArc.
 
 Counterpart to src/transarc/s12c_sadcode_comparison.py, for the SAD-SAM stage.
 Reuses the canonical architecture-aware metric suite in metrics_api /
@@ -18,9 +18,11 @@ new_metrics_analysis (zero metric math reimplemented here):
 (file_f1 / weighted_f1 / acf1 / ndg are N/A for SAD-SAM — no files, no enrollment.)
 
 Systems (all produce (modelElementID, sentence) links):
-    TransArc — ARDoCo standalone SAD-SAM (SWATTR), transarc-emp results
-    s11      — s_linker11 SAD-SAM, llm-sad-sam-v45 ablation results
-    s13f     — s_linker13f SAD-SAM (latest), ablation results
+    TransArc    — ARDoCo standalone SAD-SAM (SWATTR), transarc-emp results
+    s11         — s_linker11 SAD-SAM, llm-sad-sam-v45 ablation results
+    s13f        — s_linker13f SAD-SAM, ablation results
+    s15_gpt     — s_linker15 v2.6.1 (GPT), llm-sad-sam-v45 results
+    s15_claude  — s_linker15 v2.6.1_claude (Claude), llm-sad-sam-v45 results
 
 Output: reports/SADSAM_S11_S13F_VS_TRANSARC.csv  +  reports/SADSAM_COMPARISON.md
 """
@@ -35,15 +37,20 @@ from transarc_error_analysis import PROJECTS, load_gs_sad_sam, load_result_sad_s
 from metrics_api import compute_sad_sam_metrics, NA  # noqa: E402
 
 ABLATION_DIR = Path("/mnt/hostshare/ardoco-home/llm-sad-sam-v45/results/ablation_results")
+S15_GPT_DIR = Path("/mnt/hostshare/ardoco-home/llm-sad-sam-v45/results/v2.6.1")
+S15_CLAUDE_DIR = Path("/mnt/hostshare/ardoco-home/llm-sad-sam-v45/results/v2.6.1_claude")
 REPORTS = Path(__file__).resolve().parent.parent.parent / "reports"
 OUTPUT_CSV = REPORTS / "SADSAM_S11_S13F_VS_TRANSARC.csv"
 OUTPUT_MD = REPORTS / "SADSAM_COMPARISON.md"
 
-# (key, label, ablation_variant_or_None)
+# (key, label, loader_tag)
+# loader_tag: None=transarc, "ablation/<name>"=ablation dir, "s15_gpt", "s15_claude"
 SYSTEMS = [
     ("transarc", "TransArc", None),
-    ("s11", "s_linker11", "s_linker11"),
-    ("s13f", "s_linker13f", "s_linker13f"),
+    ("s11", "s_linker11", "ablation/s_linker11"),
+    ("s13f", "s_linker13f", "ablation/s_linker13f"),
+    ("s15_gpt", "s15_gpt", "s15_gpt/s_linker15"),
+    ("s15_claude", "s15_claude", "s15_claude/s_linker15"),
 ]
 
 # Suite columns meaningful for SAD-SAM (others are NA at this stage).
@@ -58,9 +65,8 @@ METRIC_LABELS = {
 }
 
 
-def load_ablation_sad_sam(variant, project):
-    """Load ablation SAD-SAM links -> set of (component_id, sentence_str)."""
-    path = ABLATION_DIR / f"{variant}_{project}_links.csv"
+def _load_links_csv(path):
+    """Load SAD-SAM links CSV -> set of (component_id, sentence_str)."""
     links = set()
     if not path.exists():
         return links
@@ -73,10 +79,19 @@ def load_ablation_sad_sam(variant, project):
     return links
 
 
-def system_links(key, variant, project):
+def system_links(key, loader_tag, project):
     if key == "transarc":
         return load_result_sad_sam_standalone(project)
-    return load_ablation_sad_sam(variant, project)
+    if loader_tag.startswith("ablation/"):
+        variant = loader_tag[len("ablation/"):]
+        return _load_links_csv(ABLATION_DIR / f"{variant}_{project}_links.csv")
+    if loader_tag.startswith("s15_gpt/"):
+        variant = loader_tag[len("s15_gpt/"):]
+        return _load_links_csv(S15_GPT_DIR / f"{variant}_{project}_links.csv")
+    if loader_tag.startswith("s15_claude/"):
+        variant = loader_tag[len("s15_claude/"):]
+        return _load_links_csv(S15_CLAUDE_DIR / f"{variant}_{project}_links.csv")
+    raise ValueError(f"Unknown loader_tag: {loader_tag}")
 
 
 def main():
@@ -84,8 +99,8 @@ def main():
     data = {}
     for proj in PROJECTS:
         data[proj] = {}
-        for key, label, variant in SYSTEMS:
-            res = system_links(key, variant, proj)
+        for key, label, loader_tag in SYSTEMS:
+            res = system_links(key, loader_tag, proj)
             if not res:
                 print(f"WARNING: no SAD-SAM links for {label}/{proj}", file=sys.stderr)
                 data[proj][key] = None
@@ -110,8 +125,8 @@ def main():
         for proj in PROJECTS:
             gold = load_gs_sad_sam(proj)
             row = [proj, len(gold)]
-            for key, _, variant in SYSTEMS:
-                res = system_links(key, variant, proj)
+            for key, _, loader_tag in SYSTEMS:
+                res = system_links(key, loader_tag, proj)
                 row.append(len(res))
                 r = data[proj][key]
                 for m in METRICS:
@@ -129,7 +144,7 @@ def main():
 
     # ── Markdown ──
     L = []
-    L.append("# SAD-SAM Holistic Comparison — s_linker11 / s_linker13f / TransArc\n")
+    L.append("# SAD-SAM Holistic Comparison — s_linker11 / s_linker13f / s_linker15 / TransArc\n")
     L.append("Source: `src/transarc/sadsam_comparison.py`. Reuses the canonical "
              "architecture-aware metric suite (`metrics_api.compute_sad_sam_metrics`, "
              "`new_metrics_analysis`).\n")
