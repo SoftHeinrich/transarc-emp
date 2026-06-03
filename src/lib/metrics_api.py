@@ -143,12 +143,8 @@ def compute_sad_sam_metrics(proj, res):
         gold_by_s[s].add(c)
     for c, s in res:
         res_by_s[s].add(c)
-    pred_correct_sentences = {
-        s for s in res_by_s
-        if gold_by_s.get(s) and (gold_by_s[s] & res_by_s[s])
-    }
     gold_S = {(s, "*") for s in gold_by_s}
-    res_S = {(s, "*") for s in res_by_s if s in pred_correct_sentences}
+    res_S = {(s, "*") for s in res_by_s}
     row["sentence_f1"] = calc_metrics(gold_S, res_S)[2]
 
     # component_f1: map ids to component names so synonymous ids collapse.
@@ -232,7 +228,7 @@ def compute_sad_code_metrics(proj, res):
 
     # NDG = (system_f1 - random_f1) / (oracle_f1 - random_f1).
     system_f1 = file_f1
-    n_sentences = len({s for (s, _c) in enrolled})
+    n_sentences = len(load_text(proj))
     n_components = len(gs_sam_code_map)
     # compute_random_f1 returns a BARE FLOAT (not a tuple) — do not subscript.
     random_f1 = compute_random_f1(enrolled, n_sentences, n_components, gs_sam_code_map)
