@@ -84,8 +84,19 @@ def aggregate_backend_linker(csv_root: Path, backend: str) -> Dict[str, Dict[str
     return result
 
 
+_ALLOWED_UPSET_CELLS = frozenset({"only_E", "both", "only_C"})
+
+
 def aggregate_backend_upset(csv_root: Path, backend: str) -> Dict[str, int]:
-    """Aggregate rq4_upset.csv across 5 projects (sum per cell)."""
+    """Aggregate rq4_upset.csv across 5 projects (sum per cell).
+
+    Fails loud on unexpected cell labels — the CSV schema pins exactly three
+    cells (`only_E`, `both`, `only_C`), so an unknown label indicates either
+    a typo or a schema regression upstream. Silent absorption (the previous
+    behaviour) hid such regressions: the unknown label was added to the dict
+    but the downstream renderer only reads the three expected keys, so the
+    count was effectively dropped.
+    """
     by_cell: Dict[str, int] = {"only_E": 0, "both": 0, "only_C": 0}
     for project in PROJECTS:
         path = csv_root / backend / project / "rq4_upset.csv"
@@ -93,7 +104,12 @@ def aggregate_backend_upset(csv_root: Path, backend: str) -> Dict[str, int]:
             continue
         for row in _read_csv(path):
             cell = row["cell"]
-            by_cell[cell] = by_cell.get(cell, 0) + int(row["count"])
+            if cell not in _ALLOWED_UPSET_CELLS:
+                raise ValueError(
+                    f"unexpected cell label {cell!r} in {path}; "
+                    f"expected one of {sorted(_ALLOWED_UPSET_CELLS)}"
+                )
+            by_cell[cell] += int(row["count"])
     return by_cell
 
 
