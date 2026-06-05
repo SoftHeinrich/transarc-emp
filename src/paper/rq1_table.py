@@ -287,7 +287,7 @@ def _render_wide_table(task: str, wide_rows, csv_root: Path) -> str:
     # Source-note footer with data lineage.
     note = (
         "Source: \\texttt{approach/results/v2.6.3/<backend>/<project>/"
-        "sad-%s.csv} (Plan 02 replay of s\\_linker19 phase\\_cache pickles; "
+        "%s.csv} (Plan 02 replay of s\\_linker19 phase\\_cache pickles; "
         "zero LLM calls)."
     ) % task
 
