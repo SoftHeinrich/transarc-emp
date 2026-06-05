@@ -1,0 +1,383 @@
+#!/usr/bin/env python3
+"""RQ3 main-body + appendix figure/table generator.
+
+Implements REQ-V263-03 / REQ-V263-05 (D-04, D-07, D-08, D-09). See
+agent-linker/.planning/phases/43-replay-s-linker19-checkpoints-for-paper-rq1-rq4-eval/43-CONTEXT.md.
+
+Reads Plan 02 CSVs at:
+    <csv-root>/<backend>/<project>/rq3.csv         (4 variant rows)
+    <csv-root>/<backend>/<project>/rq3_audit.csv   (2 validator rows: entity, coref)
+
+Emits four TeX files:
+    main:     <main>/table/rq3-validators.tex      (booktabs, 2 validator rows + footer)
+              <main>/figures/rq3-validator.tex     (TikZ stacked-bar, 2 rows)
+    appendix: <appendix>/rq3-validators-gpt.tex
+              <appendix>/rq3-validator-gpt.tex
+
+Main body = Claude backend. Appendix = GPT-5.4 (openai) backend. (D-04)
+Two-validator shape per D-09. NoConsensus dropped per D-07.
+
+Stdlib only (csv, argparse, pathlib).
+"""
+
+from __future__ import annotations
+
+import argparse
+import csv
+from pathlib import Path
+from typing import Dict, List, Tuple
+
+PROJECTS = ["mediastore", "teastore", "teammates", "bigbluebutton", "jabref"]
+BACKENDS = ["claude", "openai"]
+
+# Display labels per backend (used in captions).
+BACKEND_DISPLAY = {"claude": "Claude", "openai": "GPT-5.4"}
+
+
+# ---------------------------------------------------------------------------
+# CSV ingestion
+# ---------------------------------------------------------------------------
+def _read_csv(path: Path) -> List[Dict[str, str]]:
+    with path.open("r", newline="", encoding="utf-8") as f:
+        return list(csv.DictReader(f))
+
+
+def aggregate_backend_variants(csv_root: Path, backend: str) -> Dict[str, Dict[str, float]]:
+    """Aggregate rq3.csv across the 5 projects.
+
+    Returns a dict keyed by variant name with fields:
+        macro_f1  -- unweighted mean of per-project f1
+        tp_sum    -- sum of per-project tp
+        fp_sum    -- sum of per-project fp
+        fn_sum    -- sum of per-project fn
+        n         -- number of projects contributing
+    """
+    by_variant: Dict[str, Dict[str, float]] = {}
+    for project in PROJECTS:
+        path = csv_root / backend / project / "rq3.csv"
+        if not path.exists():
+            continue
+        for row in _read_csv(path):
+            v = row["variant"]
+            entry = by_variant.setdefault(
+                v, {"macro_f1_sum": 0.0, "tp_sum": 0, "fp_sum": 0, "fn_sum": 0, "n": 0}
+            )
+            entry["macro_f1_sum"] += float(row["f1"])
+            entry["tp_sum"] += int(row["tp"])
+            entry["fp_sum"] += int(row["fp"])
+            entry["fn_sum"] += int(row["fn"])
+            entry["n"] += 1
+    # finalize macro F1
+    result: Dict[str, Dict[str, float]] = {}
+    for v, e in by_variant.items():
+        n = max(int(e["n"]), 1)
+        result[v] = {
+            "macro_f1": e["macro_f1_sum"] / n,
+            "tp_sum": int(e["tp_sum"]),
+            "fp_sum": int(e["fp_sum"]),
+            "fn_sum": int(e["fn_sum"]),
+            "n": n,
+        }
+    return result
+
+
+def aggregate_backend_audit(csv_root: Path, backend: str) -> Dict[str, Dict[str, int]]:
+    """Aggregate rq3_audit.csv across 5 projects.
+
+    Returns dict keyed by validator name (entity, coref) with summed
+    killed_gold, killed_spurious, kept_gold, kept_spurious counts.
+    """
+    by_validator: Dict[str, Dict[str, int]] = {}
+    for project in PROJECTS:
+        path = csv_root / backend / project / "rq3_audit.csv"
+        if not path.exists():
+            continue
+        for row in _read_csv(path):
+            v = row["validator"]
+            entry = by_validator.setdefault(
+                v,
+                {"killed_gold": 0, "killed_spurious": 0, "kept_gold": 0, "kept_spurious": 0},
+            )
+            entry["killed_gold"] += int(row["killed_gold"])
+            entry["killed_spurious"] += int(row["killed_spurious"])
+            entry["kept_gold"] += int(row["kept_gold"])
+            entry["kept_spurious"] += int(row["kept_spurious"])
+    return by_validator
+
+
+# ---------------------------------------------------------------------------
+# Formatting helpers
+# ---------------------------------------------------------------------------
+def _fmt_dF1(value: float) -> str:
+    """Format delta-F1 with explicit sign and 3 decimals (e.g. +0.046, -0.005)."""
+    return f"{value:+.3f}"
+
+
+def _safe_dF1(variants: Dict[str, Dict[str, float]], removed: str) -> float:
+    """Net dF1 if validator removed = Full.macro_f1 - <variant>.macro_f1."""
+    if "Full" not in variants or removed not in variants:
+        return 0.0
+    return variants["Full"]["macro_f1"] - variants[removed]["macro_f1"]
+
+
+# ---------------------------------------------------------------------------
+# TeX emitters
+# ---------------------------------------------------------------------------
+TABLE_HEADER_COMMENT = (
+    "% RQ3: per-validator contribution table (Phase 43 Plan 04, REQ-V263-03 / D-09).\n"
+    "% Generated by transarc-emp/src/paper/rq3_table.py from\n"
+    "% agent-linker/results/v2.6.3/<backend>/<project>/rq3.csv + rq3_audit.csv.\n"
+    "% Macro labels (D-10) defined in writing/working/abbrev.tex.\n"
+)
+
+FIGURE_HEADER_COMMENT = (
+    "% RQ3 per-validator stacked-bar figure (Phase 43 Plan 04, REQ-V263-03 / D-09).\n"
+    "% Generated by transarc-emp/src/paper/rq3_table.py.\n"
+    "% Two validator rows: \\entValidator{} and \\corefValidator{} (D-10).\n"
+)
+
+
+def render_rq3_table(
+    variants: Dict[str, Dict[str, float]],
+    audit: Dict[str, Dict[str, int]],
+    backend: str,
+    output_path: Path,
+    table_label: str,
+) -> None:
+    """Render the 2-validator-row + combined-footer booktabs table."""
+    backend_label = BACKEND_DISPLAY.get(backend, backend)
+
+    # Per-row values from rq3_audit.csv.
+    ent = audit.get("entity", {"killed_gold": 0, "killed_spurious": 0})
+    cor = audit.get("coref", {"killed_gold": 0, "killed_spurious": 0})
+
+    dF1_no_entity = _safe_dF1(variants, "NoEntityValid")
+    dF1_no_coref = _safe_dF1(variants, "NoCitation")
+    dF1_no_all = _safe_dF1(variants, "NoValidator")
+
+    # Combined footer: NoValidator vs Full (TP/FP) delta is derived from variant counts.
+    full_tp = int(variants.get("Full", {}).get("tp_sum", 0))
+    full_fp = int(variants.get("Full", {}).get("fp_sum", 0))
+    nov_tp = int(variants.get("NoValidator", {}).get("tp_sum", 0))
+    nov_fp = int(variants.get("NoValidator", {}).get("fp_sum", 0))
+    # TP killed by validators = TP(NoValidator) - TP(Full) (validators kill TPs we *would*
+    # otherwise have). FP killed = FP(NoValidator) - FP(Full).
+    combined_tp_killed = nov_tp - full_tp
+    combined_fp_killed = nov_fp - full_fp
+
+    is_appendix = table_label.endswith("-gpt")
+    caption_main = (
+        "Per-validator contribution from the \\fullVariant{} \\approach{} pipeline, "
+        + backend_label
+        + " backend. \\emph{TP killed} = gold links rejected by the validator (cost); "
+        "\\emph{FP killed} = spurious links rejected (benefit); $\\Delta$\\fone\\ if "
+        "removed compares each ablation against \\fullVariant{}."
+    )
+    caption_appendix = (
+        "Per-validator contribution from the \\fullVariant{} \\approach{} pipeline, "
+        + backend_label
+        + " backend (appendix mirror, see \\autoref{tab:rq3-validators}). "
+        "\\emph{TP killed} = gold links rejected by the validator (cost); "
+        "\\emph{FP killed} = spurious links rejected (benefit); $\\Delta$\\fone\\ if "
+        "removed compares each ablation against \\fullVariant{}."
+    )
+    caption = caption_appendix if is_appendix else caption_main
+
+    lines: List[str] = []
+    lines.append(TABLE_HEADER_COMMENT.rstrip())
+    lines.append("\\begin{table}[t]")
+    lines.append(f"\\caption{{{caption}}}")
+    lines.append(f"\\label{{{table_label}}}")
+    lines.append("\\centering\\small")
+    lines.append("\\begin{tabular}{@{}lrrrrr@{}}")
+    lines.append("\\toprule")
+    lines.append(
+        "Validator & TP killed & FP killed & Net $\\Delta$\\fone\\ if removed & "
+        "Calls/project & Net cost \\\\"
+    )
+    lines.append("\\midrule")
+    lines.append(
+        "\\entValidator{} & "
+        f"{int(ent['killed_gold'])} & {int(ent['killed_spurious'])} & "
+        f"{_fmt_dF1(dF1_no_entity)} & -- & -- \\\\"
+    )
+    lines.append(
+        "\\corefValidator{} & "
+        f"{int(cor['killed_gold'])} & {int(cor['killed_spurious'])} & "
+        f"{_fmt_dF1(dF1_no_coref)} & -- & -- \\\\"
+    )
+    lines.append("\\midrule")
+    lines.append(
+        "\\emph{All combined} & "
+        f"{combined_tp_killed} & {combined_fp_killed} & "
+        f"{_fmt_dF1(dF1_no_all)} & -- & -- \\\\"
+    )
+    lines.append("\\bottomrule")
+    lines.append("\\end{tabular}")
+    lines.append("\\end{table}")
+    lines.append("")
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text("\n".join(lines), encoding="utf-8")
+
+
+def render_rq3_figure(
+    audit: Dict[str, Dict[str, int]],
+    backend: str,
+    output_path: Path,
+    figure_label: str,
+) -> None:
+    """Render the 2-row TikZ stacked-bar figure."""
+    backend_label = BACKEND_DISPLAY.get(backend, backend)
+
+    # Pull per-row counts; default 0 keeps placeholder when audit is missing.
+    rows = []
+    for vkey in ("entity", "coref"):
+        e = audit.get(vkey, {})
+        rows.append(
+            (
+                int(e.get("killed_gold", 0)),
+                int(e.get("killed_spurious", 0)),
+                int(e.get("kept_gold", 0)),
+                int(e.get("kept_spurious", 0)),
+            )
+        )
+
+    max_count = 0
+    for tpk, fpk, tpw, fpw in rows:
+        max_count = max(max_count, tpk + fpk, tpw + fpw)
+    if max_count <= 0:
+        max_count = 100  # avoid division by zero / preserve original style
+
+    is_appendix = figure_label.endswith("-gpt")
+    if is_appendix:
+        caption = (
+            "Per-validator contribution measured from the \\fullVariant{} "
+            "\\approach{} pipeline ("
+            + backend_label
+            + " backend, appendix mirror; see \\autoref{fig:rq3-validator}). "
+            "Bars left of the centre line are links the validator \\emph{rejected}; "
+            "right of the centre are links it \\emph{kept}. Green = correct decision, "
+            "orange = wrong decision."
+        )
+    else:
+        caption = (
+            "Per-validator contribution measured from the \\fullVariant{} "
+            "\\approach{} pipeline ("
+            + backend_label
+            + " backend). Bars left of the centre line are links the validator "
+            "\\emph{rejected}; right of the centre are links it \\emph{kept}. "
+            "Green = correct decision, orange = wrong decision."
+        )
+
+    foreach_lines = [
+        "\\foreach \\row/\\vname/\\tpk/\\fpk/\\tpw/\\fpw in {%",
+        f"  0/\\entValidator{{}}/{rows[0][0]}/{rows[0][1]}/{rows[0][2]}/{rows[0][3]},%",
+        f"  1/\\corefValidator{{}}/{rows[1][0]}/{rows[1][1]}/{rows[1][2]}/{rows[1][3]}%",
+        "} {",
+    ]
+
+    lines: List[str] = []
+    lines.append(FIGURE_HEADER_COMMENT.rstrip())
+    lines.append("\\begin{figure}[t]")
+    lines.append("\\centering")
+    lines.append("\\begin{tikzpicture}[")
+    lines.append("  tpk/.style={fill=darkorange,draw=black!70}, % TP killed -- bad")
+    lines.append("  fpk/.style={fill=darkgreen,draw=black!70},  % FP killed -- good")
+    lines.append("  tpw/.style={fill=darkgreen!40,draw=black!70},% TP kept  -- good")
+    lines.append("  fpw/.style={fill=darkorange!40,draw=black!70},% FP kept -- bad (residual noise)")
+    lines.append("  vlabel/.style={font=\\scriptsize,anchor=east},")
+    lines.append("  axn/.style={font=\\tiny,gray!60},")
+    lines.append("  ax/.style={draw=black!50,thick},")
+    lines.append("]")
+    lines.append(f"\\def\\H{{0.7}}\\def\\maxw{{2.6}}\\def\\bh{{0.30}}\\def\\maxct{{{max_count}}}")
+    lines.append("")
+    lines.extend(foreach_lines)
+    lines.append("  \\node[vlabel] at (-\\maxw - 0.2, -\\H*\\row) {\\vname};")
+    lines.append("  % left (killed): stack tpk above fpk, leftward from 0")
+    lines.append("  \\pgfmathsetmacro{\\wA}{-\\tpk*\\maxw/\\maxct}")
+    lines.append("  \\pgfmathsetmacro{\\wB}{\\wA - \\fpk*\\maxw/\\maxct}")
+    lines.append("  \\draw[tpk] (0,-\\H*\\row - \\bh/2) rectangle (\\wA,-\\H*\\row + \\bh/2);")
+    lines.append("  \\draw[fpk] (\\wA,-\\H*\\row - \\bh/2) rectangle (\\wB,-\\H*\\row + \\bh/2);")
+    lines.append("  % right (kept): stack tpw above fpw, rightward from 0")
+    lines.append("  \\pgfmathsetmacro{\\wC}{\\tpw*\\maxw/\\maxct}")
+    lines.append("  \\pgfmathsetmacro{\\wD}{\\wC + \\fpw*\\maxw/\\maxct}")
+    lines.append("  \\draw[tpw] (0,-\\H*\\row - \\bh/2) rectangle (\\wC,-\\H*\\row + \\bh/2);")
+    lines.append("  \\draw[fpw] (\\wC,-\\H*\\row - \\bh/2) rectangle (\\wD,-\\H*\\row + \\bh/2);")
+    lines.append("}")
+    lines.append("")
+    lines.append("% center split line + outer axes (axis extended over 2 validator rows)")
+    lines.append("\\draw[ax] (0,0.4) -- (0,-\\H*2);")
+    lines.append("\\node[font=\\scriptsize,anchor=south] at (-\\maxw/2, 0.45) {killed};")
+    lines.append("\\node[font=\\scriptsize,anchor=south] at ( \\maxw/2, 0.45) {kept};")
+    lines.append("")
+    lines.append("% legend")
+    lines.append(
+        "\\foreach \\i/\\sty/\\lab in {0/tpk/{TP killed (cost)}, "
+        "1/fpk/{FP killed (benefit)}, 2/tpw/{TP kept}, 3/fpw/{FP kept (noise)}} {"
+    )
+    lines.append("  \\node[\\sty,minimum width=8pt,minimum height=6pt,inner sep=0pt]")
+    lines.append("       at (-\\maxw + \\i*1.6 - 0.1, -\\H*2.6) {};")
+    lines.append("  \\node[anchor=west,font=\\tiny] at (-\\maxw + \\i*1.6 + 0.05, -\\H*2.6) {\\lab};")
+    lines.append("}")
+    lines.append("\\end{tikzpicture}")
+    lines.append(f"\\caption{{{caption}}}")
+    lines.append(f"\\label{{{figure_label}}}")
+    lines.append("\\end{figure}")
+    lines.append("")
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text("\n".join(lines), encoding="utf-8")
+
+
+# ---------------------------------------------------------------------------
+# main
+# ---------------------------------------------------------------------------
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Emit RQ3 TeX figure + table (main + appendix).")
+    parser.add_argument(
+        "--csv-root",
+        type=Path,
+        default=Path("/mnt/hostshare/ardoco-home/agent-linker/results/v2.6.3"),
+    )
+    parser.add_argument(
+        "--tex-out-main",
+        type=Path,
+        default=Path("/mnt/hostshare/ardoco-home/agent-linker/writing/working"),
+    )
+    parser.add_argument(
+        "--tex-out-appendix",
+        type=Path,
+        default=Path("/mnt/hostshare/ardoco-home/agent-linker/writing/working/appendix"),
+    )
+    args = parser.parse_args()
+
+    main_out = args.tex_out_main
+    appendix_out = args.tex_out_appendix
+    appendix_out.mkdir(parents=True, exist_ok=True)
+
+    # Main body: Claude.
+    claude_variants = aggregate_backend_variants(args.csv_root, "claude")
+    claude_audit = aggregate_backend_audit(args.csv_root, "claude")
+    table_main = main_out / "table" / "rq3-validators.tex"
+    fig_main = main_out / "figures" / "rq3-validator.tex"
+    render_rq3_table(claude_variants, claude_audit, "claude", table_main, "tab:rq3-validators")
+    render_rq3_figure(claude_audit, "claude", fig_main, "fig:rq3-validator")
+
+    # Appendix: GPT-5.4 (openai).
+    gpt_variants = aggregate_backend_variants(args.csv_root, "openai")
+    gpt_audit = aggregate_backend_audit(args.csv_root, "openai")
+    table_app = appendix_out / "rq3-validators-gpt.tex"
+    fig_app = appendix_out / "rq3-validator-gpt.tex"
+    render_rq3_table(gpt_variants, gpt_audit, "openai", table_app, "tab:rq3-validators-gpt")
+    render_rq3_figure(gpt_audit, "openai", fig_app, "fig:rq3-validator-gpt")
+
+    print(
+        f"[rq3-table] wrote main={table_main} {fig_main} "
+        f"appendix={table_app} {fig_app}"
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
