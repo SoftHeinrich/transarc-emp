@@ -16,7 +16,7 @@ Inputs:
     --csv-root <PATH>      default /mnt/hostshare/ardoco-home/agent-linker/results/v2.6.3
                            (with /mnt/hostshare/ardoco-home/agent-linker/approach/...
                            tried as a fallback, since `approach/` is a symlink lens)
-    --tex-out-dir <PATH>   default /mnt/hostshare/ardoco-home/agent-linker/writing/working/tables
+    --tex-out-dir <PATH>   default /mnt/hostshare/ardoco-home/alinker-paper/tables
     --task {sad-sam,sad-code,both}   default both
 
 The per-backend CSVs land under
@@ -334,7 +334,7 @@ def write_two_backend_tex(task: str, wide_rows, tex_out_dir: Path, csv_root: Pat
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 DEFAULT_CSV_ROOT = "/mnt/hostshare/ardoco-home/agent-linker/results/v2.6.3"
-DEFAULT_TEX_OUT_DIR = "/mnt/hostshare/ardoco-home/agent-linker/writing/working/tables"
+DEFAULT_TEX_OUT_DIR = "/mnt/hostshare/ardoco-home/alinker-paper/tables"
 
 
 def main():
