@@ -1,0 +1,11 @@
+level,column,separation,validity,stability,degeneracy,verdict
+sad-model,micro,0.5398,0.1716,0.0973,0.0900,headline
+sad-model,macro,0.6245,0.1904,0.1040,0.0817,headline
+sad-model,gap,-0.0661,0.0328,0.0342,0.0194,diagnostic
+sad-model,min_comp,0.4420,0.6621,0.3192,0.3808,headline
+sad-model,pct_missed,0.4040,0.9523,0.0893,0.0832,diagnostic
+sad-code,micro,0.5159,0.2033,0.1307,0.0630,headline
+sad-code,macro,0.6155,0.2025,0.1134,0.0638,headline
+sad-code,gap,-0.0582,0.0407,0.0307,0.0349,diagnostic
+sad-code,min_comp,0.4738,0.6197,0.3019,0.2806,headline
+sad-code,pct_missed,0.4139,0.9622,0.0842,0.0600,diagnostic

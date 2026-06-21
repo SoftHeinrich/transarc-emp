@@ -107,12 +107,22 @@ def _floor_suite_rows(proj):
     gs_sam_code_enrolled = enroll_gold_standard(load_gs_sam_code_raw(proj), code_model)
     gold_sents = set(s for s, _ in gs_sad_code)
 
+    # Determinism (D-08 reproducibility): baseline_random_same_size does
+    # ``random.choice(list(all_code_files))`` and ``list(gold_sents)`` internally,
+    # so its draws depend on the SET ITERATION ORDER of its inputs — which varies
+    # per process with PYTHONHASHSEED, defeating ``random.seed(42)`` across runs.
+    # Pass SORTED sequences (a stable iteration order) so the seeded Random floor is
+    # byte-reproducible. This only orders the inputs; the rq2 generator is reused
+    # verbatim (no new baseline, no new math).
+    code_files_sorted = sorted(code_model)
+    gold_sents_sorted = sorted(gold_sents)
+
     random.seed(42)  # reset per project (order independence; matches rq2)
     target_size = len(gs_sad_code)
     random_bl = rq2_trivial_baselines.baseline_random_same_size(
-        gold_sents, code_model, target_size)
+        gold_sents_sorted, code_files_sorted, target_size)
     top3_bl = rq2_trivial_baselines.baseline_majority_k(
-        gold_sents, gs_sam_code_enrolled, code_model, k=3)
+        gold_sents_sorted, gs_sam_code_enrolled, code_model, k=3)
 
     gold_sc, collapse = component_suite._code_inputs(proj)
     return {
@@ -130,6 +140,14 @@ def _anchors(proj):
     gs_sad_code = load_gs_sad_code_enrolled(proj, code_model)
     gs_sam_code_map, _ = load_gs_sam_code_maps(proj, code_model)
     gs_sad_sam_maps = load_gs_sad_sam_maps(proj)
+    # Determinism (D-08): compute_random_f1 builds an internal file→component map by
+    # last-writer-wins over ``gold_sam_code_map.items()``; for files shared by several
+    # components (e.g. 7 such files in teastore) the iteration order — which varies
+    # per process with PYTHONHASHSEED — picks a different owner and shifts the anchor
+    # by ~1e-3. Pass the map with a STABLE (key-sorted) insertion order so the
+    # library's internal ``.items()`` is reproducible. This only re-orders the input
+    # dict; the rq2 anchor functions are reused verbatim (no new math).
+    gs_sam_code_map = {k: gs_sam_code_map[k] for k in sorted(gs_sam_code_map)}
     n_sents = len(set(s for s, _ in gs_sad_code))
     random_f1 = rq2_trivial_baselines.compute_random_f1(
         gs_sad_code, n_sents, len(names), gs_sam_code_map)
