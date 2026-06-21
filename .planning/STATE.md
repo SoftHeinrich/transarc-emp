@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Component-Centric Metric Suite
-status: Phase 7 COMPLETE (3/3 plans, verification passed). Next `/gsd-plan-phase 8`.
-stopped_at: Phase 7 complete — suite finalized, metrics_api reconciled to mapped-only (0.714→0.795), oracle + determinism green; verification status passed
-last_updated: "2026-06-21T16:55:48.000Z"
-last_activity: 2026-06-21 -- Phase 7 executed (3 plans, sequential) + verified (status: passed)
+status: Phase 8 context gathered (08-CONTEXT.md). Next `/gsd-plan-phase 8`.
+stopped_at: Phase 8 discuss complete — 4 areas resolved (no new baselines; real comparators = 3 paper systems; numeric fitness scorecard in new metric_fitness.py; data-derived verdict; skip-with-notice + both levels + swattr≡transarc + pinned artemis provenance)
+last_updated: "2026-06-21T21:35:07.000Z"
+last_activity: 2026-06-21 -- Phase 8 discuss-phase (context + discussion-log committed 11d6418)
 progress:
   total_phases: 3
   completed_phases: 1
@@ -26,12 +26,12 @@ See: .planning/PROJECT.md (updated 2026-06-21)
 ## Current Position
 
 Milestone: v1.2 — Component-Centric Metric Suite (defined 2026-06-21)
-Phase: 7 — Suite & Universe Reconciliation ✓ COMPLETE (2026-06-21)
-Plan: 07-01 / 07-02 / 07-03 all complete (3/3); verification status passed
-Status: Phase 7 done — component_suite finalized (shared micro/macro universe, gold-only tail), metrics_api headline component_f1 reconciled to mapped-only (0.714→0.795 == suite micro), equivalence oracle + determinism check green (07-VERIFICATION.md passed). Next `/gsd-plan-phase 8`.
+Phase: 8 — Multi-System Comparison & Fitness Validation ◐ CONTEXT GATHERED (2026-06-21); Phase 7 ✓ COMPLETE
+Plan: none yet — 08-CONTEXT.md ready, next `/gsd-plan-phase 8`
+Status: Phase 8 discuss complete. Decisions (08-CONTEXT.md): (1) no new synthetic baselines — rq2 Random/Top-3 = trivial floor, real comparators = 3 paper systems only (swattr/transarc, s20linker/s20union, artemis), legacy s11/s13f/s12c excluded; (2) numeric fitness scorecard in NEW src/bias/metric_fitness.py → reports/METRIC_FITNESS.{md,csv} scoring columns on separation/validity/stability/degeneracy; (3) data-derived verdict (don't oversell micro-vs-macro); (4) skip-with-notice + both levels + swattr≡transarc one column + pin results_artemis_gpt54 provenance.
 Last activity: 2026-06-21
 
-Progress: [███░░░░░░░] 33% (1/3 phases) — Phase 7 complete; Phases 8-9 remain
+Progress: [███░░░░░░░] 33% (1/3 phases) — Phase 7 complete; Phase 8 context gathered; Phases 8-9 remain
 
 ### Phase 7 deliverables (committed e2f93c5 / 55202a9 / 70287e0)
 - `src/bias/component_suite.py` finalized; `reports/COMPONENT_SUITE_{sad-code,sad-model}.csv` regenerated (swattr/transarc AVG micro 0.7949 / macro 0.8134).
@@ -106,14 +106,21 @@ None — all v1.1 concerns resolved (metrics API reused `new_metrics_analysis.py
 
 ## Session Continuity
 
-Last session: 2026-06-21T16:55:48.000Z
-Stopped at: Phase 7 COMPLETE (executed + verified, status passed). Next `/gsd-plan-phase 8`.
-Resume file: .planning/phases/07-suite-universe-reconciliation/07-VERIFICATION.md
+Last session: 2026-06-21T21:35:07.000Z
+Stopped at: Phase 8 context gathered (discuss-phase complete). Next `/gsd-plan-phase 8`.
+Resume file: .planning/phases/08-multi-system-comparison-fitness-validation/08-CONTEXT.md
+
+**Phase 8 discuss complete.** Ran `/gsd-discuss-phase 8` manually (no gsd-sdk).
+4 gray areas resolved → 08-CONTEXT.md + 08-DISCUSSION-LOG.md committed `11d6418`.
+Locked: no new synthetic baselines (real comparators = 3 paper systems only);
+numeric fitness scorecard in NEW `src/bias/metric_fitness.py` → `reports/METRIC_FITNESS.{md,csv}`
+(separation/validity/stability/degeneracy); data-derived verdict; skip-with-notice +
+both levels + swattr≡transarc + pinned `results_artemis_gpt54` provenance.
+Next: `/gsd-plan-phase 8`.
 
 **Phase 7 complete.** Planned (3 plans, plan-check PASS after 1 revision), executed
 sequentially (manual mode — no gsd-sdk), and verified (gsd-verifier, status passed;
 SC1–SC4 all PASS). Commits: 07-01 `e2f93c5`, 07-02 `55202a9`, 07-03 `70287e0`.
-Next: `/gsd-plan-phase 8` (Multi-System Comparison & Fitness Validation — CMP-03, CMP-04).
 
 OPEN ITEMS for next session:
 1. **SAD-SAM Sentence F1 review (WARNING):** 07-02 refreshed the stale `metrics_sad-sam.csv`
@@ -124,3 +131,6 @@ OPEN ITEMS for next session:
    (context 0b59a9a + plans + execution) lives here, NOT on master. Decide whether to
    migrate v1.2 to master/a v1.2 branch before continuing.
 3. `writing/eval.tex` prose still cites old numbers — deliberate Phase-9 (CMP-05) deferral.
+4. **Phase 8 provenance (D-10):** untracked `results_artemis_gpt54/`,
+   `reports_artemis_gpt54_*/`, `paper-result/` must be resolved (commit/pin the
+   canonical artemis source) before the scorecard's determinism/regen claim can hold.
