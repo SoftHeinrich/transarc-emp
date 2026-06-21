@@ -50,5 +50,5 @@ inequality, and emit paper-ready table/figure source.
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Inequality Engine | 1/1 | ✓ Complete | 2026-06-21 |
-| 2. Claim Verification | 0/? | ◌ Planned | — |
+| 2. Claim Verification | 1/1 | ✓ Complete | 2026-06-21 |
 | 3. Motivation & Paper Hooks | 0/? | ◌ Planned | — |
