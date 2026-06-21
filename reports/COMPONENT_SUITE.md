@@ -8,6 +8,19 @@ Systems compared: **swattr/transarc** (ARDoCo heuristic SAD-SAM; at doc-to-code 
 SWATTR ⋈ ArCoTL), **s20linker** (agent-linker s_linker20; doc-to-code composed
 through ArCoTL SAM-CODE), **artemis** (TAAS25 LLM SOTA; direct doc-to-code).
 
+**swattr ≡ transarc — one column (D-12).** SWATTR is reported as one column with
+transarc (SWATTR ⋈ ArCoTL at doc-to-code); a distinct external SWATTR doc-to-code
+result is deferred this phase. The live contrast under test is therefore
+**heuristic-uniform (SWATTR) vs LLM-peaky-but-leaky (artemis)** — see the tail finding
+below. The artemis sad-code input is pinned and authoritative; its source-of-truth and
+the secondary/superseded artemis directories are catalogued in
+[`reports/ARTEMIS_PROVENANCE.md`](ARTEMIS_PROVENANCE.md) (08-01, discharging D-10).
+
+Determinism (08-02): with the artemis source pinned, `python3 src/bias/component_suite.py`
+regenerates both CSVs **byte-for-byte** — a second run is identical and reproduces the
+Phase-7 committed numbers exactly. All three external roots are present in this workspace
+today.
+
 ## The suite
 
 For each system at a granularity, on (sentence, component) pairs:
@@ -136,7 +149,38 @@ AVG over 5 projects; tail (`min_comp`/`pct_missed`) is gold-only (see CSV for ex
   superseded `metrics_sad-code.*` / `SADCODE_*` artifacts regenerated there. (History
   retained — this was previously listed as open project work above.)
 - swattr ≡ transarc at doc-to-code in this repo (SWATTR ⋈ ArCoTL); reported as one
-  column. The live contrast is heuristic (uniform) vs LLM (peaky-but-leaky).
-- External result roots (`agent-linker/`, `sota/recovered-links/`) must be present;
-  absent systems are skipped with a standardized `WARNING:` notice naming the
-  system/level/project.
+  column (D-12). The live contrast is heuristic (uniform) vs LLM (peaky-but-leaky).
+- **Artemis provenance pinned (D-10).** The artemis sad-code links read by the suite
+  come from the committed, authoritative `ARTEMIS_LOCAL` (`results_artemis_gpt54/`);
+  the canonical-vs-secondary catalogue lives in
+  [`reports/ARTEMIS_PROVENANCE.md`](ARTEMIS_PROVENANCE.md). This pin is what makes the
+  regeneration deterministic.
+
+### Skip-with-notice policy for absent external roots (D-08)
+
+Three external result roots are **guarded constants** in `component_suite.py`. Two are
+**unvendored external** inputs and one is the repo-local pinned artemis source:
+
+| guarded root | feeds | level | status |
+|---|---|---|---|
+| `AGENT_LINKER` (`/mnt/hostshare/ardoco-home/agent-linker/results/ablation_results`) | s20linker | both | external |
+| `ARTEMIS_DOC_CODE` (`/mnt/hostshare/ardoco-home/sota/recovered-links/doc-code`) | artemis | sad-code | external |
+| `ARTEMIS_LOCAL` (`results_artemis_gpt54/`) | artemis | sad-model | committed (pinned, D-10) |
+
+The committed suite **does not hard-fail** when one of these roots is absent or empty.
+`component_suite.run_level` detects the empty links set and emits a **standardized
+`WARNING:` notice** (system/level/project) to stderr, then continues — the
+**present-system rows are still produced**. The exact notice format (from
+`component_suite._warn_skip`) is:
+
+```
+WARNING: no <level> result links for system=<label> project=<project> (absent or empty external root); skipping
+```
+
+This was exercised in 08-02: pointing `ARTEMIS_LOCAL` at a non-existent path and calling
+`run_level('sad-model', ['mediastore'])` emitted
+`WARNING: no sad-model result links for system=artemis project=mediastore (absent or empty external root); skipping`
+and still returned the two present-system rows (swattr/transarc + s20linker), with no
+hard-fail. Reproducibility is therefore scoped to **present-system rows** (mirrors
+Phase 7); all three roots are present today, so the committed CSVs carry all three
+systems at both levels.
