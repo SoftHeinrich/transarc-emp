@@ -52,13 +52,13 @@ The dataset-intrinsic amplification driver is the SAM-CODE files-per-architectur
 
 Per-component #sentences inequality, sad-sam side (eval.tex `gold_gini` analogue):
 
-| project | n_components | sent_min | sent_median | sent_max | comp_sent_gini | top1_pct | top3_pct | palma |
-|---|---|---|---|---|---|---|---|---|
-| mediastore | 10 | 1 | 3.000 | 7 | 0.306 | 22.581 | 51.613 | 1.167 |
-| teastore | 6 | 2 | 5.000 | 6 | 0.179 | 22.222 | 62.963 | 1.200 |
-| teammates | 8 | 4 | 5.000 | 15 | 0.261 | 26.316 | 59.649 | 1.154 |
-| bigbluebutton | 11 | 2 | 4 | 14 | 0.370 | 22.581 | 54.839 | 1.556 |
-| jabref | 5 | 2 | 4 | 6 | 0.222 | 33.333 | 77.778 | 1.500 |
+| project | n_components | sent_min | sent_median | sent_max | comp_sent_gini | top1_pct | top3_pct |
+|---|---|---|---|---|---|---|---|
+| mediastore | 10 | 1 | 3.000 | 7 | 0.306 | 22.581 | 51.613 |
+| teastore | 6 | 2 | 5.000 | 6 | 0.179 | 22.222 | 62.963 |
+| teammates | 8 | 4 | 5.000 | 15 | 0.261 | 26.316 | 59.649 |
+| bigbluebutton | 11 | 2 | 4 | 14 | 0.370 | 22.581 | 54.839 |
+| jabref | 5 | 2 | 4 | 6 | 0.222 | 33.333 | 77.778 |
 
 ## Sanity check
 

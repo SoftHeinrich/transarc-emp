@@ -192,19 +192,6 @@ def top_k_share(values, k):
     return sum(sorted(values, reverse=True)[:k]) / total
 
 
-def palma(values):
-    """Palma-style ratio: top-10% mass / bottom-40% mass (inf if bottom is 0)."""
-    vals = sorted(values)
-    n = len(vals)
-    if n == 0:
-        return 0.0
-    k10 = max(1, int(round(n * 0.10)))
-    k40 = max(1, int(round(n * 0.40)))
-    top10 = sum(vals[-k10:])
-    bot40 = sum(vals[:k40])
-    return float("inf") if bot40 == 0 else top10 / bot40
-
-
 def lorenz_points(values):
     """Lorenz curve as [(cum_pop_pct, cum_mass_pct)] over ascending values.
 
@@ -248,16 +235,12 @@ def compute_sad_code_dist(project):
     for ae, fp in sam_enrolled:
         file_to_comps[fp].add(names.get(ae, ae))
     comp_sents = defaultdict(set)
-    comp_links = Counter()
-    comp_files = defaultdict(set)
     for s, f in enrolled:
         comps = file_to_comps.get(f)
         if not comps:
             continue
         for c in comps:
             comp_sents[c].add(s)
-            comp_links[c] += 1
-            comp_files[c].add(f)
     spc = [len(v) for v in comp_sents.values()]
     sc = summary_stats(spc)
 
@@ -267,7 +250,6 @@ def compute_sad_code_dist(project):
         "sent_median": ss["median"], "sent_max": ss["max"],
         "sent_gini": _gini(per_sent),
         "sent_top3_pct": 100 * top_k_share(per_sent, 3),
-        "sent_palma": palma(per_sent),
         "file_n": sf["n"], "file_min": sf["min"],
         "file_median": sf["median"], "file_max": sf["max"],
         "file_gini": _gini(per_file),
@@ -277,8 +259,6 @@ def compute_sad_code_dist(project):
         "comp_sent_gini": _gini(spc),
         "comp_sent_top1_pct": 100 * top_k_share(spc, 1),
         "comp_sent_top3_pct": 100 * top_k_share(spc, 3),
-        "comp_links_gini": _gini(list(comp_links.values())),
-        "comp_files_gini": _gini([len(v) for v in comp_files.values()]),
     }
 
 
@@ -300,7 +280,6 @@ def compute_sad_sam_dist(project):
         "comp_sent_gini": _gini(spc),
         "top1_pct": 100 * top_k_share(spc, 1),
         "top3_pct": 100 * top_k_share(spc, 3),
-        "palma": palma(spc),
     }
 
 
@@ -396,14 +375,14 @@ def write_csv(path, header, rows, agg_label=None):
 
 SAD_CODE_HEADER = [
     "project", "sent_n", "sent_min", "sent_median", "sent_max", "sent_gini",
-    "sent_top3_pct", "sent_palma", "file_n", "file_min", "file_median",
+    "sent_top3_pct", "file_n", "file_min", "file_median",
     "file_max", "file_gini", "file_top3_pct", "comp_n", "comp_sent_min",
     "comp_sent_median", "comp_sent_max", "comp_sent_gini", "comp_sent_top1_pct",
-    "comp_sent_top3_pct", "comp_links_gini", "comp_files_gini",
+    "comp_sent_top3_pct",
 ]
 SAD_SAM_HEADER = [
     "project", "n_components", "sent_min", "sent_median", "sent_max",
-    "comp_sent_gini", "top1_pct", "top3_pct", "palma",
+    "comp_sent_gini", "top1_pct", "top3_pct",
 ]
 SAMCODE_HEADER = [
     "project", "aes", "enrolled", "min", "median", "max", "gini",

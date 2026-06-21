@@ -165,24 +165,24 @@ def _collapse(pairs, file_to_comps):
 
 
 def measure(name, result, gold, task, file_to_comps):
+    # micro_f1 IS the file-level F1 (sad-code) / link-level F1 (sad-sam) — the
+    # standard ruler. The suite adds per-component macro F1, coverage, noise.
     micro = prf(gold, result)[2]
     if task == "sad-code":
         g_c = _collapse(gold, file_to_comps)
         r_c = _collapse(result, file_to_comps)
         comp_f1 = per_component_macro_f1(g_c, r_c)
-        file_f1 = micro                       # sad-code micro == file-level F1
     else:
         comp_f1 = per_component_macro_f1(gold, result)
-        file_f1 = None                        # N/A for sad-sam (link level)
     return {
         "baseline": name, "micro_f1": micro, "comp_f1": comp_f1,
         "coverage": sentence_coverage(gold, result),
-        "noise": noise_rate(gold, result), "file_f1": file_f1,
+        "noise": noise_rate(gold, result),
     }
 
 
 BASE_COLS = ["task", "project", "baseline", "micro_f1", "comp_f1",
-             "coverage", "noise", "file_f1"]
+             "coverage", "noise"]
 
 
 def _fmt(v):
@@ -228,7 +228,7 @@ def write_baselines_csv(rows):
                 w.writerow([task, "AVG", bl]
                            + [_fmt(_avg(rows, task, bl, c))
                               for c in ("micro_f1", "comp_f1", "coverage",
-                                        "noise", "file_f1")])
+                                        "noise")])
 
 
 DRIVER_MAP = [
@@ -253,19 +253,18 @@ def write_motivation(rows):
         t3 = _avg(rows, task, "top3", "micro_f1")
         rd = _avg(rows, task, "random", "micro_f1")
         ratio = (t3 / rd) if rd else float("inf")
+        ruler = "file F1" if task == "sad-code" else "link F1"
         L.append(f"## {task} — Top-3 micro-F1 {t3:.3f} vs random {rd:.3f} "
                  f"({ratio:.1f}× random)\n")
-        L.append("| Baseline | micro-F1 | per-comp macro F1 | coverage | noise |"
-                 + (" file F1 |" if task == "sad-code" else ""))
-        L.append("|----------|----------|-------------------|----------|-------|"
-                 + ("---------|" if task == "sad-code" else ""))
+        L.append(f"micro-F1 is the standard {ruler} ruler; the suite adds the next "
+                 "three columns.\n")
+        L.append("| Baseline | micro-F1 ("
+                 + ruler + ") | per-comp macro F1 | coverage | noise |")
+        L.append("|----------|----------------|-------------------|----------|-------|")
         for bl in ("top3", "random", "gold"):
             cells = [f"{_avg(rows, task, bl, c):.3f}" for c in
                      ("micro_f1", "comp_f1", "coverage", "noise")]
-            line = f"| {bl} | " + " | ".join(cells) + " |"
-            if task == "sad-code":
-                line += f" {_avg(rows, task, bl, 'file_f1'):.3f} |"
-            L.append(line)
+            L.append(f"| {bl} | " + " | ".join(cells) + " |")
         L.append("")
     L.append("**Reading:** Top-3 posts a respectable micro-F1 (≈2× random) but a "
              "far lower **per-component macro F1** (~0.19 vs a micro of ~0.35-0.38) "
@@ -274,13 +273,23 @@ def write_motivation(rows):
              "tell: micro-F1 alone cannot separate this content-blind baseline from "
              "a real-but-weak linker; per-component F1 (plus coverage and noise "
              "rate) can.\n")
+    L.append("## What each metric carries (which are load-bearing here)\n")
+    L.append("- **per-component macro F1** and **sentence coverage** are the "
+             "discriminators: on sad-code they *flip the ranking* — random scores "
+             "higher than Top-3 (macro 0.243 vs 0.186; coverage 0.659 vs 0.486) — "
+             "exposing the popularity baseline that micro-F1 rewards.\n")
+    L.append("- **noise rate** is an independent axis (FP rate on predicted "
+             "sentences); it does not flip in this comparison but catches "
+             "over-prediction in general.\n")
+    L.append("- **micro-F1 = file/link F1** is the standard ruler being corrected "
+             "— kept once (no separate redundant file-F1 column).\n")
     L.append("## Why each suite metric is needed (driver → metric)\n")
     L.append("| Inequality driver | Metric it motivates | What it catches |")
     L.append("|-------------------|---------------------|-----------------|")
     for drv, metric, why in DRIVER_MAP:
         L.append(f"| {drv} | **{metric}** | {why} |")
     L.append("")
-    sc_t3_file = _avg(rows, "sad-code", "top3", "file_f1")
+    sc_t3_file = _avg(rows, "sad-code", "top3", "micro_f1")
     L.append("## Resolved placeholder (intro.tex:64)\n")
     L.append(f"- **Trivial-baseline file-level F1** = **{sc_t3_file:.3f}** "
              "(gold-only Top-3 popularity baseline, sad-code, avg over 5 projects). "
