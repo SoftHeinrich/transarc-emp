@@ -17,10 +17,19 @@ component distribution" and applies at BOTH granularities:
   micro       reuse: pooled (sentence, component) F1                     [anchor]
   macro       reuse: per-component mean F1                               [headline]
   gap         micro - macro  -- signed indicator of the skew regime
-  min_comp    worst single-component F1                                  [tail]
-  pct_missed  fraction of components scored exactly 0                    [coverage]
+  min_comp    worst single GOLD-component F1                             [tail]
+  pct_missed  fraction of GOLD components scored exactly 0               [coverage]
   gold_gini   Gini of the GOLD #sentences-per-component (a descriptor,
               NOT a score) -- explains *why* gap/tail carry signal
+
+Universe split (Phase 7, D-10 / D-11)
+-------------------------------------
+The HEADLINE pair (``micro`` / ``macro`` / ``gap``) is computed on the SHARED
+gold∪result mapped-only component universe -- this keeps ``micro`` = link F1 at
+SAD-SAM and keeps ``macro`` equal to ``rq2_trivial_baselines.per_component_macro_f1``
+(the 07-03 equivalence oracle). The TAIL pair (``min_comp`` / ``pct_missed``) is
+GOLD-ONLY: it measures coverage of REAL components, so a result-only
+(false-positive) component scoring 0 does NOT count as "missed" or "min".
 
 Empirically (5 ARDoCo projects):
   * doc-to-code  -- directory enrollment manufactures large skew -> the GAP
@@ -165,8 +174,11 @@ def _gini(values):
 def component_suite(gold_sc, result_sc):
     """Compute the component suite from already-collapsed (sentence, component) sets.
 
-    micro pools all pairs; macro/min/pct_missed aggregate per-component F1.
-    gold_gini describes the gold #sentences-per-component skew.
+    micro pools all pairs; macro aggregates per-component F1 over the SHARED
+    gold∪result universe (D-10); min_comp/pct_missed aggregate per-component F1
+    over the GOLD-ONLY universe (D-11). gold_gini describes the gold
+    #sentences-per-component skew. Every score flows through ``calc_metrics`` --
+    the suite adds no new F1 formula.
     """
     micro = calc_metrics(gold_sc, result_sc)[2]
 
@@ -176,16 +188,25 @@ def component_suite(gold_sc, result_sc):
     for s, c in result_sc:
         res_by_c[c].add(s)
 
-    per_comp = []
-    for c in set(gold_by_c) | set(res_by_c):
+    def _comp_score(c):
+        # Per-component F1 via the sole F1 primitive (calc_metrics) -- no new math.
         g = {(s, c) for s in gold_by_c.get(c, set())}
         r = {(s, c) for s in res_by_c.get(c, set())}
-        per_comp.append(calc_metrics(g, r)[2])
+        return calc_metrics(g, r)[2]
+
+    # Headline pair: SHARED gold∪result mapped-only universe (D-10) -> macro / gap.
+    per_comp = [_comp_score(c) for c in set(gold_by_c) | set(res_by_c)]
+    # Tail/coverage pair: GOLD-ONLY universe (D-11) -> min_comp / pct_missed.
+    # A real gold component with no result still counts as missed/min; a
+    # result-only (FP) component no longer pollutes the tail.
+    per_comp_gold = [_comp_score(c) for c in set(gold_by_c)]
 
     macro = sum(per_comp) / len(per_comp) if per_comp else 0.0
-    min_comp = min(per_comp) if per_comp else 0.0
-    pct_missed = (sum(1 for x in per_comp if x == 0.0) / len(per_comp)
-                  if per_comp else 0.0)
+    # min() is order-independent, so min_comp tie handling is immaterial: the
+    # worst F1 value (not the component identity) is what is reported.
+    min_comp = min(per_comp_gold) if per_comp_gold else 0.0
+    pct_missed = (sum(1 for x in per_comp_gold if x == 0.0) / len(per_comp_gold)
+                  if per_comp_gold else 0.0)
     gold_gini = _gini([len(v) for v in gold_by_c.values()])
 
     return {"micro": micro, "macro": macro, "gap": micro - macro,
@@ -249,12 +270,17 @@ def run_level(level, projects):
             loader = pick_loader(key, mloader, cloader)
             links = loader(proj)
             if not links:
-                print(f"WARNING: no {level} links for {label}/{proj}; skipping",
-                      file=sys.stderr)
+                _warn_skip(level, label, proj)
                 continue
             result_sc = collapse(links)
             rows.append((proj, key, label, component_suite(gold, result_sc)))
     return rows
+
+
+def _warn_skip(level, label, proj):
+    # Standardized absent/empty-external-root notice (stderr; WARNING: prefix).
+    print(f"WARNING: no {level} result links for system={label} project={proj} "
+          f"(absent or empty external root); skipping", file=sys.stderr)
 
 
 def averages(rows):
@@ -299,8 +325,15 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--level", choices=["sad-model", "sad-code", "both"],
-                    default="both")
-    ap.add_argument("--project", default=None, help="single-project filter")
+                    default="both",
+                    help="granularity to run: 'sad-model' (doc-to-model), "
+                         "'sad-code' (doc-to-code), or 'both' (default).")
+    ap.add_argument("--project", default=None,
+                    help="restrict to a single project (one of PROJECTS); default "
+                         "= all projects. NOTE: a single-project run still writes "
+                         "the same COMPONENT_SUITE_<level>.csv and therefore "
+                         "OVERWRITES the full committed file -- run with no "
+                         "--project to regenerate the authoritative committed CSVs.")
     args = ap.parse_args()
 
     projects = [args.project] if args.project else list(PROJECTS)
