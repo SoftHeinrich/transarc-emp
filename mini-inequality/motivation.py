@@ -76,6 +76,21 @@ def sentence_coverage(gold, result):
     return sum(1 for s in sents if gold_by_s[s] & res_by_s.get(s, set())) / len(sents)
 
 
+def component_coverage(gold, result):
+    """Fraction of gold components with >=1 correct link (component analogue of
+    sentence_coverage). The simple "components reached" proxy used in the paper's
+    motivation; per-component macro F1 is its precision-aware refinement."""
+    gold_by_c, res_by_c = defaultdict(set), defaultdict(set)
+    for s, c in gold:
+        gold_by_c[c].add(s)
+    for s, c in result:
+        res_by_c[c].add(s)
+    comps = list(gold_by_c)
+    if not comps:
+        return 0.0
+    return sum(1 for c in comps if gold_by_c[c] & res_by_c.get(c, set())) / len(comps)
+
+
 def noise_rate(gold, result):
     """Mean FP/(TP+FP) over predicted sentences (prestudy:301)."""
     gold_by_s, res_by_s = defaultdict(set), defaultdict(set)
@@ -172,17 +187,20 @@ def measure(name, result, gold, task, file_to_comps):
         g_c = _collapse(gold, file_to_comps)
         r_c = _collapse(result, file_to_comps)
         comp_f1 = per_component_macro_f1(g_c, r_c)
+        comp_cov = component_coverage(g_c, r_c)
     else:
         comp_f1 = per_component_macro_f1(gold, result)
+        comp_cov = component_coverage(gold, result)
     return {
         "baseline": name, "micro_f1": micro, "comp_f1": comp_f1,
+        "comp_cov": comp_cov,
         "coverage": sentence_coverage(gold, result),
         "noise": noise_rate(gold, result),
     }
 
 
 BASE_COLS = ["task", "project", "baseline", "micro_f1", "comp_f1",
-             "coverage", "noise"]
+             "comp_cov", "coverage", "noise"]
 
 
 def _fmt(v):
@@ -227,8 +245,8 @@ def write_baselines_csv(rows):
             for bl in ("top3", "random", "gold"):
                 w.writerow([task, "AVG", bl]
                            + [_fmt(_avg(rows, task, bl, c))
-                              for c in ("micro_f1", "comp_f1", "coverage",
-                                        "noise")])
+                              for c in ("micro_f1", "comp_f1", "comp_cov",
+                                        "coverage", "noise")])
 
 
 DRIVER_MAP = [
@@ -259,11 +277,11 @@ def write_motivation(rows):
         L.append(f"micro-F1 is the standard {ruler} ruler; the suite adds the next "
                  "three columns.\n")
         L.append("| Baseline | micro-F1 ("
-                 + ruler + ") | per-comp macro F1 | coverage | noise |")
-        L.append("|----------|----------------|-------------------|----------|-------|")
+                 + ruler + ") | per-comp macro F1 | comp-cov | coverage | noise |")
+        L.append("|----------|----------------|-------------------|----------|----------|-------|")
         for bl in ("top3", "random", "gold"):
             cells = [f"{_avg(rows, task, bl, c):.3f}" for c in
-                     ("micro_f1", "comp_f1", "coverage", "noise")]
+                     ("micro_f1", "comp_f1", "comp_cov", "coverage", "noise")]
             L.append(f"| {bl} | " + " | ".join(cells) + " |")
         L.append("")
     L.append("**Reading:** Top-3 posts a respectable micro-F1 (≈2× random) but a "
@@ -274,10 +292,13 @@ def write_motivation(rows):
              "a real-but-weak linker; per-component F1 (plus coverage and noise "
              "rate) can.\n")
     L.append("## What each metric carries (which are load-bearing here)\n")
-    L.append("- **per-component macro F1** and **sentence coverage** are the "
-             "discriminators: on sad-code they *flip the ranking* — random scores "
-             "higher than Top-3 (macro 0.243 vs 0.186; coverage 0.659 vs 0.486) — "
-             "exposing the popularity baseline that micro-F1 rewards.\n")
+    L.append("- **components covered** and **sentences covered** are the simple "
+             "discriminators used in the paper's motivation: on sad-code they *flip "
+             "the ranking* — random reaches more of each than Top-3 (components 0.758 "
+             "vs 0.398; sentences 0.659 vs 0.486) — exposing the popularity baseline "
+             "that micro-F1 rewards. **Per-component macro F1** flips too (0.243 vs "
+             "0.186); it is the precision-aware refinement reported in the metric "
+             "suite.\n")
     L.append("- **noise rate** is an independent axis (FP rate on predicted "
              "sentences); it does not flip in this comparison but catches "
              "over-prediction in general.\n")
