@@ -51,12 +51,20 @@ to repo-root `.planning/` (active **v1.2** milestone). Commit only
   study root). Engine at the study root (`inequality.py`).
 
 ### Area 2 — Distribution, Lorenz & top-k  (user: "use the most inequality-ed ones")
-- **Canonical inequality unit = # distinct sentences per component** for sad-code
-  (component level) and sad-sam — this is the sanity-anchored unit that matches
-  `component_suite.gold_gini` and eval.tex `tab:sent_gini` (0.331→0.645).
-- **ALSO report the more-skewed supplementary units** that reveal stronger
-  inequality: **# links (pairs) per component** and **# files per component**
-  (post-enrollment fan-out). These are supplementary views, NOT the sanity target.
+- **The engine computes SEVERAL distinct Ginis — do NOT conflate them.** Each
+  has its own sanity target:
+  - **Per-sentence enrolled sad-code links** (`tab:sent_gini`) — the headline
+    **Gini 0.331 (MediaStore) → 0.645 (Teammates)**, Top-3 %, Min/Median/Max.
+    This is INEQ-02 and the number the paper cites. Frozen eval.tex literal.
+  - **# distinct sentences per component** (sad-code component level & sad-sam) —
+    matches `component_suite.gold_gini` (INEQ-01). NOT in eval.tex; agreement is
+    by-construction (copied `_gini`, same universe).
+  - **SAM-CODE files per architectural element** (`tab:samcode_skew`) — Gini
+    **0.400→0.694**, the `|files(m)|` fan-out that drives the cascade. Frozen
+    eval.tex literal. Computed for INEQ-01/INEQ-03.
+- **ALSO report the more-skewed supplementary units** (per user "most
+  inequality-ed"): **# links (pairs) per component** and **# files per component**.
+  Supplementary views, not sanity targets.
 - **Lorenz: emit the FULL cumulative curve** (per-component points: cumulative
   population %, cumulative mass %) to CSV, **plus an 11-point decile summary** in
   the markdown.
@@ -179,10 +187,15 @@ refs live one level above the repo root (`/mnt/hostshare/ardoco-home/alinker-pap
 ## Specific Ideas
 
 - The engine must reproduce these EXACT published numbers (faithfulness gate):
-  Gini 0.331 (MediaStore) → 0.645 (Teammates); enrolled total 18,660 (35.5× avg),
-  JabRef 217.6×; cascade total 36 sad-sam FPs → 3,457 file FPs (96.0×), with
-  per-project amplification (Teammates 85.5×, JabRef 495.0×, BBB 14.2×,
-  MediaStore 1.0×, TeaStore —).
+  - `tab:sent_gini` per-sentence enrolled sad-code Gini: 0.331 / 0.448 / 0.645 /
+    0.472 / 0.527 (MediaStore/TeaStore/Teammates/BBB/JabRef); Top-3 % 27.1 / 35.2
+    / 20.3 / 21.3 / 70.0.
+  - `tab:samcode_skew` files-per-AE Gini: 0.400 / 0.694 / 0.452 / 0.513 / 0.612;
+    AEs 19/19/14/22/6; enrolled 60/164/1,616/730/1,956; Top-3 Conc 43.3/68.9/52.4/38.4/98.6%.
+  - `tab:enrollment`: Raw total 525 → Enrolled 18,660 (35.5× avg); per-project
+    factor 1.0× / 10.1× / 35.5× / 11.6× / 217.6×.
+  - `tab:amplification`: 36 sad-sam FPs → 3,457 file FPs (96.0×); per-project
+    induced 1 / 0 / 2,395 / 71 / 990; mean amplif 1.0× / — / 85.5× / 14.2× / 495.0×.
 - "Most inequality-ed" (user, Area 2): prefer the richest concentration
   characterization — supplementary #links/#files-per-component units, full Lorenz
   curve, top-10% + Palma — alongside the sanity-anchored #sentences unit.
