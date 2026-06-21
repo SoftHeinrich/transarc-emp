@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v0.1
 milestone_name: Data-Inequality Mini-Study
-status: phases_complete
-stopped_at: All 3 phases complete + verified; PAUSED before milestone lifecycle (audit/complete/cleanup) awaiting user go-ahead
-last_updated: "2026-06-21T14:30:00.000Z"
+status: milestone_complete
+stopped_at: v0.1 milestone complete — audited (passed), phases archived to milestones/v0.1-phases/, lifecycle done
+last_updated: "2026-06-21T15:00:00.000Z"
 last_activity: 2026-06-21 -- Phase 3 Motivation & Paper Hooks built + verified (Top-3 0.353/0.381 > random; OUT-02 table/figure)
 isolated: true
 planning_root: mini-inequality/.planning
@@ -66,7 +66,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-06-21
-Stopped at: All 3 phases complete & verified (engine, claim audit, motivation+OUT-02). PAUSED before the destructive milestone lifecycle (audit/complete/cleanup) per the autonomous-run agreement to let the user review the deliverables first.
+Stopped at: v0.1 milestone COMPLETE. Lifecycle done — audit passed (`.planning/v0.1-MILESTONE-AUDIT.md`), phases archived to `.planning/milestones/v0.1-phases/`, roadmap snapshot at `.planning/milestones/v0.1-ROADMAP.md`.
 Resume file: mini-inequality/reports/MOTIVATION.md
 
-Next: user decides — run the milestone lifecycle (`/gsd-audit-milestone` → `/gsd-complete-milestone v0.1` → `/gsd-cleanup`) to archive v0.1, OR leave the milestone open for review. All deliverables: inequality.py, claim_check.py, motivation.py + reports/ (INEQUALITY.md, CLAIM_CHECK.md, MOTIVATION.md, CSVs, OUT-02 .tex).
+Next: milestone shipped. Deliverables on branch `gsd/mini-data-inequality`: `inequality.py`, `claim_check.py`, `motivation.py` + `reports/` (INEQUALITY.md, CLAIM_CHECK.md, MOTIVATION.md, CSVs, out02_*.tex). Optional: open a PR for the `mini-inequality/` study, or wire OUT-02 `.tex` into the alinker-paper.

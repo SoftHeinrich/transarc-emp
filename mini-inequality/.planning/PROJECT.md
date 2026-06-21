@@ -39,23 +39,21 @@ four-metric suite.
 
 ## Requirements
 
-### Validated
+### Validated (v0.1 — 2026-06-21)
 
-(None yet — first milestone of this sub-project.)
+- [x] **INEQ-01** Per-component gold inequality (Gini/Lorenz/top-k/min-median-max), both tasks, 5 projects → CSV — *Phase 1, `inequality.py`*
+- [x] **INEQ-02** Per-file concentration + per-sentence links/sentence distribution (sad-code; Gini 0.331→0.645) — *Phase 1*
+- [x] **INEQ-03** Enrollment expansion (525→18,660, 217.6×) + **gold structural** component→file amplification (max fan-out 972). NOTE: re-scoped — the TransArc actual-error cascade (36→3,457) was dropped as system-specific per user directive — *Phase 1*
+- [x] **CLAIM-01** Paper data-inequality claims extracted into a checklist with source locations — *Phase 2, `CLAIM_CHECK.md`*
+- [x] **CLAIM-02** Each claim labelled MATCH/MISMATCH/PARTIAL/SYSTEM-SPECIFIC with computed value (6 MATCH, 1 PARTIAL, 1 system-specific) — *Phase 2*
+- [x] **CLAIM-03** `intro.tex` `XX` placeholders resolved (5 projects, 4 metrics, 70% JabRef, trivial-baseline F1 0.353); pipeline/approach deferred — *Phase 2-3*
+- [x] **MOTIV-01** Top-3 + random baselines show micro-F1 inflation (0.353/0.381 > random) vs the 4-metric suite — *Phase 3, `MOTIVATION.md`*
+- [x] **OUT-01** Self-contained stdlib engine + reports, no cross-module imports, sanity-checked vs canonical numbers — *Phase 1*
+- [x] **OUT-02** Paper-ready Gini/Lorenz table (`.tex`+`.csv`) + Lorenz pgfplots figure source — *Phase 3*
 
 ### Active
 
-<!-- v0.1 — see REQUIREMENTS.md -->
-
-- [ ] **INEQ-01** Per-component gold link-count inequality (Gini + Lorenz points + top-k share + min/median/max), sad-code & sad-sam, 5 projects → CSV
-- [ ] **INEQ-02** Per-file (post-enrollment) concentration + per-sentence links/sentence distribution for sad-code
-- [ ] **INEQ-03** Per-project enrollment expansion factor (component→file) + aggregate cascade (component FPs → file FPs)
-- [ ] **CLAIM-01** Extract paper data-inequality claims (alinker-paper `metric.tex`/`eval.tex`/`intro.tex` + local `eval.tex` Ch1) into a checklist with source locations
-- [ ] **CLAIM-02** Verify each claim vs. computed numbers → MATCH / MISMATCH / STALE with the empirical value
-- [ ] **CLAIM-03** Resolve the `XX` placeholders in `intro.tex` with computed values
-- [ ] **MOTIV-01** Show empirically that file/link micro-F1 is long-tail / large-component dominated (Top-3 + random baselines exploit it) → why the 4-metric suite is needed
-- [ ] **OUT-01** Self-contained `mini-inequality/` (README + report MD/CSV), stdlib-only, no cross-module imports, sanity-checked vs. canonical numbers
-- [ ] **OUT-02** Paper-ready Gini/Lorenz table (+ optional Lorenz-curve data/figure) the paper can ingest
+(None — v0.1 complete. See `.planning/milestones/v0.1-phases/` for archived phase artifacts.)
 
 ### Out of Scope
 
@@ -84,10 +82,11 @@ four-metric suite.
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Isolated branch + nested `mini-inequality/.planning/` | User requirement: must not collide with active v1.2 root `.planning/` | — Pending |
-| Stdlib-only, self-contained (mirror `mini-src/`) | Faithful, dependency-free, sanity-checkable reduction | — Pending |
-| Measure GOLD distribution as primary; results/baselines secondary | "Data inequality of the dataset" is an intrinsic property of the gold standard | — Pending |
-| Verify against the live `alinker-paper`, mirror to local `eval.tex` Ch1 | alinker-paper is the live target (outputs were repointed there); eval.tex Ch1 is the local source of the same claims | — Pending |
+| Isolated branch + nested `mini-inequality/.planning/` | User requirement: must not collide with active v1.2 root `.planning/` | ✓ Held — all commits touched only `mini-inequality/**` |
+| Stdlib-only, self-contained (mirror `mini-src/`) | Faithful, dependency-free, sanity-checkable reduction | ✓ Done — AST-verified stdlib-only |
+| Measure GOLD distribution as primary; results/baselines secondary | "Data inequality of the dataset" is an intrinsic property of the gold standard | ✓ Done — gold-only engine + gold-only baselines |
+| Verify against the live `alinker-paper`, mirror to local `eval.tex` Ch1 | alinker-paper is the live target; eval.tex Ch1 is the local source of the same claims | ✓ Done — CLAIM_CHECK.md audits both |
+| **Drop the TransArc cascade (36→3,457); re-pivot INEQ-03 to gold structural amplification** | User directive: "no TransArc-specific; benchmark distribution." The cascade is an actual-error attribution (other pillar), not a gold property | ✓ Done — Phase 1 re-pivot; cascade labelled SYSTEM-SPECIFIC in CLAIM_CHECK.md |
 
 ## Evolution
 
@@ -106,4 +105,4 @@ This document evolves at phase transitions and milestone boundaries.
 3. Audit Out of Scope — reasons still valid?
 
 ---
-*Last updated: 2026-06-21 — v0.1 Data-Inequality Mini-Study defined (isolated sub-project).*
+*Last updated: 2026-06-21 — v0.1 Data-Inequality Mini-Study COMPLETE (all 9 requirements validated; isolated sub-project).*
