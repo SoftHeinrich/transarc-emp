@@ -38,11 +38,13 @@ metric framing (link/sentence/component, no enrollment), `src/bias/consequences_
 ## Active — v1.2 Component-Centric Metric Suite (Phases 7-9)
 
 - [x] Phase 7: Suite & Universe Reconciliation — CMP-01, CMP-02, CMP-06 (completed 2026-06-21)
-- [ ] Phase 8: Multi-System Comparison & Fitness Validation — CMP-03, CMP-04
+- [x] Phase 8: Multi-System Comparison & Fitness Validation — CMP-03, CMP-04 (completed 2026-06-21)
 - [ ] Phase 9: Paper Integration — CMP-05
 
 Foundation delivered in the 2026-06-21 explore session: `src/bias/component_suite.py`,
-`reports/COMPONENT_SUITE*.{md,csv}`. Phase 7 complete (suite finalized + universe reconciled, verified). Next: `/gsd-plan-phase 8`.
+`reports/COMPONENT_SUITE*.{md,csv}`. Phases 7-8 complete (suite finalized + universe reconciled;
+3-system comparison hardened + artemis source pinned + metric-fitness scorecard, all verified).
+Next: `/gsd-plan-phase 9` (CMP-05 paper integration).
 
 ## Progress
 
@@ -55,5 +57,5 @@ Foundation delivered in the 2026-06-21 explore session: `src/bias/component_suit
 | 5. Consequences Study & Converged Metrics | v1.1 | 2/2 | ✓ Complete | 2026-05-30 |
 | 6. Handoff Docs | v1.1 | 1/1 | ✓ Complete | 2026-05-31 |
 | 7. Suite & Universe Reconciliation | v1.2 | 3/3 | ✓ Complete | 2026-06-21 |
-| 8. Multi-System Comparison & Fitness Validation | v1.2 | 0/? | ◌ Planned | — |
+| 8. Multi-System Comparison & Fitness Validation | v1.2 | 3/3 | ✓ Complete | 2026-06-21 |
 | 9. Paper Integration | v1.2 | 0/? | ◌ Planned | — |

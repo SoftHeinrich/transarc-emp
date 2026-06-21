@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Component-Centric Metric Suite
 status: executing
-stopped_at: Phase 8 context gathered (discuss-phase complete). Next `/gsd-plan-phase 8`.
-last_updated: "2026-06-21T21:58:51.058Z"
-last_activity: 2026-06-21 -- Phase 08 planning complete
+stopped_at: Phase 8 complete + verified (3/3 plans, 4/4 SC PASS). Next `/gsd-plan-phase 9` (CMP-05 paper integration).
+last_updated: "2026-06-21T22:35:00.000Z"
+last_activity: 2026-06-21 -- Phase 08 complete (verification passed, 3/3 plans)
 progress:
-  total_phases: 2
-  completed_phases: 1
+  total_phases: 3
+  completed_phases: 2
   total_plans: 6
-  completed_plans: 3
-  percent: 50
+  completed_plans: 6
+  percent: 67
 ---
 
 # Project State
@@ -26,12 +26,39 @@ See: .planning/PROJECT.md (updated 2026-06-21)
 ## Current Position
 
 Milestone: v1.2 — Component-Centric Metric Suite (defined 2026-06-21)
-Phase: 8 — Multi-System Comparison & Fitness Validation ◐ CONTEXT GATHERED (2026-06-21); Phase 7 ✓ COMPLETE
-Plan: none yet — 08-CONTEXT.md ready, next `/gsd-plan-phase 8`
-Status: Ready to execute
-Last activity: 2026-06-21 -- Phase 08 planning complete
+Phase: 8 — Multi-System Comparison & Fitness Validation ✓ COMPLETE + VERIFIED (2026-06-21); Phase 7 ✓ COMPLETE
+Plan: 08-01 / 08-02 / 08-03 all complete (3/3); verification passed (4/4 SC)
+Status: Phase 8 done — ready for Phase 9 (CMP-05 paper integration)
+Last activity: 2026-06-21 -- Phase 08 complete (verification passed)
 
-Progress: [███░░░░░░░] 33% (1/3 phases) — Phase 7 complete; Phase 8 context gathered; Phases 8-9 remain
+Progress: [███████░░░] 67% (2/3 phases) — Phases 7-8 complete; Phase 9 (paper integration) remains
+
+### Phase 8 deliverables (committed ec14244+9fc5da8+69a7aab / 229c843 / e998aea+f9d140b+e8748b9)
+
+- **08-01 (CMP-03 prereq):** Pinned the canonical artemis source `results_artemis_gpt54/` under
+  version control (25 files, all 5 `sad-code/sadSamTlr_<proj>.csv` — the `ARTEMIS_LOCAL` path
+  `component_suite._artemis_model` reads). `reports/ARTEMIS_PROVENANCE.md` names it canonical,
+  keeps `ARTEMIS_DOC_CODE` external/unvendored, marks `reports_artemis_gpt54_*` + `paper-result/`
+  documented-secondary (non-destructive, still on disk). Resolves D-10.
+- **08-02 (CMP-03):** `reports/COMPONENT_SUITE_{sad-model,sad-code}.csv` regenerate deterministically
+  over all 3 present systems × 2 levels (byte-identical 2nd run; clean diff vs Phase-7 committed —
+  now reproducible because artemis is pinned). `reports/COMPONENT_SUITE.md` hardened: skip-with-notice
+  policy (real `WARNING:` + the 3 guarded roots), swattr≡transarc note (D-12), provenance xref.
+  Graceful-skip demonstrated (ARTEMIS_LOCAL→nonexistent emits the WARNING, present rows still returned).
+- **08-03 (CMP-04):** NEW `src/bias/metric_fitness.py` — scores micro/macro/gap/min_comp/pct_missed on
+  four axes (separation/validity/stability/degeneracy) × 2 levels vs the rq2 trivial floor (Random/Top-3,
+  reused as-is — no new baselines) + oracle anchors → `reports/METRIC_FITNESS.{md,csv}`. **Data-derived
+  verdict:** headline = micro/macro/min_comp; diagnostic = gap/pct_missed — honestly flags that `micro`
+  ranks headline (micro/macro diverge only ~0.092 on separation; second-order, per the Phase-7
+  reconciliation) rather than restating the expected "headline=macro+tail". SC4 artemis long-tail
+  abandonment quantified (sad-code min_comp 0.3455 / pct_missed 0.0533; sad-model 0.2788 / 0.0832;
+  min_comp=0 on bbb+jabref both levels, teammates sad-model) — matches the committed CSVs.
+  Determinism hardened beyond the deferred NDG item: cross-`PYTHONHASHSEED` byte-identical (sorted
+  sequences + key-sorted map; library modules unedited).
+- **Verification:** `08-VERIFICATION.md` — status PASSED, 4/4 SC, all invariants green (stdlib-only;
+  no new F1 math; non-destructive; `component_suite.py` + `rq2_trivial_baselines.py` unedited; Phase-7
+  equivalence/determinism oracle still passes — no regression). One documented override: ROADMAP's
+  literal "≥1 cleverer baseline" reinterpreted to the 3 real paper systems per locked D-01/D-02/D-03.
 
 ### Phase 7 deliverables (committed e2f93c5 / 55202a9 / 70287e0)
 
@@ -107,17 +134,16 @@ None — all v1.1 concerns resolved (metrics API reused `new_metrics_analysis.py
 
 ## Session Continuity
 
-Last session: 2026-06-21T21:35:07.000Z
-Stopped at: Phase 8 context gathered (discuss-phase complete). Next `/gsd-plan-phase 8`.
-Resume file: .planning/phases/08-multi-system-comparison-fitness-validation/08-CONTEXT.md
+Last session: 2026-06-21T22:35:00.000Z
+Stopped at: Phase 8 complete + verified (3/3 plans, 4/4 SC PASS). Next `/gsd-plan-phase 9` (CMP-05).
+Resume file: .planning/phases/08-multi-system-comparison-fitness-validation/08-VERIFICATION.md
 
-**Phase 8 discuss complete.** Ran `/gsd-discuss-phase 8` manually (no gsd-sdk).
-4 gray areas resolved → 08-CONTEXT.md + 08-DISCUSSION-LOG.md committed `11d6418`.
-Locked: no new synthetic baselines (real comparators = 3 paper systems only);
-numeric fitness scorecard in NEW `src/bias/metric_fitness.py` → `reports/METRIC_FITNESS.{md,csv}`
-(separation/validity/stability/degeneracy); data-derived verdict; skip-with-notice +
-both levels + swattr≡transarc + pinned `results_artemis_gpt54` provenance.
-Next: `/gsd-plan-phase 8`.
+**Phase 8 complete.** Executed manually (no gsd-sdk on PATH) sequentially on the main
+working tree — worktree isolation deliberately disabled because of the environment's git
+auto-commit/force-sync daemon. 3 plans (08-01 artemis pin / 08-02 suite hardening /
+08-03 metric-fitness scorecard), each spot-checked, then gsd-verifier PASSED (4/4 SC).
+CMP-03 + CMP-04 delivered. See "Phase 8 deliverables" above + 08-VERIFICATION.md.
+Next: `/gsd-plan-phase 9` (CMP-05 paper integration).
 
 **Phase 7 complete.** Planned (3 plans, plan-check PASS after 1 revision), executed
 sequentially (manual mode — no gsd-sdk), and verified (gsd-verifier, status passed;
@@ -135,6 +161,11 @@ OPEN ITEMS for next session:
    migrate v1.2 to master/a v1.2 branch before continuing.
 
 3. `writing/eval.tex` prose still cites old numbers — deliberate Phase-9 (CMP-05) deferral.
-4. **Phase 8 provenance (D-10):** untracked `results_artemis_gpt54/`,
-   `reports_artemis_gpt54_*/`, `paper-result/` must be resolved (commit/pin the
-   canonical artemis source) before the scorecard's determinism/regen claim can hold.
+   Phase 9 should also fold in the new CMP-03/CMP-04 artifacts: `reports/COMPONENT_SUITE.md`,
+   `reports/METRIC_FITNESS.md` (the data-derived verdict), and `reports/ARTEMIS_PROVENANCE.md`.
+4. **Phase 8 provenance (D-10): RESOLVED.** `results_artemis_gpt54/` pinned + committed (08-01);
+   `reports/ARTEMIS_PROVENANCE.md` is the authoritative-source ledger. `reports_artemis_gpt54_*/`
+   and `paper-result/` intentionally remain untracked (documented-secondary, non-destructive).
+5. **Phase 9 wording (from 08-VERIFICATION):** the 08-03 SUMMARY's "micro ≈ macro second-order"
+   prose is looser than the committed `reports/METRIC_FITNESS.md` (which correctly states micro/macro
+   diverge ~0.092 on separation). Cite the ARTIFACT's wording in the paper, not the SUMMARY's.
