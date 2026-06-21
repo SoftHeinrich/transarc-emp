@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Component-Centric Metric Suite
-status: Phase 7 planned (3 plans, plan-check passed). Next `/gsd-execute-phase 7`.
-stopped_at: Phase 7 planned — 07-01 (CMP-01), 07-02 (CMP-02), 07-03 (CMP-06); plan-check PASS after 1 revision
-last_updated: "2026-06-21T15:20:17.000Z"
-last_activity: 2026-06-21 -- Phase 7 plans authored (gsd-planner) + verified (gsd-plan-checker)
+status: Phase 7 COMPLETE (3/3 plans, verification passed). Next `/gsd-plan-phase 8`.
+stopped_at: Phase 7 complete — suite finalized, metrics_api reconciled to mapped-only (0.714→0.795), oracle + determinism green; verification status passed
+last_updated: "2026-06-21T16:55:48.000Z"
+last_activity: 2026-06-21 -- Phase 7 executed (3 plans, sequential) + verified (status: passed)
 progress:
   total_phases: 3
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 3
-  completed_plans: 0
-  percent: 0
+  completed_plans: 3
+  percent: 33
 ---
 
 # Project State
@@ -26,12 +26,18 @@ See: .planning/PROJECT.md (updated 2026-06-21)
 ## Current Position
 
 Milestone: v1.2 — Component-Centric Metric Suite (defined 2026-06-21)
-Phase: 7 — Suite & Universe Reconciliation (PLANNED — 3 plans, plan-check passed)
-Plan: 07-01 (CMP-01), 07-02 (CMP-02), 07-03 (CMP-06) — wave 1: 07-01 ∥ 07-02; wave 2: 07-03
-Status: Phase 7 plans authored + plan-checked (PASS after 1 revision closing the D-03/D-04 regen+banner gap). Plan docs NOT yet committed. Next `/gsd-execute-phase 7`.
+Phase: 7 — Suite & Universe Reconciliation ✓ COMPLETE (2026-06-21)
+Plan: 07-01 / 07-02 / 07-03 all complete (3/3); verification status passed
+Status: Phase 7 done — component_suite finalized (shared micro/macro universe, gold-only tail), metrics_api headline component_f1 reconciled to mapped-only (0.714→0.795 == suite micro), equivalence oracle + determinism check green (07-VERIFICATION.md passed). Next `/gsd-plan-phase 8`.
 Last activity: 2026-06-21
 
-Progress: [░░░░░░░░░░] 0% (0/3 phases) — Phase 7 planned, not yet executed
+Progress: [███░░░░░░░] 33% (1/3 phases) — Phase 7 complete; Phases 8-9 remain
+
+### Phase 7 deliverables (committed e2f93c5 / 55202a9 / 70287e0)
+- `src/bias/component_suite.py` finalized; `reports/COMPONENT_SUITE_{sad-code,sad-model}.csv` regenerated (swattr/transarc AVG micro 0.7949 / macro 0.8134).
+- `metrics_api` headline `component_f1` reconciled to mapped-only via dropping the `{b}` fallback (evaluation_critique.py + mini-src/metrics.py); AVG 0.732→0.795; delta + supersession ledger in `reports/COMPONENT_UNIVERSE_RECONCILIATION.md`.
+- `src/bias/check_component_suite.py` — equivalence oracle (suite-macro == per_component_macro_f1, all 15 cells |delta|=0) + temp-dir determinism diff (36/36).
+- WARNING follow-up: regenerating the stale `metrics_sad-sam.csv` placeholder moved Pillar-1 SAD-SAM Sentence F1 (teammates 0.916→0.703 / avg 0.875→0.825) into `consequences.tex` — human should confirm before Phase 9 (CMP-05). Possibly related to the known sentence_f1 gold-negative-FP bug.
 
 ### v1.2 foundation delivered this session (to be hardened/verified in Phases 7-9)
 
@@ -100,18 +106,21 @@ None — all v1.1 concerns resolved (metrics API reused `new_metrics_analysis.py
 
 ## Session Continuity
 
-Last session: 2026-06-21T15:20:17.000Z
-Stopped at: Phase 7 planned (3 plans) + plan-check PASS; plan docs uncommitted
-Resume file: .planning/phases/07-suite-universe-reconciliation/07-01-PLAN.md
+Last session: 2026-06-21T16:55:48.000Z
+Stopped at: Phase 7 COMPLETE (executed + verified, status passed). Next `/gsd-plan-phase 8`.
+Resume file: .planning/phases/07-suite-universe-reconciliation/07-VERIFICATION.md
 
-**Phase 7 planned.** 3 plans authored by gsd-planner, verified by gsd-plan-checker
-(PASS after 1 revision — closed a D-03/D-04 gap where in-repo `writing/tables/*.tex`
-and secondary reports kept the superseded `component_f1` 0.714/0.732 without regen or
-banner). Plans: 07-01 (CMP-01 suite finalize), 07-02 (CMP-02 metrics_api mapped-only
-reconciliation + artifact regen/banner), 07-03 (CMP-06 equivalence oracle + determinism).
-Next: `/gsd-execute-phase 7` (wave 1: 07-01 ∥ 07-02; wave 2: 07-03).
+**Phase 7 complete.** Planned (3 plans, plan-check PASS after 1 revision), executed
+sequentially (manual mode — no gsd-sdk), and verified (gsd-verifier, status passed;
+SC1–SC4 all PASS). Commits: 07-01 `e2f93c5`, 07-02 `55202a9`, 07-03 `70287e0`.
+Next: `/gsd-plan-phase 8` (Multi-System Comparison & Fitness Validation — CMP-03, CMP-04).
 
-NOTE — uncommitted + branch: plan docs (`07-0{1,2,3}-PLAN.md`) and the
-`v1.2-ROADMAP.md`/STATE edits are NOT committed. Working branch is
-`gsd/mini-data-inequality` (the v1.2 Phase 7 context commit 0b59a9a already lives here,
-not on master). Decide commit target before `/gsd-execute-phase 7`.
+OPEN ITEMS for next session:
+1. **SAD-SAM Sentence F1 review (WARNING):** 07-02 refreshed the stale `metrics_sad-sam.csv`
+   placeholder, moving teammates Sentence F1 0.916→0.703 (avg 0.875→0.825) into
+   `consequences.tex`. Confirm these Pillar-1 numbers (possible link to the known
+   `sentence_f1` gold-negative-FP bug) before Phase 9 / any paper use.
+2. **Branch:** working branch is `gsd/mini-data-inequality`; all v1.2 Phase 7 work
+   (context 0b59a9a + plans + execution) lives here, NOT on master. Decide whether to
+   migrate v1.2 to master/a v1.2 branch before continuing.
+3. `writing/eval.tex` prose still cites old numbers — deliberate Phase-9 (CMP-05) deferral.
