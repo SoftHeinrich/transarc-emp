@@ -1,37 +1,44 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: Metrics Toolkit & Converged-Metric Motivation
-status: milestone_archived
-stopped_at: v1.1 shipped & archived (tag v1.1)
-last_updated: "2026-05-31T00:00:00.000Z"
-last_activity: 2026-06-02 -- warning investigation (260602-qwd): W1+W3=bugs, W2=false alarm; fixes specified
+milestone: v1.2
+milestone_name: Component-Centric Metric Suite
+status: milestone_defined
+stopped_at: v1.2 defined (Phases 7-9); foundation delivered, awaiting /gsd-discuss-phase 7
+last_updated: "2026-06-21T00:00:00.000Z"
+last_activity: 2026-06-21 -- explore session: level-agnostic component suite built + multi-system comparison; v1.2 milestone scaffolded
 progress:
   total_phases: 3
-  completed_phases: 3
-  total_plans: 4
-  completed_plans: 4
-  percent: 100
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-05-31)
+See: .planning/PROJECT.md (updated 2026-06-21)
 
 **Core value:** Both retained pillars (TransArc empirical study + benchmark bias analysis) must stay reproducible, and their reports/paper chapters must remain consistent with the code that produced them.
-**Current focus:** v1.1 shipped & archived — define the next milestone with `/gsd-new-milestone`
+**Current focus:** v1.2 Component-Centric Metric Suite — defined; foundation delivered this session. Next: `/gsd-discuss-phase 7` → `/gsd-plan-phase 7`.
 
 ## Current Position
 
-Milestone: v1.1 — shipped & archived (tag `v1.1`)
-Phase: — (no active phase)
+Milestone: v1.2 — Component-Centric Metric Suite (defined 2026-06-21)
+Phase: 7 — Suite & Universe Reconciliation (planned, not started)
 Plan: —
-Status: Milestone archived — awaiting next milestone (`/gsd-new-milestone`)
-Last activity: 2026-05-31
+Status: Milestone defined; foundation delivered (`src/bias/component_suite.py`, `reports/COMPONENT_SUITE*`). Awaiting `/gsd-discuss-phase 7`.
+Last activity: 2026-06-21
 
-Progress: [██████████] 100% (3/3 phases, 4/4 plans)
+Progress: [░░░░░░░░░░] 0% (0/3 phases) — foundation delivered, not yet verified through GSD phases
+
+### v1.2 foundation delivered this session (to be hardened/verified in Phases 7-9)
+
+- `src/bias/component_suite.py` — level-agnostic suite (micro/macro/gap/min_comp/pct_missed/gold_gini), reconciled mapped-only universe, reuses `calc_metrics` only. [CMP-01, CMP-02 partial]
+- `reports/COMPONENT_SUITE_{sad-model,sad-code}.csv` + `reports/COMPONENT_SUITE.md` — 3-system, 2-level comparison + universe-reconciliation note. [CMP-03 partial]
+- Finding: micro/macro aggregation is second-order once universe-reconciled; tail coverage (min_comp/pct_missed) is the discriminator; artemis abandons the long tail. Memory: `component-suite-finding`.
+- Open for Phases 7-9: reconcile/document `metrics_api` headline delta (CMP-02), equivalence oracle (CMP-06), hardened fitness scorecard (CMP-04), paper integration (CMP-05).
 
 ## Performance Metrics
 

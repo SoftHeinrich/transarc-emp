@@ -1,17 +1,22 @@
 #!/usr/bin/env python3
 """
-SAD-CODE holistic metric comparison — s_linker11 / s_linker13f / s_linker15 / TransArc.
+SAD-CODE holistic metric comparison — s_linker19 (paper variant) vs TransArc,
+with legacy s_linker11/13f/15 columns kept best-effort for back-compat.
 
 Counterpart to sadsam_comparison.py, at the transitive SAD-CODE level. Reuses
 the canonical metric suite (`metrics_api.compute_sad_code_metrics`,
 `evaluation_critique`, `new_metrics_analysis`) — zero metric math reimplemented.
 
 Systems (all produce (sentence, code_path) links):
-    TransArc    — full ARDoCo pipeline SAD-CODE, transarc-emp results
-    s11         — s_linker11 SAD-SAM × ARCOTL SAM-CODE (composed), like s12c
-    s13f        — s_linker13f SAD-SAM × ARCOTL SAM-CODE (composed)
-    s15_gpt     — s_linker15 v2.6.1 (GPT) SAD-SAM × ARCOTL SAM-CODE (composed)
-    s15_claude  — s_linker15 v2.6.1_claude SAD-SAM × ARCOTL SAM-CODE (composed)
+    TransArc     — full ARDoCo pipeline SAD-CODE, transarc-emp results
+    s19_claude   — s_linker19 (Claude) v2.6.3 direct SAD-CODE  ← PAPER VARIANT
+    s19_openai   — s_linker19 (GPT-5.4) v2.6.3 direct SAD-CODE ← PAPER VARIANT
+    s11          — s_linker11 SAD-SAM × ARCOTL SAM-CODE (composed)
+    s13f / s15_* — older variants, composed; result dirs may no longer exist.
+
+Note: s11/s13f/s15 are composed from SAD-SAM × ARCOTL SAM-CODE (legacy pipeline).
+The s19 variants ship direct SAD-CODE predictions, so we load them as-is — no
+external composition. This matches the paper variant's intended evaluation path.
 
 Metrics (SAD-CODE has directory enrollment, so the multi-level split IS
 informative here — contrast with SAD-SAM where it collapses):
@@ -39,18 +44,23 @@ sys.path.insert(0, str(LIB))
 from transarc_error_analysis import (  # noqa: E402
     PROJECTS, load_result_sad_code, load_result_sam_code_standalone,
 )
+import metrics_api  # noqa: E402  (need PAPER_MAIN_PANEL_* constants below)
 from metrics_api import compute_sad_code_metrics, NA  # noqa: E402
 
-ABLATION_DIR = Path("/mnt/hostshare/ardoco-home/llm-sad-sam-v45/results/ablation_results")
+ABLATION_DIR = Path("/mnt/hostshare/ardoco-home/agent-linker/results/ablation_results")
 S15_GPT_DIR = Path("/mnt/hostshare/ardoco-home/llm-sad-sam-v45/results/v2.6.1")
 S15_CLAUDE_DIR = Path("/mnt/hostshare/ardoco-home/llm-sad-sam-v45/results/v2.6.1_claude")
+S19_CLAUDE_DIR = Path("/mnt/hostshare/ardoco-home/agent-linker/results/v2.6.3/claude")
+S19_OPENAI_DIR = Path("/mnt/hostshare/ardoco-home/agent-linker/results/v2.6.3/openai")
 REPORTS = Path(__file__).resolve().parent.parent.parent / "reports"
 OUTPUT_CSV = REPORTS / "SADCODE_S11_S13F_VS_TRANSARC.csv"
 OUTPUT_MD = REPORTS / "SADCODE_COMPARISON.md"
 
-# (key, label, loader_tag)
+# (key, label, loader_tag). s19 uses direct SAD-CODE predictions; others compose.
 SYSTEMS = [
     ("transarc", "TransArc", None),
+    ("s19_claude", "s_linker19 (Claude)", "s19/claude"),
+    ("s19_openai", "s_linker19 (GPT-5.4)", "s19/openai"),
     ("s11", "s_linker11", "ablation/s_linker11"),
     ("s13f", "s_linker13f", "ablation/s_linker13f"),
     ("s15_gpt", "s15_gpt", "s15_gpt/s_linker15"),
@@ -58,17 +68,27 @@ SYSTEMS = [
 ]
 
 # Suite columns meaningful for SAD-CODE (link/sentence/map are SAD-SAM-only).
-METRICS = ["file_f1", "decision_f1", "component_f1", "weighted_f1",
-           "acf1", "mcc", "ndg", "hus"]
+# Ordered to match the paper's RQ2 layout: main panel first (file F1 ->
+# per-component F1 -> decision F1; then sentence coverage + noise rate); then
+# the appendix-only block (HUS, NDG — both shadowed on this benchmark, see
+# reports/RQ2_METRIC_REDUNDANCY.md and project-paper-metric-choices); then
+# pure diagnostics (Weighted F1, ACF1, MCC) that the paper does not report.
+METRICS = (
+    metrics_api.PAPER_MAIN_PANEL_SADCODE          # 4 metrics
+    + metrics_api.PAPER_APPENDIX_SADCODE          # hus, ndg
+    + ["decision_f1", "weighted_f1", "acf1", "mcc"]  # diagnostic-only
+)
 METRIC_LABELS = {
     "file_f1": "File F1",
-    "decision_f1": "Decision F1",
     "component_f1": "Component F1",
+    "sentence_coverage": "Sent. coverage",
+    "noise_rate": "Noise rate (↓)",
+    "hus": "HUS",
+    "ndg": "NDG",
+    "decision_f1": "Decision F1",
     "weighted_f1": "Weighted F1",
     "acf1": "ACF1",
     "mcc": "MCC",
-    "ndg": "NDG",
-    "hus": "HUS",
 }
 
 
@@ -99,6 +119,24 @@ def _load_sad_sam_for_tag(loader_tag, project):
     raise ValueError(f"Unknown loader_tag: {loader_tag}")
 
 
+def _load_s19_sad_code(path):
+    """Load s_linker19 v2.6.3 SAD-CODE CSV -> set of (sentence_str, code_path).
+
+    Schema is ``sentence, codeID`` — s19 ships direct SAD-CODE predictions, so
+    no SAD-SAM × SAM-CODE composition is needed.
+    """
+    links = set()
+    if not path.exists():
+        return links
+    with open(path) as f:
+        for row in csv.DictReader(f):
+            sent = str(row["sentence"]).strip()
+            code = row["codeID"].strip()
+            if sent and code:
+                links.add((sent, code))
+    return links
+
+
 def compose_sad_code(sad_sam_links, sam_code_standalone):
     """Compose SAD-SAM × ARCOTL SAM-CODE → SAD-CODE (sentence, code)."""
     model_to_codes = defaultdict(set)
@@ -114,6 +152,10 @@ def compose_sad_code(sad_sam_links, sam_code_standalone):
 def system_links(key, loader_tag, project):
     if key == "transarc":
         return load_result_sad_code(project)
+    if loader_tag.startswith("s19/"):
+        backend = loader_tag[len("s19/"):]
+        base = {"claude": S19_CLAUDE_DIR, "openai": S19_OPENAI_DIR}[backend]
+        return _load_s19_sad_code(base / project / "sad-code.csv")
     sad_sam = _load_sad_sam_for_tag(loader_tag, project)
     sam_code = load_result_sam_code_standalone(project)
     return compose_sad_code(sad_sam, sam_code)

@@ -17,10 +17,26 @@ Reused primitives (no metric math is implemented here):
 
 Run:  python3 src/lib/metrics_api.py --task sad-sam
       python3 src/lib/metrics_api.py --task sad-code [--project jabref]
+
+      # Score arbitrarily-named result CSVs (e.g. agent-linker link exports)
+      # from a configurable location. Result columns are auto-detected, so both
+      # the TransArc dialect (modelElementID,sentence) and the agent-linker
+      # dialect (sentence,component_id,...) are accepted:
+      python3 src/lib/metrics_api.py --task sad-sam \
+          --results-dir /path/to/run --reports-dir /tmp/out \
+          --result-pattern 's_linker20_union_{project}_links.csv'
+
+Paths are configurable (no hardcoded input/output): --results-dir /
+--result-pattern / --reports-dir / --tables-dir CLI flags, or the
+$TRANSARC_RESULTS_DIR / $TRANSARC_REPORTS_DIR / $TRANSARC_TABLES_DIR env vars,
+all defaulting to the bundled transarc-emp tree. When --reports-dir is set and
+--tables-dir is not, the .tex follows --reports-dir so one-off scoring runs
+never overwrite the committed writing/tables/ artifacts.
 """
 
 import csv
 import math
+import os
 import sys
 import argparse
 from collections import defaultdict
@@ -29,12 +45,17 @@ from pathlib import Path
 # ── Import shared infrastructure ──────────────────────────────────────────────
 # metrics_api.py lives IN src/lib, so the self-import target is `parent`.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+# Module handle (not a value import) so the input-results root is read as
+# `_tea.RESULTS` at CALL time — this keeps both --results-dir AND the existing
+# monkeypatch in src/paper/rq1_table.py (transarc_error_analysis.RESULTS = ...)
+# working. Result-file READING now lives here (column-tolerant); the metric
+# MATH still comes entirely from the shared lib below.
+import transarc_error_analysis as _tea
 from transarc_error_analysis import (
-    PROJECTS, RESULTS, calc_metrics,
+    PROJECTS, calc_metrics, normalize_path,
     load_code_model_files,
     load_gs_sad_sam, load_gs_sad_sam_maps, load_gs_sam_code_maps,
-    load_result_sad_sam_standalone,
-    load_result_sad_code, load_text, load_model_element_names,
+    load_text, load_model_element_names,
 )
 from new_metrics_analysis import (
     compute_mcc, compute_map, compute_acf1, compute_random_f1,
@@ -50,17 +71,59 @@ from evaluation_critique import (
 )
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "paper"))
+import generate_tables as _gt   # module handle so --tables-dir can rebind _gt.OUT
 from generate_tables import render_table, write_table
 
-# ── Paths (hardcoded-absolute-path convention) ────────────────────────────────
-REPORTS = Path("/mnt/hostshare/ardoco-home/transarc-emp/reports")
+# ── Paths (configurable: env var → CLI flag → bundled default) ────────────────
+# Input results root: default is the bundled transarc-emp/results tree, read at
+# call time as _tea.RESULTS. Override with --results-dir or $TRANSARC_RESULTS_DIR,
+# optionally combined with --result-pattern to point at arbitrarily-named CSVs
+# (e.g. agent-linker's "s_linker20_union_{project}_links.csv").
+# Output reports dir: override with --reports-dir or $TRANSARC_REPORTS_DIR.
+_DEFAULT_REPORTS = "/mnt/hostshare/ardoco-home/transarc-emp/reports"
+REPORTS = Path(os.environ.get("TRANSARC_REPORTS_DIR", _DEFAULT_REPORTS))
+
+# Column-name candidates so result CSVs in either dialect are accepted:
+#   TransArc style     → sad-sam : modelElementID, sentence
+#                        sad-code: modelElementID (holds the sentence id), codeId
+#   agent-linker style → sad-sam : sentence, component_id, component_name, ...
+_SADSAM_COMPONENT_KEYS = ("modelElementID", "component_id", "componentId")
+_SADSAM_SENTENCE_KEYS = ("sentence",)
+_SADCODE_SENTENCE_KEYS = ("modelElementID", "sentence")
+_SADCODE_CODE_KEYS = ("codeId", "codeID", "code_path")
 
 # ── Unified column schema (superset across both tasks) ────────────────────────
+# sentence_coverage / noise_rate added 2026-06-05 as part of the paper's RQ2
+# primary panel ([[project-paper-metric-choices]]). They were previously defined
+# in src/bias/rq2_metric_redundancy.py; inlined here so metrics_api stays the
+# single source of truth.
 SCHEMA = [
     "project", "link_f1", "sentence_f1", "decision_f1", "component_f1",
-    "file_f1", "weighted_f1", "mcc", "map", "acf1", "ndg", "hus",
+    "file_f1", "weighted_f1", "sentence_coverage", "noise_rate",
+    "mcc", "map", "acf1", "ndg", "hus",
 ]
 NUMERIC_COLS = SCHEMA[1:]  # everything except "project"
+
+# Paper's chosen primary metric panel for RQ2 on doc-to-code, after the
+# 2026-06-05 redundancy cut ([[project-paper-metric-choices]]):
+#   file_f1 (reference), component_f1   (size-blind aggregation contrast)
+#   sentence_coverage, noise_rate       (developer view)
+# Decision F1 was dropped 2026-06-05 — file_f1 + component_f1 already cover the
+# enrolment-inflation contrast, and decision_f1 added another granularity axis
+# without independent rank signal beyond per-component F1.
+# HUS and NDG are appendix-only — both shadowed on this benchmark
+# (ρ >= 0.85 with metrics already in the main panel; 0 system-pair reversals
+# beyond what the main panel produces). See reports/RQ2_METRIC_REDUNDANCY.md.
+PAPER_MAIN_PANEL_SADCODE = [
+    "file_f1", "component_f1",
+    "sentence_coverage", "noise_rate",
+]
+PAPER_APPENDIX_SADCODE = ["hus", "ndg"]
+# For sad-sam, per-component F1 collapses onto link F1 (ρ = +1.00, 0/189
+# reversals — no enrolment), so the main panel is link F1, sentence coverage,
+# and noise rate; HUS and per-sentence F1 are appendix-only.
+PAPER_MAIN_PANEL_SADSAM = ["link_f1", "sentence_coverage", "noise_rate"]
+PAPER_APPENDIX_SADSAM = ["sentence_f1", "hus"]
 
 NA = "—"      # em dash — CSV inapplicable cells
 NA_TEX = "--"      # LaTeX inapplicable cells
@@ -69,6 +132,7 @@ NA_TEX = "--"      # LaTeX inapplicable cells
 LATEX_HEADER = [
     "Project", "Link \\fone", "Sentence \\fone", "Decision \\fone",
     "Component \\fone", "File \\fone", "Weighted \\fone",
+    "Sent.\\ cov.", "Noise (\\(\\downarrow\\))",
     "MCC", "MAP", "ACF1", "NDG", "HUS",
 ]
 
@@ -78,6 +142,37 @@ def _fmt(v):
     if isinstance(v, (int, float)):
         return f"{v:.3f}"
     return v
+
+
+def _sentence_coverage(gold_by_s, res_by_s):
+    """Fraction of gold sentences with at least one correct prediction.
+
+    Both args are sentence -> set[target] dicts (target is component-id for
+    sad-sam, code-path for sad-code; the metric is target-agnostic). Mirrors
+    src/bias/rq2_metric_redundancy.py::sentence_coverage on the same inputs.
+    """
+    if not gold_by_s:
+        return 0.0
+    covered = sum(
+        1 for s in gold_by_s if gold_by_s[s] & res_by_s.get(s, set())
+    )
+    return covered / len(gold_by_s)
+
+
+def _noise_rate(gold_by_s, res_by_s):
+    """Mean FP/(TP+FP) across predicted sentences; lower is better.
+
+    Sentences with zero predictions are skipped (no purity to measure).
+    Mirrors src/bias/rq2_metric_redundancy.py::noise_rate.
+    """
+    vals = []
+    for s, r in res_by_s.items():
+        g = gold_by_s.get(s, set())
+        tp = len(g & r)
+        fp = len(r - g)
+        if tp + fp > 0:
+            vals.append(fp / (tp + fp))
+    return sum(vals) / len(vals) if vals else 0.0
 
 
 def select_projects(args):
@@ -91,21 +186,91 @@ def select_projects(args):
     return list(PROJECTS)
 
 
-# ── Placeholder computations (replaced in Tasks 2 and 3) ──────────────────────
+# ── Column-tolerant, path-configurable result loading ─────────────────────────
 
-def compute_sad_sam_row(proj):
-    """Compute the SAD-SAM metric row for the standalone (TransArc) result.
+def _cell(row, keys):
+    """First non-empty value among `keys` in a csv.DictReader row, else None."""
+    for k in keys:
+        v = row.get(k)
+        if v is not None and str(v).strip() != "":
+            return str(v).strip()
+    return None
+
+
+def _unquote(s):
+    """Strip one layer of matching surrounding quotes. Guards against IDE run
+    configs / parameter fields that pass a quoted value literally — a real
+    shell would strip these, so e.g. --result-pattern 's_..._{project}.csv'
+    must not arrive with the quotes baked into the filename."""
+    if s and len(s) >= 2 and s[0] == s[-1] and s[0] in ("'", '"'):
+        return s[1:-1]
+    return s
+
+
+def _results_root(results_dir):
+    """Resolve the results root: an explicit --results-dir wins; otherwise read
+    the live transarc_error_analysis.RESULTS so the rq1_table monkeypatch (and
+    the bundled default) keep working."""
+    return Path(results_dir) if results_dir is not None else Path(_tea.RESULTS)
+
+
+def _result_path(proj, results_dir, result_pattern, subdir, tlr_prefix):
+    """Locate a result CSV. With --result-pattern, join `pattern.format(project=)`
+    onto the root; otherwise use the default TransArc layout
+    ``<root>/<project>/<subdir>/<tlr_prefix>_<project>.csv``."""
+    root = _results_root(results_dir)
+    if result_pattern:
+        return root / result_pattern.format(project=proj)
+    return root / proj / subdir / f"{tlr_prefix}_{proj}.csv"
+
+
+def load_sad_sam_result(path):
+    """Read a SAD-SAM result CSV → set[(component_id, sentence)], accepting both
+    the TransArc and agent-linker column dialects. Empty set if file absent."""
+    links = set()
+    if not path.exists():
+        return links
+    with open(path) as f:
+        for row in csv.DictReader(f):
+            comp = _cell(row, _SADSAM_COMPONENT_KEYS)
+            sent = _cell(row, _SADSAM_SENTENCE_KEYS)
+            if comp and sent:
+                links.add((comp, sent))
+    return links
+
+
+def load_sad_code_result(path):
+    """Read a SAD-CODE result CSV → set[(sentence, code_path)], accepting both
+    column dialects. Empty set if file absent."""
+    links = set()
+    if not path.exists():
+        return links
+    with open(path) as f:
+        for row in csv.DictReader(f):
+            sent = _cell(row, _SADCODE_SENTENCE_KEYS)
+            code = _cell(row, _SADCODE_CODE_KEYS)
+            if sent and code:
+                links.add((sent, normalize_path(code)))
+    return links
+
+
+# ── Per-project metric rows ───────────────────────────────────────────────────
+
+def compute_sad_sam_row(proj, results_dir=None, result_pattern=None):
+    """Compute the SAD-SAM metric row for a standalone result CSV.
 
     SAD-SAM has NO files and NO enrollment — work directly on
     (modelElementID, sentence) pairs. The evaluation_critique `_compute_*`
-    helpers are NOT used here (they require enrollment maps that do not
-    exist for sad-sam). Returns None (skip + warn) if the results file is
-    absent.
+    helpers are NOT used here (they require enrollment maps that do not exist
+    for sad-sam). Reads the default TransArc layout unless `results_dir` /
+    `result_pattern` redirect it (column dialect is auto-detected). Returns
+    None (skip + warn) if the results file is absent.
     """
-    res = load_result_sad_sam_standalone(proj)         # set() if file absent
+    path = _result_path(proj, results_dir, result_pattern, "sad-sam", "sadSamTlr")
+    res = load_sad_sam_result(path)                     # set() if file absent
     if not res:
-        print(f"WARNING: no sad-sam results for {proj}, skipping",
-              file=sys.stderr)
+        print(f"WARNING: no sad-sam results for {proj} (looked in {path}), "
+              f"skipping", file=sys.stderr)
         return None
     return compute_sad_sam_metrics(proj, res)
 
@@ -147,6 +312,12 @@ def compute_sad_sam_metrics(proj, res):
     res_S = {(s, "*") for s in res_by_s}
     row["sentence_f1"] = calc_metrics(gold_S, res_S)[2]
 
+    # Sentence coverage / noise rate (paper RQ2 main panel — see
+    # project-paper-metric-choices). Both operate on sentence -> set[component]
+    # dicts that we already built above for sentence_f1.
+    row["sentence_coverage"] = _sentence_coverage(gold_by_s, res_by_s)
+    row["noise_rate"] = _noise_rate(gold_by_s, res_by_s)
+
     # component_f1: map ids to component names so synonymous ids collapse.
     gold_C = {(names.get(c, c), s) for (c, s) in gold}
     res_C = {(names.get(c, c), s) for (c, s) in res}
@@ -173,17 +344,20 @@ def compute_sad_sam_metrics(proj, res):
     return row
 
 
-def compute_sad_code_row(proj):
-    """Compute the SAD-CODE metric row for the standalone (TransArc) result.
+def compute_sad_code_row(proj, results_dir=None, result_pattern=None):
+    """Compute the SAD-CODE metric row for a standalone result CSV.
 
     Reuses the evaluation_critique granularity helpers verbatim (the
-    part5_alternative_metrics caller idiom is the exact reference). Returns
-    None (skip + warn) if the results file is absent.
+    part5_alternative_metrics caller idiom is the exact reference). Reads the
+    default TransArc layout unless `results_dir` / `result_pattern` redirect it
+    (column dialect is auto-detected). Returns None (skip + warn) if the
+    results file is absent.
     """
-    res = load_result_sad_code(proj)                   # set() if file absent
+    path = _result_path(proj, results_dir, result_pattern, "sad-code", "sadCodeTlr")
+    res = load_sad_code_result(path)                    # set() if file absent
     if not res:
-        print(f"WARNING: no sad-code results for {proj}, skipping",
-              file=sys.stderr)
+        print(f"WARNING: no sad-code results for {proj} (looked in {path}), "
+              f"skipping", file=sys.stderr)
         return None
     return compute_sad_code_metrics(proj, res)
 
@@ -221,6 +395,17 @@ def compute_sad_code_metrics(proj, res):
     row["component_f1"] = _compute_component_f1(enrolled, res, file_to_comps)["f1"]
     row["weighted_f1"] = _compute_weighted_f1(
         enrolled, res, enrolled_to_raw, raw_to_enrolled)["f1"]
+
+    # Sentence coverage / noise rate (paper RQ2 main panel). sad-code pairs
+    # are already in (sentence, code-path) order, so group by [0] directly.
+    gold_by_s = defaultdict(set)
+    res_by_s = defaultdict(set)
+    for s, f in enrolled:
+        gold_by_s[s].add(f)
+    for s, f in res:
+        res_by_s[s].add(f)
+    row["sentence_coverage"] = _sentence_coverage(gold_by_s, res_by_s)
+    row["noise_rate"] = _noise_rate(gold_by_s, res_by_s)
 
     # Alt metrics (sad-code).
     gs_sam_code_map, _ = load_gs_sam_code_maps(proj, code_model)  # model_id -> set(files)
@@ -301,7 +486,51 @@ def main():
                         help="Evaluation task to report metrics for.")
     parser.add_argument("--project", default=None,
                         help="Optional single-project filter (default: all).")
+    parser.add_argument("--results-dir", default=None,
+                        help="Root directory holding the result CSVs to score "
+                             "(default: $TRANSARC_RESULTS_DIR, else the bundled "
+                             "transarc-emp/results tree).")
+    parser.add_argument("--result-pattern", default=None,
+                        help="Filename pattern relative to --results-dir with a "
+                             "{project} placeholder, e.g. "
+                             "'s_linker20_union_{project}_links.csv'. When omitted, "
+                             "the default TransArc layout "
+                             "<project>/<task>/<Tlr>_<project>.csv is used. Result "
+                             "columns are auto-detected (modelElementID|component_id).")
+    parser.add_argument("--reports-dir", default=None,
+                        help="Output directory for metrics_<task>.csv (default: "
+                             "$TRANSARC_REPORTS_DIR, else the bundled "
+                             "transarc-emp/reports).")
+    parser.add_argument("--tables-dir", default=None,
+                        help="Output directory for the LaTeX metrics_<task>.tex "
+                             "(default: $TRANSARC_TABLES_DIR; else follows "
+                             "--reports-dir when that is set; else the bundled "
+                             "writing/tables — so one-off scoring runs do not "
+                             "overwrite the committed paper tables).")
     args = parser.parse_args()
+
+    # Tolerate values pasted with surrounding quotes (IDE run configs etc.).
+    for _a in ("results_dir", "result_pattern", "reports_dir", "tables_dir"):
+        _v = getattr(args, _a)
+        if _v is not None:
+            setattr(args, _a, _unquote(_v))
+
+    global REPORTS
+    if args.reports_dir:
+        REPORTS = Path(args.reports_dir)
+    REPORTS.mkdir(parents=True, exist_ok=True)
+
+    # LaTeX output: explicit --tables-dir / env wins; else follow --reports-dir
+    # when that was overridden; else leave generate_tables.OUT at its default.
+    reports_overridden = bool(args.reports_dir or os.environ.get("TRANSARC_REPORTS_DIR"))
+    tables_dir = args.tables_dir or os.environ.get("TRANSARC_TABLES_DIR")
+    if not tables_dir and reports_overridden:
+        tables_dir = str(REPORTS)
+    if tables_dir:
+        _gt.OUT = Path(tables_dir)
+
+    results_dir_arg = args.results_dir or os.environ.get("TRANSARC_RESULTS_DIR")
+    results_dir = Path(results_dir_arg) if results_dir_arg else None
 
     task = args.task
     projects = select_projects(args)
@@ -309,7 +538,7 @@ def main():
 
     rows = []
     for proj in projects:
-        row = compute(proj)
+        row = compute(proj, results_dir, args.result_pattern)
         if row is not None:
             rows.append(row)
 
@@ -322,6 +551,7 @@ def main():
     tex_path = write_latex(task, rows, avg_row)
 
     print(f"[metrics-api] task={task} projects={len(rows)} "
+          f"results_dir={_results_root(results_dir)} "
           f"csv={csv_path} tex={tex_path}")
 
 

@@ -23,7 +23,18 @@ All pillar scripts run clean and regenerate their reports deterministically (NDG
 
 ## Next Milestone
 
-No active milestone. Define the next one with `/gsd-new-milestone`. Candidate carry-overs (deferred): NDG non-determinism fix in `compute_random_f1`; extend the metrics API to **sam-code**; true `.xlsx` output (needs openpyxl); real `pdflatex` PDF build; rename `transarc_error_analysis.py` → `data_loaders.py`.
+**🚧 v1.2 — Component-Centric Metric Suite (active, defined 2026-06-21).** A
+level-agnostic component suite (`micro, macro, gap, min_comp, pct_missed,
+gold_gini`) applying at BOTH doc-to-model and doc-to-code, a validated multi-system
+comparison (swattr/transarc, s20linker, artemis), a paper section, and a fix for the
+latent per-component-F1 universe inconsistency. Phases 7–9; see
+`milestones/v1.2-ROADMAP.md`. Foundation delivered this session
+(`src/bias/component_suite.py`, `reports/COMPONENT_SUITE*`). Next:
+`/gsd-discuss-phase 7`.
+
+Still-deferred carry-overs: NDG non-determinism in `compute_random_f1`; metrics API
+→ **sam-code**; true `.xlsx` output (openpyxl); real `pdflatex` PDF build; rename
+`transarc_error_analysis.py` → `data_loaders.py`.
 
 ## Requirements
 
@@ -47,9 +58,14 @@ No active milestone. Define the next one with `/gsd-new-milestone`. Candidate ca
 
 ### Active
 
-<!-- Empty — next milestone defines new requirements via /gsd-new-milestone. -->
+<!-- v1.2 Component-Centric Metric Suite (see milestones/v1.2-REQUIREMENTS.md). -->
 
-(none — v1.1 shipped; define next milestone's requirements with `/gsd-new-milestone`)
+- ◐ CMP-01 — Level-agnostic component suite tool (micro/macro/gap/min_comp/pct_missed/gold_gini) at sad-model + sad-code, reusing `calc_metrics` only → CSV (`src/bias/component_suite.py`) — *foundation delivered; harden in Phase 7*
+- ☐ CMP-02 — Reconcile micro & macro onto one mapped-only universe; reconcile/document the `metrics_api` headline `component_f1` delta (Phase 7)
+- ◐ CMP-03 — Multi-system, two-level comparison (swattr/transarc, s20linker, artemis) → `reports/COMPONENT_SUITE.md` — *foundation delivered; harden in Phase 8*
+- ☐ CMP-04 — Metric fitness validation scorecard (separation/validity/stability/degeneracy); hardened baselines justify headline=macro+tail vs diagnostic=micro/gap (Phase 8)
+- ☐ CMP-05 — Paper integration: suite + artemis long-tail finding + universe correction into `eval.tex` Ch2 with generated tables (Phase 9)
+- ☐ CMP-06 — Reproducibility + equivalence oracle (suite-macro == `per_component_macro_f1`; deterministic regen) (Phase 7)
 
 ### Out of Scope
 
@@ -94,6 +110,8 @@ No active milestone. Define the next one with `/gsd-new-milestone`. Candidate ca
 | Converged metric = Decision + Component common axis (not a single composite), layered atop existing corrected metrics | Gives both tasks one honest evaluation story without discarding the v1.0 metric suite | ✓ Good (v1.1) |
 | Metrics API reuses existing primitives, zero metric-math reimplementation | Guarantees numbers match published reports; cheaper to verify | ✓ Good (v1.1) |
 | NDG/weighted column low-decimal non-determinism deferred | Root cause is set-iteration order in `compute_random_f1` (source-level); not goal-blocking | ⚠️ Revisit (v1.1) |
+| Component suite computes micro & macro on ONE mapped-only universe | The two legacy defs disagreed (`_compute_component_f1` keeps unmapped files `{b}`; `per_component_macro_f1` drops `()`), inflating the apparent gap (bbb −0.31→−0.05) | 🚧 v1.2 (CMP-02) |
+| Headline = macro + tail coverage; micro = anchor/gap term | Reconciled micro/macro aggregation is second-order; tail coverage (min_comp/pct_missed) is the level-stable discriminator | 🚧 v1.2 (CMP-04) |
 
 ## Evolution
 
@@ -113,4 +131,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-31 — v1.1 milestone shipped (Metrics Toolkit & Converged-Metric Motivation)*
+*Last updated: 2026-06-21 — v1.2 milestone defined (Component-Centric Metric Suite); foundation delivered.*

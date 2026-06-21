@@ -1,0 +1,7 @@
+project,system,micro,macro,gap,min_comp,pct_missed,gold_gini
+bigbluebutton,swattr/transarc,0.8322,0.8827,-0.0505,0.7429,0.0000,0.4063
+bigbluebutton,s20linker,0.7941,0.7404,0.0537,0.0000,0.0909,0.4063
+bigbluebutton,artemis,0.7941,0.7433,0.0508,0.0000,0.1000,0.4063
+AVG,swattr/transarc,0.8322,0.8827,-0.0505,0.7429,0.0000,0.4063
+AVG,s20linker,0.7941,0.7404,0.0537,0.0000,0.0909,0.4063
+AVG,artemis,0.7941,0.7433,0.0508,0.0000,0.1000,0.4063

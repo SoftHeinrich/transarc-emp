@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-SAD-SAM holistic metric comparison — s_linker11 / s_linker13f / s_linker15 / TransArc.
+SAD-SAM holistic metric comparison — s_linker19 (paper variant) vs TransArc,
+with legacy s_linker11/13f/15 columns kept best-effort for back-compat.
 
-Counterpart to src/transarc/s12c_sadcode_comparison.py, for the SAD-SAM stage.
 Reuses the canonical architecture-aware metric suite in metrics_api /
 new_metrics_analysis (zero metric math reimplemented here):
 
@@ -12,17 +12,17 @@ new_metrics_analysis (zero metric math reimplemented here):
     component_f1 — per-component: ids collapsed to component names
     mcc          — Matthews corr. over the full (sentence × component) universe
     map          — mean average precision over confidence-ranked links
-    hus          — Harmonic Usefulness Score (coverage × purity), the "usefulness"
-                   metric: per-sentence coverage and FP-purity
+    hus          — Harmonic Usefulness Score (coverage × purity)
 
 (file_f1 / weighted_f1 / acf1 / ndg are N/A for SAD-SAM — no files, no enrollment.)
 
 Systems (all produce (modelElementID, sentence) links):
-    TransArc    — ARDoCo standalone SAD-SAM (SWATTR), transarc-emp results
-    s11         — s_linker11 SAD-SAM, llm-sad-sam-v45 ablation results
-    s13f        — s_linker13f SAD-SAM, ablation results
-    s15_gpt     — s_linker15 v2.6.1 (GPT), llm-sad-sam-v45 results
-    s15_claude  — s_linker15 v2.6.1_claude (Claude), llm-sad-sam-v45 results
+    TransArc     — ARDoCo standalone SAD-SAM (SWATTR), transarc-emp results
+    s19_claude   — s_linker19 (Claude) v2.6.3 phase_cache replay  ← PAPER VARIANT
+    s19_openai   — s_linker19 (GPT-5.4) v2.6.3 phase_cache replay ← PAPER VARIANT
+    s11          — s_linker11 ablation_results (kept for historical context)
+    s13f / s15_* — older variants; their result dirs may no longer exist, in which
+                   case the columns degrade to NA without failing the run.
 
 Output: reports/SADSAM_S11_S13F_VS_TRANSARC.csv  +  reports/SADSAM_COMPARISON.md
 """
@@ -34,34 +34,53 @@ from pathlib import Path
 LIB = Path(__file__).resolve().parent.parent / "lib"
 sys.path.insert(0, str(LIB))
 from transarc_error_analysis import PROJECTS, load_gs_sad_sam, load_result_sad_sam_standalone  # noqa: E402
+import metrics_api  # noqa: E402  (need PAPER_MAIN_PANEL_* constants below)
 from metrics_api import compute_sad_sam_metrics, NA  # noqa: E402
 
-ABLATION_DIR = Path("/mnt/hostshare/ardoco-home/llm-sad-sam-v45/results/ablation_results")
+ABLATION_DIR = Path("/mnt/hostshare/ardoco-home/agent-linker/results/ablation_results")
 S15_GPT_DIR = Path("/mnt/hostshare/ardoco-home/llm-sad-sam-v45/results/v2.6.1")
 S15_CLAUDE_DIR = Path("/mnt/hostshare/ardoco-home/llm-sad-sam-v45/results/v2.6.1_claude")
+S19_CLAUDE_DIR = Path("/mnt/hostshare/ardoco-home/agent-linker/results/v2.6.3/claude")
+S19_OPENAI_DIR = Path("/mnt/hostshare/ardoco-home/agent-linker/results/v2.6.3/openai")
 REPORTS = Path(__file__).resolve().parent.parent.parent / "reports"
 OUTPUT_CSV = REPORTS / "SADSAM_S11_S13F_VS_TRANSARC.csv"
 OUTPUT_MD = REPORTS / "SADSAM_COMPARISON.md"
 
 # (key, label, loader_tag)
-# loader_tag: None=transarc, "ablation/<name>"=ablation dir, "s15_gpt", "s15_claude"
+# loader_tag: None=transarc, "ablation/<name>"=ablation dir,
+#             "s15_gpt"/"s15_claude"=v2.6.1 dirs, "s19/{claude|openai}"=v2.6.3.
 SYSTEMS = [
     ("transarc", "TransArc", None),
+    ("s19_claude", "s_linker19 (Claude)", "s19/claude"),
+    ("s19_openai", "s_linker19 (GPT-5.4)", "s19/openai"),
     ("s11", "s_linker11", "ablation/s_linker11"),
     ("s13f", "s_linker13f", "ablation/s_linker13f"),
     ("s15_gpt", "s15_gpt", "s15_gpt/s_linker15"),
     ("s15_claude", "s15_claude", "s15_claude/s_linker15"),
 ]
 
-# Suite columns meaningful for SAD-SAM (others are NA at this stage).
-METRICS = ["link_f1", "sentence_f1", "component_f1", "mcc", "map", "hus"]
+# Suite columns meaningful for SAD-SAM (file/decision/weighted/acf1/ndg are
+# SAD-CODE-only and N/A at this stage). Ordered to match the paper's RQ2
+# layout: main panel first (link F1 is the link-level reference; per-component
+# F1 collapses onto link F1 on sad-sam — kept here as a sanity column;
+# sentence coverage + noise rate are the developer view). Then appendix
+# (per-sentence F1, HUS — both shadowed; ρ ≥ 0.91 with link F1, see
+# reports/RQ2_METRIC_REDUNDANCY.md). Then pure diagnostics (MCC, MAP).
+METRICS = (
+    [metrics_api.PAPER_MAIN_PANEL_SADSAM[0], "component_f1"]
+    + metrics_api.PAPER_MAIN_PANEL_SADSAM[1:]
+    + metrics_api.PAPER_APPENDIX_SADSAM
+    + ["mcc", "map"]
+)
 METRIC_LABELS = {
     "link_f1": "Link F1",
-    "sentence_f1": "Sentence F1",
     "component_f1": "Component F1",
+    "sentence_coverage": "Sent. coverage",
+    "noise_rate": "Noise rate (↓)",
+    "sentence_f1": "Sentence F1",
+    "hus": "HUS",
     "mcc": "MCC",
     "map": "MAP",
-    "hus": "HUS",
 }
 
 
@@ -79,6 +98,25 @@ def _load_links_csv(path):
     return links
 
 
+def _load_s19_sad_sam(path):
+    """Load s_linker19 v2.6.3 SAD-SAM CSV -> set of (modelElementID, sentence_str).
+
+    Schema is ``modelElementID, sentence, source`` — the extra column is ignored
+    by csv.DictReader. The ``modelElementID`` here plays the same role as
+    ``component_id`` in the older ablation CSVs.
+    """
+    links = set()
+    if not path.exists():
+        return links
+    with open(path) as f:
+        for row in csv.DictReader(f):
+            ae_id = row["modelElementID"].strip()
+            sent = str(row["sentence"]).strip()
+            if ae_id and sent:
+                links.add((ae_id, sent))
+    return links
+
+
 def system_links(key, loader_tag, project):
     if key == "transarc":
         return load_result_sad_sam_standalone(project)
@@ -91,6 +129,10 @@ def system_links(key, loader_tag, project):
     if loader_tag.startswith("s15_claude/"):
         variant = loader_tag[len("s15_claude/"):]
         return _load_links_csv(S15_CLAUDE_DIR / f"{variant}_{project}_links.csv")
+    if loader_tag.startswith("s19/"):
+        backend = loader_tag[len("s19/"):]
+        base = {"claude": S19_CLAUDE_DIR, "openai": S19_OPENAI_DIR}[backend]
+        return _load_s19_sad_sam(base / project / "sad-sam.csv")
     raise ValueError(f"Unknown loader_tag: {loader_tag}")
 
 

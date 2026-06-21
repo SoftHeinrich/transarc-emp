@@ -1,5 +1,28 @@
 # Milestones: TransArc-EMP
 
+## v1.2 — Component-Centric Metric Suite 🚧
+
+**Defined:** 2026-06-21 | **Status:** Active | **Phases:** 7–9 (planned)
+
+**Goal:** A level-agnostic component-centric metric suite (`micro, macro, gap,
+min_comp, pct_missed, gold_gini`) that applies at BOTH doc-to-model and doc-to-code,
+a validated multi-system comparison (swattr/transarc, s20linker, artemis), and a
+paper section — plus a fix for the latent component-universe inconsistency between
+the two legacy per-component-F1 definitions.
+
+**Headline findings driving it (2026-06-21 explore):** once micro/macro share one
+component universe, the *aggregation* effect is second-order (much of the earlier
+"enrollment gap" was a universe-mismatch artifact); the level-stable discriminator
+is **tail coverage** — artemis (LLM SOTA) abandons the long tail (min_comp 0.345
+code / 0.279 model; =0 on bbb & jabref) while the heuristic SWATTR is more uniform.
+
+**Foundation delivered:** `src/bias/component_suite.py`,
+`reports/COMPONENT_SUITE*.{md,csv}`, memory `component-suite-finding`.
+
+**Roadmap:** `milestones/v1.2-ROADMAP.md` · **Requirements:** `milestones/v1.2-REQUIREMENTS.md`
+
+---
+
 ## v1.1 — Metrics Toolkit & Converged-Metric Motivation
 
 **Shipped:** 2026-05-31

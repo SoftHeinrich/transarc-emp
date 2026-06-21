@@ -19,9 +19,10 @@ from pathlib import Path
 
 # ─── Paths ────────────────────────────────────────────────────────────────────
 
-BENCHMARK = Path("/mnt/hostshare/ardoco-home/ardoco/core/tests-base/src/main/resources/benchmark")
-RESULTS   = Path("/mnt/hostshare/ardoco-home/transarc-emp/results")
-OUTPUT_MD = Path("/mnt/hostshare/ardoco-home/transarc-emp/reports/TRANSARC_EMPIRICAL_STUDY.md")
+home_ = "../"
+BENCHMARK = Path("%sardoco/core/tests-base/src/main/resources/benchmark" % home_)
+RESULTS   = Path("%stransarc-emp/results" % home_)
+OUTPUT_MD = Path("%stransarc-emp/reports/TRANSARC_EMPIRICAL_STUDY.md" % home_)
 
 PROJECTS = ["mediastore", "teastore", "teammates", "bigbluebutton", "jabref"]
 
