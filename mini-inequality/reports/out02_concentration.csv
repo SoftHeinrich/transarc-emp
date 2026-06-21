@@ -1,0 +1,6 @@
+project,sent_n,sent_min,sent_median,sent_max,sent_gini,sent_top3_pct,samcode_gini,samcode_top3_conc_pct
+mediastore,25,1,2,6,0.331,27.119,0.400,43.333
+teastore,23,5,19,83,0.448,35.219,0.694,68.902
+teammates,92,1,59.000,808,0.645,20.329,0.452,52.351
+bigbluebutton,45,3,16,114,0.472,21.321,0.513,38.356
+jabref,10,8,478.500,1929,0.527,69.993,0.612,98.620
