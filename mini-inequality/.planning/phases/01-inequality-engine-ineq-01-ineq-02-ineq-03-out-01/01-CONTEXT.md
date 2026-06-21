@@ -89,25 +89,31 @@ to repo-root `.planning/` (active **v1.2** milestone). Commit only
 - **The sanity check runs by default at the end of every run** (prints a `CHECK`
   section); a `--check-only` flag runs just the gate.
 
-### Area 4 — Expansion & cascade framing
+### Area 4 — Expansion & structural amplification  (RE-PIVOTED per user: "do not use anything TransArc-specific; re-pivot towards benchmark distribution")
 - **Enrollment expansion = pure-gold structural**: reproduce eval.tex
-  `tab:enrollment` columns (Raw, Dir. Entries, Enrolled, Factor) per project;
-  totals 525 raw → 18,660 enrolled (35.5× avg), per-project range 1.0×
-  (MediaStore) → 217.6× (JabRef). Computed from raw sad-code gold + `.acm` code
-  model via the copied `enroll`/`normalize_path`.
-- **Cascade = reproduce eval.tex `tab:amplification`** (sad-sam FPs → induced
-  file-level sad-code FPs): per project = TransArc sad-sam FPs and Σ|files(m)|
-  over FP elements; aggregate 36 → 3,457 (96.0× mean amplification). Uses the
-  **bundled TransArc sad-sam results** (`results/<project>/sad-sam/sadSamTlr_<project>.csv`)
-  — the same source eval.tex used. This is the ONE place INEQ-03 reads a system
-  result (permitted: the study "measures the dataset + scores existing results").
-- **Feature all three headline numbers** in the report (enrollment 1.0×→217.6× &
-  35.5× avg; cascade 36→3,457 = 96.0×; Gini 0.331→0.645) so Phase 2's claim-check
-  has them ready.
-- **Q4 OVERRIDE — the enrollment-expansion table is sad-code-only**: omit the
-  sad-sam `1.0×` row from the expansion table. (sad-sam is still fully measured
-  for the inequality distribution in Area 1/2; "omit" applies ONLY to the
-  enrollment-expansion table. The cascade still consumes sad-sam FPs.)
+  `tab:enrollment` (Raw, Dir. Entries, Enrolled, Factor) per project; totals 525
+  raw → 18,660 enrolled (35.5× avg), per-project 1.0× (MediaStore) → 217.6×
+  (JabRef). From raw sad-code gold + `.acm` code model via copied
+  `enroll`/`normalize_path`. sad-code only (Q4 override).
+- **Structural component→file amplification (REPLACES the TransArc cascade)**:
+  the dataset-intrinsic amplification driver = the gold SAM-CODE files-per-
+  architectural-element fan-out `|files(m)|` (gold only, no system results).
+  Report its distribution (AEs, min/median/max, Gini, top-3 conc) — this IS
+  eval.tex `tab:samcode_skew` (Gini 0.400→0.694) — plus the structural statement:
+  one component-level decision expands to up to `max|files(m)|` file-level pairs
+  (worst case 972 = JabRef `logic`, 348 = Teammates `ui`); aggregate amplification
+  = enrollment factor (total enrolled ÷ total component decisions). NO result/
+  system files are read anywhere in the engine.
+- **DROPPED — eval.tex `tab:amplification` (36→3,457 / 96.0×)**: that is a
+  TransArc actual-error attribution (real sad-code FPs decomposed by transitive
+  cause over a system's output), NOT a gold/benchmark property and NOT reproducible
+  from gold alone. Per the user directive it is OUT of this dataset-inequality
+  study; it belongs to the TransArc empirical pillar, not here.
+- **Headline numbers featured** (all gold/benchmark): enrollment 525→18,660
+  (35.5× avg, 217.6× JabRef); files-per-component Gini 0.400→0.694 with max fan-out
+  972; per-sentence Gini 0.331→0.645.
+- **Q4 — the enrollment-expansion table is sad-code-only** (sad-sam has no
+  enrollment; sad-sam is still fully measured for the distribution in Area 1/2).
 
 ### Claude's Discretion
 - Exact CSV column names/order, markdown layout details, argparse flag names
@@ -139,11 +145,10 @@ to repo-root `.planning/` (active **v1.2** milestone). Commit only
     `inequality.py` at the study root resolves the same `ardoco-home` root.
   - CLI/table/CSV pattern (`argparse`, `print_table`, `write_csv`, `average_row`).
 
-### Data inputs
+### Data inputs (GOLD / benchmark only — NO system results)
 - Benchmark gold: `goldstandard_sad_*-sam_*.csv`, `goldstandard_sam_*-code_*.csv`,
   `goldstandard_sad_*-code_*.csv`; code models `*.acm` — 5 projects.
-- TransArc sad-sam results (for the cascade only):
-  `results/<project>/sad-sam/sadSamTlr_<project>.csv` (all 5 present, verified).
+- The engine reads NO `results/` files (re-pivot: no TransArc-specific inputs).
 
 ### Path-relativity note (PREVENTS the double-nesting trap)
 The engine and all GSD commands run with **project root = `mini-inequality/`**.
@@ -179,8 +184,7 @@ refs live one level above the repo root (`/mnt/hostshare/ardoco-home/alinker-pap
   placeholders (Phase 2/3 targets; not resolved in Phase 1).
 - Benchmark root: `/mnt/hostshare/ardoco-home/ardoco/core/tests-base/src/main/resources/benchmark/`
   (5 projects; gold standards + `.acm`). Overridable via `$TRANSARC_BENCHMARK`.
-- Results root: `results/` (repo) — `$TRANSARC_RESULTS_DIR` override; holds the
-  TransArc sad-sam CSVs used by the cascade.
+- (NOT used) `results/` — the engine reads no system results after the re-pivot.
 </canonical_refs>
 
 <specifics>
@@ -194,8 +198,12 @@ refs live one level above the repo root (`/mnt/hostshare/ardoco-home/alinker-pap
     AEs 19/19/14/22/6; enrolled 60/164/1,616/730/1,956; Top-3 Conc 43.3/68.9/52.4/38.4/98.6%.
   - `tab:enrollment`: Raw total 525 → Enrolled 18,660 (35.5× avg); per-project
     factor 1.0× / 10.1× / 35.5× / 11.6× / 217.6×.
-  - `tab:amplification`: 36 sad-sam FPs → 3,457 file FPs (96.0×); per-project
-    induced 1 / 0 / 2,395 / 71 / 990; mean amplif 1.0× / — / 85.5× / 14.2× / 495.0×.
+  - (DROPPED) `tab:amplification` 36→3,457 — TransArc-specific, out of scope per
+    user re-pivot; the structural amplification driver is the `tab:samcode_skew`
+    fan-out above (max 972 / 348).
+- All three frozen gold tables (`tab:sent_gini`, `tab:samcode_skew`,
+  `tab:enrollment`) were pre-verified to reproduce EXACTLY from the copied
+  `mini-src/metrics.py` definitions + `_gini` (probe run 2026-06-21).
 - "Most inequality-ed" (user, Area 2): prefer the richest concentration
   characterization — supplementary #links/#files-per-component units, full Lorenz
   curve, top-10% + Palma — alongside the sanity-anchored #sentences unit.
