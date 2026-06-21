@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Component-Centric Metric Suite
-status: Phase 8 context gathered (08-CONTEXT.md). Next `/gsd-plan-phase 8`.
-stopped_at: Phase 8 discuss complete — 4 areas resolved (no new baselines; real comparators = 3 paper systems; numeric fitness scorecard in new metric_fitness.py; data-derived verdict; skip-with-notice + both levels + swattr≡transarc + pinned artemis provenance)
-last_updated: "2026-06-21T21:35:07.000Z"
-last_activity: 2026-06-21 -- Phase 8 discuss-phase (context + discussion-log committed 11d6418)
+status: executing
+stopped_at: Phase 8 context gathered (discuss-phase complete). Next `/gsd-plan-phase 8`.
+last_updated: "2026-06-21T21:58:51.058Z"
+last_activity: 2026-06-21 -- Phase 08 planning complete
 progress:
-  total_phases: 3
+  total_phases: 2
   completed_phases: 1
-  total_plans: 3
+  total_plans: 6
   completed_plans: 3
-  percent: 33
+  percent: 50
 ---
 
 # Project State
@@ -28,12 +28,13 @@ See: .planning/PROJECT.md (updated 2026-06-21)
 Milestone: v1.2 — Component-Centric Metric Suite (defined 2026-06-21)
 Phase: 8 — Multi-System Comparison & Fitness Validation ◐ CONTEXT GATHERED (2026-06-21); Phase 7 ✓ COMPLETE
 Plan: none yet — 08-CONTEXT.md ready, next `/gsd-plan-phase 8`
-Status: Phase 8 discuss complete. Decisions (08-CONTEXT.md): (1) no new synthetic baselines — rq2 Random/Top-3 = trivial floor, real comparators = 3 paper systems only (swattr/transarc, s20linker/s20union, artemis), legacy s11/s13f/s12c excluded; (2) numeric fitness scorecard in NEW src/bias/metric_fitness.py → reports/METRIC_FITNESS.{md,csv} scoring columns on separation/validity/stability/degeneracy; (3) data-derived verdict (don't oversell micro-vs-macro); (4) skip-with-notice + both levels + swattr≡transarc one column + pin results_artemis_gpt54 provenance.
-Last activity: 2026-06-21
+Status: Ready to execute
+Last activity: 2026-06-21 -- Phase 08 planning complete
 
 Progress: [███░░░░░░░] 33% (1/3 phases) — Phase 7 complete; Phase 8 context gathered; Phases 8-9 remain
 
 ### Phase 7 deliverables (committed e2f93c5 / 55202a9 / 70287e0)
+
 - `src/bias/component_suite.py` finalized; `reports/COMPONENT_SUITE_{sad-code,sad-model}.csv` regenerated (swattr/transarc AVG micro 0.7949 / macro 0.8134).
 - `metrics_api` headline `component_f1` reconciled to mapped-only via dropping the `{b}` fallback (evaluation_critique.py + mini-src/metrics.py); AVG 0.732→0.795; delta + supersession ledger in `reports/COMPONENT_UNIVERSE_RECONCILIATION.md`.
 - `src/bias/check_component_suite.py` — equivalence oracle (suite-macro == per_component_macro_f1, all 15 cells |delta|=0) + temp-dir determinism diff (36/36).
@@ -123,13 +124,16 @@ sequentially (manual mode — no gsd-sdk), and verified (gsd-verifier, status pa
 SC1–SC4 all PASS). Commits: 07-01 `e2f93c5`, 07-02 `55202a9`, 07-03 `70287e0`.
 
 OPEN ITEMS for next session:
+
 1. **SAD-SAM Sentence F1 review (WARNING):** 07-02 refreshed the stale `metrics_sad-sam.csv`
    placeholder, moving teammates Sentence F1 0.916→0.703 (avg 0.875→0.825) into
    `consequences.tex`. Confirm these Pillar-1 numbers (possible link to the known
    `sentence_f1` gold-negative-FP bug) before Phase 9 / any paper use.
+
 2. **Branch:** working branch is `gsd/mini-data-inequality`; all v1.2 Phase 7 work
    (context 0b59a9a + plans + execution) lives here, NOT on master. Decide whether to
    migrate v1.2 to master/a v1.2 branch before continuing.
+
 3. `writing/eval.tex` prose still cites old numbers — deliberate Phase-9 (CMP-05) deferral.
 4. **Phase 8 provenance (D-10):** untracked `results_artemis_gpt54/`,
    `reports_artemis_gpt54_*/`, `paper-result/` must be resolved (commit/pin the
