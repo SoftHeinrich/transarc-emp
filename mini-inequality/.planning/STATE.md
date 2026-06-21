@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v0.1
 milestone_name: Data-Inequality Mini-Study
-status: milestone_defined
-stopped_at: v0.1 defined (Phases 1-3); awaiting /gsd-discuss-phase 1
-last_updated: "2026-06-21T00:00:00.000Z"
-last_activity: 2026-06-21 -- isolated mini-study scaffolded on branch gsd/mini-data-inequality
+status: in_progress
+stopped_at: Phase 1 complete (engine + reports, verification passed); next /gsd-plan-phase 2
+last_updated: "2026-06-21T13:30:00.000Z"
+last_activity: 2026-06-21 -- Phase 1 Inequality Engine built + verified (gold-only, sanity gate green)
 isolated: true
 planning_root: mini-inequality/.planning
 branch: gsd/mini-data-inequality
 progress:
   total_phases: 3
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  completed_phases: 1
+  total_plans: 1
+  completed_plans: 1
+  percent: 33
 ---
 
 # Project State
@@ -37,12 +37,12 @@ Work happens on branch `gsd/mini-data-inequality`; commit only `mini-inequality/
 ## Current Position
 
 Milestone: v0.1 — Data-Inequality Mini-Study (defined 2026-06-21)
-Phase: 1 — Inequality Engine (planned, not started)
-Plan: —
-Status: Milestone defined; nothing built yet. Awaiting `/gsd-discuss-phase 1`.
-Last activity: 2026-06-21 — branch + isolated planning scaffolded
+Phase: 1 — Inequality Engine ✓ Complete (2026-06-21)
+Plan: 01-01 (1/1 complete)
+Status: Engine built + verified (gold-only, sanity gate reproduces all eval.tex Ch1 GOLD literals). Next: `/gsd-plan-phase 2`.
+Last activity: 2026-06-21 — Phase 1 inequality engine + reports committed (e3c24b4), verification passed
 
-Progress: [░░░░░░░░░░] 0% (0/3 phases)
+Progress: [███░░░░░░░] 33% (1/3 phases)
 
 ## Accumulated Context
 
@@ -52,6 +52,8 @@ Progress: [░░░░░░░░░░] 0% (0/3 phases)
 - [Stack] Stdlib-only, self-contained (mirror `mini-src/`); no imports from `src/` or `mini-src/`.
 - [Scope] Measure the GOLD distribution as primary; results/baselines secondary.
 - [Paper] Verify against the live `alinker-paper`; mirror to local `writing/eval.tex` Ch1.
+- [Phase 1] INEQ-03 cascade RE-PIVOTED to gold structural amplification (files-per-component fan-out). The TransArc actual-error cascade (eval.tex `tab:amplification` 36→3,457) is system-specific (other pillar) and excluded — engine reads NO `results/` files (user directive 2026-06-21).
+- [Phase 1] Engine reproduces all eval.tex Ch1 GOLD literals EXACTLY (per-sentence Gini 0.331→0.645; samcode-skew 0.400→0.694; enrollment 525→18,660 / 35.5× / 217.6×) under a fail-loud sanity gate.
 
 ### Pending Todos
 
@@ -64,7 +66,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-06-21
-Stopped at: v0.1 milestone defined; branch `gsd/mini-data-inequality` created; isolated planning written.
-Resume file: None
+Stopped at: Phase 1 complete — `mini-inequality/inequality.py` + `reports/` built, verification passed (status: passed).
+Resume file: mini-inequality/inequality.py
 
-Next: `/gsd-discuss-phase 1` (scoped to `mini-inequality/.planning/`) → `/gsd-plan-phase 1`.
+Next: `/gsd-plan-phase 2` (Claim Verification — scoped to `mini-inequality/.planning/`). The engine's reproduced numbers + `reports/INEQUALITY.md` feed the claim audit.
