@@ -42,7 +42,7 @@ metric framing (link/sentence/component, no enrollment), `src/bias/consequences_
 - [ ] Phase 9: Paper Integration — CMP-05
 
 Foundation delivered in the 2026-06-21 explore session: `src/bias/component_suite.py`,
-`reports/COMPONENT_SUITE*.{md,csv}`. Next: `/gsd-discuss-phase 7` → `/gsd-plan-phase 7`.
+`reports/COMPONENT_SUITE*.{md,csv}`. Phase 7 planned (3 plans, plan-check ✓). Next: `/gsd-execute-phase 7`.
 
 ## Progress
 
@@ -54,6 +54,6 @@ Foundation delivered in the 2026-06-21 explore session: `src/bias/component_suit
 | 4. Metrics API | v1.1 | 1/1 | ✓ Complete | 2026-05-30 |
 | 5. Consequences Study & Converged Metrics | v1.1 | 2/2 | ✓ Complete | 2026-05-30 |
 | 6. Handoff Docs | v1.1 | 1/1 | ✓ Complete | 2026-05-31 |
-| 7. Suite & Universe Reconciliation | v1.2 | 0/? | ◌ Planned | — |
+| 7. Suite & Universe Reconciliation | v1.2 | 0/3 | ◌ Planned (plan-check ✓) | — |
 | 8. Multi-System Comparison & Fitness Validation | v1.2 | 0/? | ◌ Planned | — |
 | 9. Paper Integration | v1.2 | 0/? | ◌ Planned | — |

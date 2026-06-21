@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Component-Centric Metric Suite
-status: Milestone defined; foundation delivered (`src/bias/component_suite.py`, `reports/COMPONENT_SUITE*`). Awaiting `/gsd-discuss-phase 7`.
-stopped_at: Phase 7 context gathered
-last_updated: "2026-06-21T14:07:44.967Z"
-last_activity: 2026-06-21
+status: Phase 7 planned (3 plans, plan-check passed). Next `/gsd-execute-phase 7`.
+stopped_at: Phase 7 planned — 07-01 (CMP-01), 07-02 (CMP-02), 07-03 (CMP-06); plan-check PASS after 1 revision
+last_updated: "2026-06-21T15:20:17.000Z"
+last_activity: 2026-06-21 -- Phase 7 plans authored (gsd-planner) + verified (gsd-plan-checker)
 progress:
-  total_phases: 1
+  total_phases: 3
   completed_phases: 0
-  total_plans: 0
+  total_plans: 3
   completed_plans: 0
   percent: 0
 ---
@@ -26,12 +26,12 @@ See: .planning/PROJECT.md (updated 2026-06-21)
 ## Current Position
 
 Milestone: v1.2 — Component-Centric Metric Suite (defined 2026-06-21)
-Phase: 7 — Suite & Universe Reconciliation (planned, not started)
-Plan: —
-Status: Milestone defined; foundation delivered (`src/bias/component_suite.py`, `reports/COMPONENT_SUITE*`). Awaiting `/gsd-discuss-phase 7`.
+Phase: 7 — Suite & Universe Reconciliation (PLANNED — 3 plans, plan-check passed)
+Plan: 07-01 (CMP-01), 07-02 (CMP-02), 07-03 (CMP-06) — wave 1: 07-01 ∥ 07-02; wave 2: 07-03
+Status: Phase 7 plans authored + plan-checked (PASS after 1 revision closing the D-03/D-04 regen+banner gap). Plan docs NOT yet committed. Next `/gsd-execute-phase 7`.
 Last activity: 2026-06-21
 
-Progress: [░░░░░░░░░░] 0% (0/3 phases) — foundation delivered, not yet verified through GSD phases
+Progress: [░░░░░░░░░░] 0% (0/3 phases) — Phase 7 planned, not yet executed
 
 ### v1.2 foundation delivered this session (to be hardened/verified in Phases 7-9)
 
@@ -100,8 +100,18 @@ None — all v1.1 concerns resolved (metrics API reused `new_metrics_analysis.py
 
 ## Session Continuity
 
-Last session: 2026-06-21T14:07:44.963Z
-Stopped at: Phase 7 context gathered
-Resume file: .planning/phases/07-suite-universe-reconciliation/07-CONTEXT.md
+Last session: 2026-06-21T15:20:17.000Z
+Stopped at: Phase 7 planned (3 plans) + plan-check PASS; plan docs uncommitted
+Resume file: .planning/phases/07-suite-universe-reconciliation/07-01-PLAN.md
 
-**Milestone v1.1 DONE & ARCHIVED.** audit ✅ → complete ✅ → cleanup ✅. Next: `/gsd-new-milestone` (REQUIREMENTS.md git-rm'd, fresh for next cycle). Optional: `git push origin v1.1`.
+**Phase 7 planned.** 3 plans authored by gsd-planner, verified by gsd-plan-checker
+(PASS after 1 revision — closed a D-03/D-04 gap where in-repo `writing/tables/*.tex`
+and secondary reports kept the superseded `component_f1` 0.714/0.732 without regen or
+banner). Plans: 07-01 (CMP-01 suite finalize), 07-02 (CMP-02 metrics_api mapped-only
+reconciliation + artifact regen/banner), 07-03 (CMP-06 equivalence oracle + determinism).
+Next: `/gsd-execute-phase 7` (wave 1: 07-01 ∥ 07-02; wave 2: 07-03).
+
+NOTE — uncommitted + branch: plan docs (`07-0{1,2,3}-PLAN.md`) and the
+`v1.2-ROADMAP.md`/STATE edits are NOT committed. Working branch is
+`gsd/mini-data-inequality` (the v1.2 Phase 7 context commit 0b59a9a already lives here,
+not on master). Decide commit target before `/gsd-execute-phase 7`.
