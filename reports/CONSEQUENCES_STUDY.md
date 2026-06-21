@@ -1,5 +1,7 @@
 # Consequences of Misleading \fone Across SAD-SAM and SAD-CODE
 
+> **[SUPERSEDED — v1.2]** The SAD-CODE Component F1 figures in this report (e.g. Average 0.714) use the pre-v1.2 `{b}`-fallback component universe and are **superseded by mapped-only universe (v1.2)**: SAD-CODE component F1 now drops files with no SAM-CODE mapping, moving the swattr/transarc cross-project average from 0.714 to 0.795. The regenerated `writing/tables/consequences.tex` already reflects the new number. See `reports/COMPONENT_UNIVERSE_RECONCILIATION.md` for the measured old→new delta and the full supersession ledger. Original content is retained unchanged below.
+
 *Motivation evidence (Pillar 2): how a single headline \fone distorts BOTH TLR tasks, and the converged Decision+Component axis that tells one coherent story. All numbers read from the Phase-4 metrics CSVs; no metric recomputed.*
 
 ## SAD-SAM: What the Single Headline Link \fone Hides (STUDY-01)

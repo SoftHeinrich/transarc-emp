@@ -1,5 +1,7 @@
 # Evaluation Critique: Why File-Level P/R/F1 Is Inadequate for SAD-CODE
 
+> **[SUPERSEDED — v1.2]** The per-component SAD-CODE F1 figures in this report (e.g. Component F1 0.714) predate the v1.2 component-universe correction and are **superseded by mapped-only universe (v1.2)**: SAD-CODE component F1 now drops files with no SAM-CODE mapping (no `{b}` fallback), moving the swattr/transarc cross-project average from 0.714 to 0.795. See `reports/COMPONENT_UNIVERSE_RECONCILIATION.md` for the measured old→new delta and the full supersession ledger. Original content is retained unchanged below.
+
 *A deep investigation of how distributional biases in the ARDoCo benchmark render*
 *standard file-level precision/recall/F1 misleading for the SAD-CODE traceability task.*
 

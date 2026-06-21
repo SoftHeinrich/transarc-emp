@@ -1,5 +1,7 @@
 # Extreme Baselines: Maximum Exploitation of Dataset Distribution
 
+> **[SUPERSEDED — v1.2]** The TransArc SAD-CODE component figures in this report (e.g. B0 TransArc 0.732) use the pre-v1.2 `{b}`-fallback / micro-averaged enrollment component universe and are **superseded by mapped-only universe (v1.2)**: SAD-CODE component F1 now drops files with no SAM-CODE mapping, moving the swattr/transarc cross-project average from 0.714/0.732 to 0.795. See `reports/COMPONENT_UNIVERSE_RECONCILIATION.md` for the measured old→new delta and the full supersession ledger. Original content is retained unchanged below.
+
 These baselines push distributional exploitation to the limit, proving that
 micro-averaged enrollment-based F1 is fundamentally dominated by a few structural
 properties of the dataset rather than actual trace link recovery quality.

@@ -262,13 +262,13 @@ def compute_sad_code(project, res):
     fp_, fr_, ff1 = prf(gold, res)
 
     def to_comp(pairs):
+        # Mapped-only universe (v1.2, D-01): files with NO SAM-CODE component
+        # are DROPPED -- no `(s, c)` singleton fallback -- matching the canonical
+        # metrics_api._compute_component_f1 so mini-src/check.py stays green.
         out = set()
         for s, c in pairs:
-            comps = file_to_comps.get(c)
-            if comps:
-                out.update((s, comp) for comp in comps)
-            else:
-                out.add((s, c))
+            for comp in file_to_comps.get(c, ()):
+                out.add((s, comp))
         return out
     comp_f1 = prf(to_comp(gold), to_comp(res))[2]
 

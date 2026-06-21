@@ -1,5 +1,7 @@
 # RQ2 — Metric redundancy analysis
 
+> **[SUPERSEDED — v1.2]** The per-component / TransArc SAD-CODE F1 figures in this report (e.g. TransArc 0.732) use the pre-v1.2 `{b}`-fallback component universe and are **superseded by mapped-only universe (v1.2)**: SAD-CODE component F1 now drops files with no SAM-CODE mapping, moving the swattr/transarc cross-project average from 0.714/0.732 to 0.795. See `reports/COMPONENT_UNIVERSE_RECONCILIATION.md` for the measured old→new delta and the full supersession ledger. Original content is retained unchanged below.
+
 Tests whether the 7 metrics in the paper's metric suite carry independent signal across the (system × project × task) cells we evaluate on, or whether some are *shadowed* (predictable) from another — specifically from per-component F1.
 
 Companion to `RQ2_TRIVIAL_BASELINES.md` and `RQ2_DOC_TO_MODEL_PRESTUDY.md`. Same metric definitions; same 5 ARDoCo projects; same baseline RNG seed.

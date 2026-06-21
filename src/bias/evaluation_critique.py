@@ -630,21 +630,20 @@ def _compute_decision_f1(enrolled, result, raw_to_enrolled):
 
 def _compute_component_f1(enrolled, result, file_to_comps):
     """Compute component-level F1 for any system result."""
+    # Mapped-only universe (v1.2, D-01): a (sentence, file) pair whose file has
+    # NO SAM-CODE component contributes NOTHING -- the former `{b}` singleton
+    # fallback `(s, c)` is gone, mirroring component_suite._code_inputs. This
+    # makes the headline component_f1 the mapped-only micro number, equal to
+    # component_suite micro by construction.
     gold_comp = set()
     for s, c in enrolled:
-        comps = file_to_comps.get(c, set())
-        for comp in comps:
+        for comp in file_to_comps.get(c, set()):
             gold_comp.add((s, comp))
-        if not comps:
-            gold_comp.add((s, c))
 
     result_comp = set()
     for s, c in result:
-        comps = file_to_comps.get(c, set())
-        for comp in comps:
+        for comp in file_to_comps.get(c, set()):
             result_comp.add((s, comp))
-        if not comps:
-            result_comp.add((s, c))
 
     cp, cr, cf1, ctp, cfp, cfn = calc_metrics(gold_comp, result_comp)
     return {"tp": ctp, "fp": cfp, "fn": cfn,
