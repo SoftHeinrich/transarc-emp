@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v0.1
 milestone_name: Data-Inequality Mini-Study
-status: in_progress
-stopped_at: Phases 1-2 complete (engine + claim audit, both verified); next /gsd-plan-phase 3
-last_updated: "2026-06-21T14:00:00.000Z"
-last_activity: 2026-06-21 -- Phase 2 Claim Verification built + verified (6 MATCH / 1 PARTIAL / 1 system-specific; placeholders 5/4/70%)
+status: phases_complete
+stopped_at: All 3 phases complete + verified; PAUSED before milestone lifecycle (audit/complete/cleanup) awaiting user go-ahead
+last_updated: "2026-06-21T14:30:00.000Z"
+last_activity: 2026-06-21 -- Phase 3 Motivation & Paper Hooks built + verified (Top-3 0.353/0.381 > random; OUT-02 table/figure)
 isolated: true
 planning_root: mini-inequality/.planning
 branch: gsd/mini-data-inequality
 progress:
   total_phases: 3
-  completed_phases: 2
-  total_plans: 2
-  completed_plans: 2
-  percent: 66
+  completed_phases: 3
+  total_plans: 3
+  completed_plans: 3
+  percent: 100
 ---
 
 # Project State
@@ -37,12 +37,12 @@ Work happens on branch `gsd/mini-data-inequality`; commit only `mini-inequality/
 ## Current Position
 
 Milestone: v0.1 — Data-Inequality Mini-Study (defined 2026-06-21)
-Phase: 2 — Claim Verification ✓ Complete (2026-06-21)
-Plan: 02-01 (1/1 complete)
-Status: Engine (Phase 1) + claim audit (Phase 2) built + verified. CLAIM_CHECK.md: 6 MATCH, 1 PARTIAL (C7), 1 system-specific (cascade); XX placeholders 5/4/70% resolved. Next: `/gsd-plan-phase 3`.
-Last activity: 2026-06-21 — Phase 2 claim_check.py + CLAIM_CHECK.md committed (5333276), verification passed
+Phase: 3 — Motivation & Paper Hooks ✓ Complete (2026-06-21) — ALL PHASES DONE
+Plan: 03-01 (1/1 complete)
+Status: All 3 phases built + verified. Engine (Ph1) + claim audit (Ph2) + baseline motivation & OUT-02 (Ph3). PAUSED before the milestone lifecycle (audit → complete → cleanup) pending user go-ahead.
+Last activity: 2026-06-21 — Phase 3 motivation.py + MOTIVATION.md + OUT-02 committed (40955e6), verification passed
 
-Progress: [███████░░░] 66% (2/3 phases)
+Progress: [██████████] 100% (3/3 phases)
 
 ## Accumulated Context
 
@@ -66,7 +66,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-06-21
-Stopped at: Phases 1-2 complete — engine + claim audit built & verified. Awaiting Phase 3 (Motivation & Paper Hooks: MOTIV-01 Top-3/random baselines exploiting inequality + OUT-02 paper-ready Gini/Lorenz table/figure).
-Resume file: mini-inequality/CLAIM_CHECK.md
+Stopped at: All 3 phases complete & verified (engine, claim audit, motivation+OUT-02). PAUSED before the destructive milestone lifecycle (audit/complete/cleanup) per the autonomous-run agreement to let the user review the deliverables first.
+Resume file: mini-inequality/reports/MOTIVATION.md
 
-Next: `/gsd-plan-phase 3` (scoped to `mini-inequality/.planning/`). NOTE for Phase 3 grey areas: baseline scoring (Top-3/random file/link micro-F1) needs the metric computation — confirm whether to reuse `../mini-src/metrics.py` definitions (copy, per isolation rule) and that trivial baselines on the GOLD/benchmark are in-scope under the "benchmark distribution, no TransArc-specific" directive.
+Next: user decides — run the milestone lifecycle (`/gsd-audit-milestone` → `/gsd-complete-milestone v0.1` → `/gsd-cleanup`) to archive v0.1, OR leave the milestone open for review. All deliverables: inequality.py, claim_check.py, motivation.py + reports/ (INEQUALITY.md, CLAIM_CHECK.md, MOTIVATION.md, CSVs, OUT-02 .tex).
