@@ -1,0 +1,75 @@
+project,component,files,file_pct,linkpair_pct,classes,methods,fan_in,fanin_pct,fanin_file
+mediastore,IDownload,16,26.6667,0.0000,16,1,5,18.5185,0.3125
+mediastore,IMediaAccess,6,10.0000,0.0000,6,4,1,3.7037,0.1667
+mediastore,DB,4,6.6667,38.3562,4,13,9,33.3333,2.2500
+mediastore,IFacade,3,5.0000,0.0000,3,6,4,14.8148,1.3333
+mediastore,IMediaManagement,3,5.0000,0.0000,3,3,1,3.7037,0.3333
+mediastore,IPackaging,3,5.0000,0.0000,3,1,1,3.7037,0.3333
+mediastore,IUserDB,3,5.0000,0.0000,3,3,1,3.7037,0.3333
+mediastore,IUserManagement,3,5.0000,0.0000,3,2,1,3.7037,0.3333
+mediastore,AudioWatermarking,3,5.0000,0.0000,4,50,0,0.0000,0.0000
+mediastore,Cache,3,5.0000,0.0000,3,18,0,0.0000,0.0000
+mediastore,MediaAccess,2,3.3333,13.6986,2,24,1,3.7037,0.5000
+mediastore,IDB,2,3.3333,19.1781,2,9,2,7.4074,1.0000
+mediastore,UserDBAdapter,2,3.3333,8.2192,2,17,1,3.7037,0.5000
+mediastore,UserManagement,2,3.3333,5.4795,2,11,0,0.0000,0.0000
+mediastore,Facade,1,1.6667,4.1096,1,9,0,0.0000,0.0000
+mediastore,MediaManagement,1,1.6667,5.4795,1,7,0,0.0000,0.0000
+mediastore,Packaging,1,1.6667,1.3699,1,3,0,0.0000,0.0000
+mediastore,Reencoding,1,1.6667,1.3699,1,3,0,0.0000,0.0000
+mediastore,TagWatermarking,1,1.6667,2.7397,1,4,0,0.0000,0.0000
+teastore,ImageProvider,64,39.2638,43.2432,65,404,0,0.0000,0.0000
+teastore,Persistence,30,18.4049,24.3243,30,224,0,0.0000,0.0000
+teastore,WebUI,18,11.0429,15.4054,18,59,0,0.0000,0.0000
+teastore,Recommender,14,8.5890,5.6757,14,73,5,45.4545,0.3571
+teastore,Auth,13,7.9755,3.5135,13,27,0,0.0000,0.0000
+teastore,Registry,5,3.0675,3.3784,5,20,0,0.0000,0.0000
+teastore,AuthCart,2,1.2270,0.5405,2,7,0,0.0000,0.0000
+teastore,DummyRecommender,2,1.2270,0.0000,2,4,0,0.0000,0.0000
+teastore,PreprocessedSlopeOneRecommender,2,1.2270,0.0000,2,8,1,9.0909,0.5000
+teastore,SlopeOneRecommender,2,1.2270,0.0000,2,14,1,9.0909,0.5000
+teastore,OrderBasedRecommender,2,1.2270,0.0000,2,7,1,9.0909,0.5000
+teastore,PopularityBasedRecommender,2,1.2270,0.0000,2,5,1,9.0909,0.5000
+teastore,ImageProvider,1,0.6135,0.6757,1,7,0,0.0000,0.0000
+teastore,Persistence,1,0.6135,0.8108,1,11,0,0.0000,0.0000
+teastore,Recommender,1,0.6135,0.4054,1,2,1,9.0909,1.0000
+teastore,RecommenderStrategy,1,0.6135,0.4054,1,2,1,9.0909,1.0000
+teastore,CartActions,1,0.6135,0.8108,1,5,0,0.0000,0.0000
+teastore,ProductActions,1,0.6135,0.8108,1,2,0,0.0000,0.0000
+teastore,LoadBalancer,1,0.6135,0.0000,1,14,0,0.0000,0.0000
+teammates,UI,340,22.0779,22.4773,350,1931,24,0.6009,0.0706
+teammates,UI,340,22.0779,22.4773,350,1931,24,0.6009,0.0706
+teammates,Common,140,9.0909,8.3468,214,2225,1855,46.4447,13.2500
+teammates,Common,140,9.0909,8.3468,214,2225,1855,46.4447,13.2500
+teammates,E2E,119,7.7273,5.3432,119,1382,0,0.0000,0.0000
+teammates,E2E,119,7.7273,5.3432,119,1382,0,0.0000,0.0000
+teammates,Logic,65,4.2208,7.7138,68,863,22,0.5508,0.3385
+teammates,Logic,65,4.2208,7.7138,68,863,22,0.5508,0.3385
+teammates,Storage,54,3.5065,4.6295,55,813,84,2.1032,1.5556
+teammates,Storage,54,3.5065,4.6295,55,813,84,2.1032,1.5556
+teammates,Client,36,2.3377,1.0674,40,222,0,0.0000,0.0000
+teammates,Client,36,2.3377,1.0674,40,222,0,0.0000,0.0000
+teammates,Test Driver,16,1.0390,0.4220,18,298,12,0.3005,0.7500
+teammates,Test Driver,16,1.0390,0.4220,18,298,12,0.3005,0.7500
+bigbluebutton,FSESL,84,14.5833,13.8040,89,452,0,0.0000,0.0000
+bigbluebutton,FreeSWITCH,84,14.5833,14.5180,89,452,0,0.0000,0.0000
+bigbluebutton,FreeSWITCH,84,14.5833,14.5180,89,452,0,0.0000,0.0000
+bigbluebutton,FSESL,84,14.5833,13.8040,89,452,0,0.0000,0.0000
+bigbluebutton,Presentation Conversion,70,12.1528,2.7767,75,304,3,10.7143,0.0429
+bigbluebutton,Presentation Conversion,70,12.1528,2.7767,75,304,3,10.7143,0.0429
+bigbluebutton,BBB web,20,3.4722,3.2725,27,100,8,28.5714,0.4000
+bigbluebutton,BBB web,20,3.4722,3.2725,27,100,8,28.5714,0.4000
+bigbluebutton,Recording Service,11,1.9097,0.0000,11,138,2,7.1429,0.1818
+bigbluebutton,Recording Service,11,1.9097,0.0000,11,138,2,7.1429,0.1818
+bigbluebutton,Apps,9,1.5625,1.7850,10,174,0,0.0000,0.0000
+bigbluebutton,Apps,9,1.5625,1.7850,10,174,0,0.0000,0.0000
+bigbluebutton,Redis PubSub,7,1.2153,0.5553,8,42,0,0.0000,0.0000
+bigbluebutton,Redis PubSub,7,1.2153,0.5553,8,42,0,0.0000,0.0000
+bigbluebutton,Redis DB,3,0.5208,0.1190,3,22,1,3.5714,0.3333
+bigbluebutton,Redis DB,3,0.5208,0.1190,3,22,1,3.5714,0.3333
+jabref,logic,960,49.4845,47.0019,1007,6888,566,17.6599,0.5896
+jabref,gui,704,36.2887,34.1876,791,5143,46,1.4353,0.0653
+jabref,model,249,12.8351,18.1335,269,2342,2232,69.6412,8.9639
+jabref,preferences,18,0.9278,0.4352,21,450,360,11.2324,20.0000
+jabref,cli,8,0.4124,0.1934,9,100,1,0.0312,0.1250
+jabref,globals,1,0.0515,0.0484,1,11,0,0.0000,0.0000

@@ -1,0 +1,16 @@
+project,system,file,flat,fanin,commit
+mediastore,artemis,0.9086,0.9312,0.8396,
+mediastore,s20linker,0.9030,0.9079,0.8754,
+mediastore,swattr/transarc,0.5913,0.6607,0.3634,
+teastore,artemis,0.8340,0.8323,0.8210,0.8106
+teastore,s20linker,0.8192,0.7426,0.6577,0.8046
+teastore,swattr/transarc,0.8373,0.8393,0.8256,0.8153
+teammates,artemis,0.5319,0.6018,0.3526,0.6037
+teammates,s20linker,0.5363,0.5862,0.3518,0.5766
+teammates,swattr/transarc,0.6473,0.7363,0.6234,0.6796
+bigbluebutton,artemis,0.7035,0.7433,0.7180,0.7298
+bigbluebutton,s20linker,0.9605,0.9082,0.9426,0.7412
+bigbluebutton,swattr/transarc,0.9392,0.8827,0.8642,0.7575
+jabref,artemis,0.9902,0.8333,0.8876,0.9321
+jabref,s20linker,0.9432,0.9481,0.9579,0.9514
+jabref,swattr/transarc,0.9432,0.9481,0.9579,0.9514

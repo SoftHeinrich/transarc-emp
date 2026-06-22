@@ -62,6 +62,7 @@ Run
 
 import argparse
 import csv
+import os
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -79,9 +80,21 @@ from transarc_error_analysis import (  # noqa: E402
 REPORTS = Path(__file__).resolve().parent.parent.parent / "reports"
 
 # ── External system-result roots (guarded; absent => system skipped) ──────────
-AGENT_LINKER = Path("/mnt/hostshare/ardoco-home/agent-linker/results/ablation_results")
-ARTEMIS_DOC_CODE = Path("/mnt/hostshare/ardoco-home/sota/recovered-links/doc-code")
-ARTEMIS_LOCAL = Path(__file__).resolve().parent.parent.parent / "results_artemis_gpt54"
+# Roots live as siblings of this repo under the ardoco-home workspace. Default
+# the prefix to that workspace (repo's parent dir) and allow override via the
+# ARDOCO_HOME env var so the suite is portable across machines.
+ARDOCO_HOME = Path(os.environ.get("ARDOCO_HOME", Path(__file__).resolve().parents[3]))
+# s20linker == the v45 LLM SAD-SAM pipeline (s_linker20 lineage). Its per-sentence
+# component links live in the v45 evaluation_results dir as ``<prefix>_<proj>_links.csv``
+# (schema: sentence,component_id,component_name,...). Override dir/prefix via env:
+#   S20_LINKS_DIR    (default: llm-sad-sam-v45/results/evaluation_results)
+#   S20_LINKS_PREFIX (default: "v45"; set "agent" for the adaptive-agent variant)
+AGENT_LINKER = Path(os.environ.get(
+    "S20_LINKS_DIR",
+    ARDOCO_HOME / "llm-sad-sam-v45" / "results" / "evaluation_results"))
+S20_PREFIX = os.environ.get("S20_LINKS_PREFIX", "v45")
+ARTEMIS_DOC_CODE = ARDOCO_HOME / "sota-recovered-links" / "doc-code"
+ARTEMIS_MODEL_DOC = ARDOCO_HOME / "sota-recovered-links" / "model-doc"
 
 SUITE_COLS = ["micro", "macro", "gap", "min_comp", "pct_missed", "gold_gini"]
 
@@ -133,7 +146,7 @@ def _swattr_code(p):
 
 def _s20_model(p):
     return {(c, s) for c, s in _read_pairs(
-        AGENT_LINKER / f"s_linker20_{p}_links.csv",
+        AGENT_LINKER / f"{S20_PREFIX}_{p}_links.csv",
         a_keys=("component_id", "modelElementID"), b_keys=("sentence",))}
 
 
@@ -142,8 +155,11 @@ def _s20_code(p):
 
 
 def _artemis_model(p):
-    return _read_pairs(ARTEMIS_LOCAL / p / "sad-code" / f"sadSamTlr_{p}.csv",
-                       a_keys=("modelElementID", "component_id"), b_keys=("sentence",))
+    # model-doc CSV schema: sentence_id,target_id (target_id = model element id).
+    # _model_inputs.collapse expects (comp_id, sentence) -> a=target_id, b=sentence_id.
+    return _read_pairs(ARTEMIS_MODEL_DOC / f"artemis-{p}-gpt-5.4.csv",
+                       a_keys=("target_id", "modelElementID", "component_id"),
+                       b_keys=("sentence_id", "sentence"))
 
 
 def _artemis_code(p):

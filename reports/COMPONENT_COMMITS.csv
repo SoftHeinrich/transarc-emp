@@ -1,0 +1,41 @@
+project,component,commits_touching,commit_pct,total_commits
+jabref,gui,2636,13.33,19776
+jabref,logic,1741,8.80,19776
+jabref,model,618,3.12,19776
+jabref,preferences,374,1.89,19776
+jabref,cli,127,0.64,19776
+jabref,globals,20,0.10,19776
+teastore,Persistence,35,2.03,1723
+teastore,WebUI,34,1.97,1723
+teastore,Auth,26,1.51,1723
+teastore,ImageProvider,24,1.39,1723
+teastore,Recommender,16,0.93,1723
+teastore,Registry,12,0.70,1723
+teastore,LoadBalancer,12,0.70,1723
+teastore,ProductActions,7,0.41,1723
+teastore,CartActions,5,0.29,1723
+teastore,AuthCart,4,0.23,1723
+teastore,DummyRecommender,2,0.12,1723
+teastore,PopularityBasedRecommender,1,0.06,1723
+teastore,PreprocessedSlopeOneRecommender,1,0.06,1723
+teastore,RecommenderStrategy,1,0.06,1723
+teastore,OrderBasedRecommender,1,0.06,1723
+teastore,SlopeOneRecommender,1,0.06,1723
+teammates,Test Driver,4352,23.54,18486
+teammates,UI,3273,17.71,18486
+teammates,Common,2652,14.35,18486
+teammates,Logic,1566,8.47,18486
+teammates,Storage,928,5.02,18486
+teammates,E2E,217,1.17,18486
+teammates,Client,207,1.12,18486
+bigbluebutton,HTML5 Client,11435,28.32,40378
+bigbluebutton,HTML5 Server,11435,28.32,40378
+bigbluebutton,BBB web,1637,4.05,40378
+bigbluebutton,Apps,1508,3.73,40378
+bigbluebutton,FSESL,209,0.52,40378
+bigbluebutton,FreeSWITCH,154,0.38,40378
+bigbluebutton,Presentation Conversion,150,0.37,40378
+bigbluebutton,WebRTC-SFU,120,0.30,40378
+bigbluebutton,Recording Service,50,0.12,40378
+bigbluebutton,Redis DB,26,0.06,40378
+bigbluebutton,Redis PubSub,7,0.02,40378
