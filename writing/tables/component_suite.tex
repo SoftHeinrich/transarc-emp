@@ -1,0 +1,18 @@
+\begin{table}[htbp]
+  \centering
+  \caption{Level-agnostic component suite: cross-project averages for the three systems at both granularities. \emph{Micro}/\emph{macro} share the reconciled mapped-only universe; \emph{min comp.} and \emph{pct.\ missed} are gold-only tail coverage}
+  \label{tab:component-suite}
+  \begin{tabular}{lrrrrrr}
+    \toprule
+    Task & System & Micro \fone & Macro \fone & Gap & Min comp.\ \fone & Pct.\ missed \\
+    \midrule
+    \sadsam & swattr/transarc & 0.799 & 0.793 & $+0.006$ & 0.482 & 0.060 \\
+    \sadsam & s20linker & 0.889 & 0.875 & $+0.014$ & 0.660 & 0.000 \\
+    \sadsam & artemis & 0.836 & 0.813 & $+0.022$ & 0.279 & 0.083 \\
+    \sadcode & swattr/transarc & 0.795 & 0.813 & $-0.019$ & 0.544 & 0.060 \\
+    \sadcode & s20linker & 0.858 & 0.852 & $+0.006$ & 0.626 & 0.000 \\
+    \sadcode & artemis & 0.799 & 0.788 & $+0.011$ & 0.345 & 0.053 \\
+    \bottomrule
+  \end{tabular}
+  \par\smallskip\footnotesize Source: \texttt{reports/COMPONENT\_SUITE\_sad-model.csv}, \texttt{reports/COMPONENT\_SUITE\_sad-code.csv} (AVG rows; see \texttt{reports/COMPONENT\_SUITE.md}). Artemis is competitive on micro yet last on min comp.\ \fone at both levels---it abandons the long tail.
+\end{table}

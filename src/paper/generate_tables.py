@@ -586,6 +586,132 @@ def t_dashboard():
 
 
 # ---------------------------------------------------------------------------
+# Phase-9 component-suite + fitness CSVs (v1.2, CMP-05)
+# ---------------------------------------------------------------------------
+SUITE_CSV = {
+    "sad-model": REPORTS / "COMPONENT_SUITE_sad-model.csv",
+    "sad-code": REPORTS / "COMPONENT_SUITE_sad-code.csv",
+}
+FITNESS_CSV = REPORTS / "METRIC_FITNESS.csv"
+
+# Map the suite's internal level keys to the paper's task macros.
+_LEVEL_MACRO = {"sad-model": "\\sadsam", "sad-code": "\\sadcode"}
+# Keep the report's system order (heuristic, agent-linker, LLM SOTA) rather than
+# sorting by headline — the point is that headline order hides the tail gap.
+_SUITE_SYSTEMS = ["swattr/transarc", "s20linker", "artemis"]
+
+
+def _load_suite(level):
+    with SUITE_CSV[level].open(encoding="utf-8") as f:
+        return list(csv.DictReader(f))
+
+
+def t_component_suite():
+    """CMP-05: level-agnostic component suite, 3 systems x 2 levels (AVG rows)."""
+    header = [
+        "Task",
+        "System",
+        "Micro \\fone",
+        "Macro \\fone",
+        "Gap",
+        "Min comp.\\ \\fone",
+        "Pct.\\ missed",
+    ]
+    data = []
+    for level in ("sad-model", "sad-code"):
+        avg = {r["system"]: r for r in _load_suite(level) if r["project"] == "AVG"}
+        for sysname in _SUITE_SYSTEMS:
+            r = avg[sysname]
+            data.append(
+                [
+                    _LEVEL_MACRO[level],
+                    sysname,
+                    "%.3f" % float(r["micro"]),
+                    "%.3f" % float(r["macro"]),
+                    "$%+.3f$" % float(r["gap"]),
+                    "%.3f" % float(r["min_comp"]),
+                    "%.3f" % float(r["pct_missed"]),
+                ]
+            )
+    caption = (
+        "Level-agnostic component suite: cross-project averages for the three "
+        "systems at both granularities. \\emph{Micro}/\\emph{macro} share the "
+        "reconciled mapped-only universe; \\emph{min comp.} and \\emph{pct.\\ "
+        "missed} are gold-only tail coverage"
+    )
+    note = (
+        "Source: \\texttt{reports/COMPONENT\\_SUITE\\_sad-model.csv}, "
+        "\\texttt{reports/COMPONENT\\_SUITE\\_sad-code.csv} (AVG rows; see "
+        "\\texttt{reports/COMPONENT\\_SUITE.md}). Artemis is competitive on micro "
+        "yet last on min comp.\\ \\fone at both levels---it abandons the long tail."
+    )
+    return write_table(
+        "component_suite",
+        render_table(
+            [header] + data,
+            caption=caption,
+            label="tab:component-suite",
+            note=note,
+            header_override=header,
+            raw_cols=[0, 4],  # Task macro + signed gap (math)
+        ),
+    )
+
+
+def t_metric_fitness():
+    """CMP-05: fitness scorecard verdict, pooled over both levels."""
+    with FITNESS_CSV.open(encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+    cols = ["micro", "macro", "gap", "min_comp", "pct_missed"]
+    axes = ["separation", "validity", "stability", "degeneracy"]
+    header = ["Column", "Separation", "Validity", "Stability", "Degeneracy", "Role"]
+    _disp = {"min_comp": "min\\_comp", "pct_missed": "pct\\_missed"}
+
+    def _axis(x):  # math-mode minus for negatives (e.g. gap separation)
+        return ("$-%.3f$" % -x) if x < 0 else ("%.3f" % x)
+
+    data = []
+    for c in cols:
+        crows = [r for r in rows if r["column"] == c]
+        verdicts = {r["verdict"] for r in crows}
+        assert len(verdicts) == 1, "verdict differs across levels for %s" % c
+        means = {a: sum(float(r[a]) for r in crows) / len(crows) for a in axes}
+        data.append(
+            [
+                "\\texttt{%s}" % _disp.get(c, c),
+                _axis(means["separation"]),
+                _axis(means["validity"]),
+                _axis(means["stability"]),
+                _axis(means["degeneracy"]),
+                verdicts.pop(),
+            ]
+        )
+    caption = (
+        "Metric fitness scorecard (pooled over both levels): each suite column "
+        "scored on separation (real vs.\\ trivial floor), validity (oracle "
+        "headroom), stability (cross-project), and degeneracy (cross-system "
+        "spread). \\emph{Role} is the data-derived headline/diagnostic verdict"
+    )
+    note = (
+        "Source: \\texttt{reports/METRIC\\_FITNESS.csv} (mean of the two per-level "
+        "rows; see \\texttt{reports/METRIC\\_FITNESS.md}). Verdict rule: separation "
+        "$\\geq$ median \\textsc{and} degeneracy $\\geq$ median across columns, "
+        "pooled over both levels."
+    )
+    return write_table(
+        "metric_fitness",
+        render_table(
+            [header] + data,
+            caption=caption,
+            label="tab:metric-fitness",
+            note=note,
+            header_override=header,
+            raw_cols=[0],  # Column holds \texttt{...} verbatim
+        ),
+    )
+
+
+# ---------------------------------------------------------------------------
 def main():
     builders = [
         # Chapter 1 (TransArc empirical study)
@@ -602,6 +728,8 @@ def main():
         t_dashboard,
         t_consequences,         # STUDY-01/02 headline-vs-honest, both tasks
         t_converged_framework,  # STUDY-03 converged Decision+Component
+        t_component_suite,      # CMP-05 level-agnostic suite, 3 systems x 2 levels
+        t_metric_fitness,       # CMP-05 fitness scorecard verdict
     ]
     written = [b() for b in builders]
     for p in written:

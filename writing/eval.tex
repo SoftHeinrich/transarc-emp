@@ -414,8 +414,8 @@ headline metric against decision-, component-, and (for \sadsam)
 sentence-level \fone.
 
 For \sadsam, the average link \fone $=0.799$ understates per-sentence
-retrieval: on Teammates, sentence \fone is $0.916$ against a link \fone of
-$0.710$, a $0.206$ gap the headline conceals. For \sadcode, JabRef attains
+retrieval: on BigBlueButton, sentence \fone is $0.876$ against a link \fone of
+$0.793$, a $0.083$ gap the headline conceals. For \sadcode, JabRef attains
 the best file \fone ($0.943$) yet the worst decision \fone ($0.394$)---the
 same trace links, reordered by aggregation level. Across projects the
 \sadcode average drops from $0.803$ (file) to $0.596$ (decision), a $0.207$
@@ -1041,6 +1041,74 @@ file-versus-decision gap ($0.207$) as enrollment inflation rather than
 genuine quality.
 
 \input{tables/converged_framework}
+
+
+%% --------------------------------------------------------------------
+\section{A Level-Agnostic Component Suite and the Long-Tail Discriminator}
+\label{sec:eval:component-suite}
+
+The converged axis of \Cref{sec:eval:protocol} reports decision- and
+component-level \fone for both tasks. Collapsing it to a single reusable object
+yields a compact \emph{component suite} over \texttt{(sentence, component)}
+pairs that applies unchanged at both granularities: \emph{micro} (pooled \fone,
+equal to link \fone at \sadsam), \emph{macro} (per-component \fone, unweighted
+mean), \emph{gap} ($\text{micro}-\text{macro}$), and the gold-only tail pair
+\emph{min comp.\ \fone} (worst single real-component \fone) and \emph{pct.\
+missed} (fraction of real components scored exactly $0$). \Cref{tab:component-suite}
+runs the suite over three systems---the ARDoCo heuristic (\texttt{swattr/transarc};
+at doc-to-code, SWATTR\,$\bowtie$\,ArCoTL), the agent linker \texttt{s20linker},
+and the LLM state of the art \texttt{artemis}---at both levels. The tool is
+\texttt{src/bias/component\_suite.py}; numbers and provenance are recorded in
+\texttt{reports/COMPONENT\_SUITE.md}.
+
+\input{tables/component_suite}
+
+\paragraph{Aggregation is second-order once the universe is reconciled.}
+Two legacy per-component definitions silently disagreed on the component
+universe: the micro definition kept files with no \samcode mapping as singleton
+pseudo-components, while the macro definition dropped them. Comparing them
+conflated an aggregation effect with a universe mismatch. Scoring micro and
+macro on \emph{one} mapped-only universe shrinks the apparent
+enrollment-inflation gap from $-0.099$ to $-0.019$ on average for
+\texttt{swattr/transarc} (and from $-0.31$ to $-0.05$ on BigBlueButton), and
+lifts the reconciled headline \sadcode component \fone from $0.714$ to $0.795$
+(\texttt{reports/COMPONENT\_UNIVERSE\_RECONCILIATION.md}). The residual micro/macro
+\emph{gap} is small at both levels---its sign still fingerprints the skew regime
+(slightly positive at doc-to-model, negative at doc-to-code where enrollment
+over-weights large components in micro), but its magnitude is not the story.
+
+\paragraph{Tail coverage is the first-order, level-stable discriminator.}
+By micro \fone, \texttt{artemis} looks competitive: second of three at both
+levels ($0.836$ / $0.799$). By worst real-component coverage it is last by a
+wide margin---min comp.\ \fone $0.279$ at doc-to-model and $0.345$ at
+doc-to-code---and it scores \emph{exactly zero} on real gold components
+(BigBlueButton and JabRef at both levels, plus Teammates at doc-to-model). The
+heuristic \texttt{swattr/transarc} is more uniform across components despite a
+lower headline; \texttt{s20linker} covers every real component
+($\text{pct.\ missed}=0$). The LLM nails the popular components and
+\emph{abandons the long tail}---a failure mode both micro and macro conceal and
+only the tail half of the suite exposes. Restricting the tail to gold components
+is what makes this precise: a result-only false-positive component scoring $0$
+is no longer counted as a ``missed'' real one, so the signal isolates genuine
+abandonment rather than invented components.
+
+\paragraph{Which columns earn headline status.} \Cref{tab:metric-fitness} scores
+each column on four fitness axes---separation (real systems vs.\ the
+Random/Top-3 trivial floor), validity (oracle-ceiling headroom), stability
+(cross-project variance), and degeneracy (cross-system spread)---reusing the
+existing baselines as the floor, with no new metric math
+(\texttt{src/bias/metric\_fitness.py}, \texttt{reports/METRIC\_FITNESS.md}). The
+verdict emerges from the numbers rather than assertion: \texttt{micro},
+\texttt{macro}, and \texttt{min\_comp} clear both the separation and the
+sensitivity bar and are \emph{headline}; \texttt{gap} and \texttt{pct\_missed}
+are \emph{diagnostic} (small magnitude and saturation, respectively). Crucially
+\texttt{min\_comp}---the tail column that indicts \texttt{artemis}---is a
+headline metric in its own right, the only one whose cross-system spread tracks
+the dimension developers actually feel. The honest reading is therefore not
+``macro beats micro'': once the universe is reconciled the aggregation contrast
+is modest, and the discriminating signal lives in worst-component coverage.
+
+\input{tables/metric_fitness}
 
 
 \end{document}
