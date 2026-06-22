@@ -1,25 +1,47 @@
 # Milestones: TransArc-EMP
 
-## v1.2 — Component-Centric Metric Suite 🚧
+## v1.2 — Component-Centric Metric Suite
 
-**Defined:** 2026-06-21 | **Status:** Active | **Phases:** 7–9 (planned)
+**Shipped:** 2026-06-22
+**Phases:** 3 (7–9) | **Plans:** 7 | **Requirements:** CMP-01…CMP-06
 
-**Goal:** A level-agnostic component-centric metric suite (`micro, macro, gap,
-min_comp, pct_missed, gold_gini`) that applies at BOTH doc-to-model and doc-to-code,
-a validated multi-system comparison (swattr/transarc, s20linker, artemis), and a
-paper section — plus a fix for the latent component-universe inconsistency between
-the two legacy per-component-F1 definitions.
+**Delivered:** A level-agnostic component-centric metric suite (`micro, macro, gap,
+min_comp, pct_missed, gold_gini`) at BOTH doc-to-model and doc-to-code, a validated
+multi-system comparison (swattr/transarc, s20linker, artemis), a data-derived metric
+fitness scorecard, and an `eval.tex` Ch2 section — plus a fix for the latent
+component-universe inconsistency between the two legacy per-component-F1 definitions.
 
-**Headline findings driving it (2026-06-21 explore):** once micro/macro share one
-component universe, the *aggregation* effect is second-order (much of the earlier
-"enrollment gap" was a universe-mismatch artifact); the level-stable discriminator
-is **tail coverage** — artemis (LLM SOTA) abandons the long tail (min_comp 0.345
-code / 0.279 model; =0 on bbb & jabref) while the heuristic SWATTR is more uniform.
+**Key accomplishments:**
+1. `src/bias/component_suite.py` — level-agnostic suite reusing `calc_metrics` only; micro
+   and macro on one reconciled mapped-only universe; gold-only tail (min_comp/pct_missed).
+2. Universe reconciliation (`{b}` fallback dropped): headline SAD-CODE `component_f1`
+   0.7143→0.7949; the earlier "enrollment gap" was largely a universe-mismatch artifact
+   (`reports/COMPONENT_UNIVERSE_RECONCILIATION.md`).
+3. Equivalence oracle + determinism (`src/bias/check_component_suite.py`): suite-macro ==
+   `per_component_macro_f1` to 1e-9; committed CSVs regenerate byte-identical.
+4. 3-system × 2-level comparison hardened (`reports/COMPONENT_SUITE.md`), artemis source
+   pinned (`reports/ARTEMIS_PROVENANCE.md`), skip-with-notice for absent external roots.
+5. Metric fitness scorecard (`src/bias/metric_fitness.py` → `reports/METRIC_FITNESS.{md,csv}`):
+   data-derived headline (micro/macro/min_comp) vs diagnostic (gap/pct_missed); artemis
+   long-tail abandonment quantified.
+6. Paper integration: `eval.tex` Ch2 §`sec:eval:component-suite` + `tab:component-suite` +
+   `tab:metric-fitness` via `generate_tables.py`; stdlib structural validator
+   (`src/paper/check_eval_structure.py`) in place of pdflatex.
 
-**Foundation delivered:** `src/bias/component_suite.py`,
-`reports/COMPONENT_SUITE*.{md,csv}`, memory `component-suite-finding`.
+**Headline finding:** once micro/macro share one component universe, aggregation is
+second-order (macro's separation edge is a modest +0.092); the level-stable, first-order
+discriminator is **tail coverage** — artemis (LLM SOTA) abandons the long tail (min_comp
+0.345 code / 0.279 model; =0 on bbb & jabref) while heuristic SWATTR is more uniform.
 
-**Roadmap:** `milestones/v1.2-ROADMAP.md` · **Requirements:** `milestones/v1.2-REQUIREMENTS.md`
+**Incidental fix:** the `sentence_f1` gold-negative-FP bug was confirmed already fixed
+(`b9a18f4`); teammates SAD-SAM Sentence F1 0.703 / avg 0.825 verified correct, and the one
+stale `eval.tex` example re-anchored.
+
+**Archives:** `milestones/v1.2-ROADMAP.md`, `milestones/v1.2-REQUIREMENTS.md`,
+`milestones/v1.2-MILESTONE-AUDIT.md`.
+
+**Audit:** PASSED (6/6 requirements; full suite→fitness→tables→structure chain reproduces
+byte-identically; each phase independently verified).
 
 ---
 

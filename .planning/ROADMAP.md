@@ -4,7 +4,7 @@
 
 - ✅ **v1.0 Two-Pillar Refactor** — Phases 1-3 (shipped 2026-05-30) — see [archive](milestones/v1.0-ROADMAP.md)
 - ✅ **v1.1 Metrics Toolkit & Converged-Metric Motivation** — Phases 4-6 (shipped 2026-05-31) — see [archive](milestones/v1.1-ROADMAP.md)
-- 🚧 **v1.2 Component-Centric Metric Suite** — Phases 7-9 (active, defined 2026-06-21) — see [roadmap](milestones/v1.2-ROADMAP.md)
+- ✅ **v1.2 Component-Centric Metric Suite** — Phases 7-9 (shipped 2026-06-22) — see [archive](milestones/v1.2-ROADMAP.md)
 
 ## Phases
 
@@ -35,7 +35,7 @@ metric framing (link/sentence/component, no enrollment), `src/bias/consequences_
 
 </details>
 
-## Active — v1.2 Component-Centric Metric Suite (Phases 7-9)
+## Shipped — v1.2 Component-Centric Metric Suite (Phases 7-9) — 2026-06-22
 
 - [x] Phase 7: Suite & Universe Reconciliation — CMP-01, CMP-02, CMP-06 (completed 2026-06-21)
 - [x] Phase 8: Multi-System Comparison & Fitness Validation — CMP-03, CMP-04 (completed 2026-06-21)

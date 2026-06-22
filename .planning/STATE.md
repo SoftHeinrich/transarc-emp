@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Component-Centric Metric Suite
-status: phases_complete
-stopped_at: Phase 9 complete + verified (1/1 plan, 3/3 SC PASS). All v1.2 phases (7-9) done; entering milestone lifecycle (audit → complete → cleanup).
+status: milestone_complete
+stopped_at: v1.2 milestone COMPLETE — audited (passed 6/6), shipped, phases archived to milestones/v1.2-phases/, lifecycle done. Branch pushed to origin.
 last_updated: "2026-06-22T00:00:00.000Z"
 last_activity: 2026-06-22 -- Phase 09 complete (CMP-05 paper integration, verification passed)
 progress:
@@ -28,8 +28,8 @@ See: .planning/PROJECT.md (updated 2026-06-21)
 Milestone: v1.2 — Component-Centric Metric Suite (defined 2026-06-21)
 Phase: 9 — Paper Integration ✓ COMPLETE + VERIFIED (2026-06-22); Phases 7-8 ✓ COMPLETE
 Plan: 09-01 complete (1/1); verification passed (3/3 SC)
-Status: ALL v1.2 phases complete — entering milestone lifecycle (audit → complete → cleanup)
-Last activity: 2026-06-22 -- Phase 09 complete (CMP-05 paper integration, verification passed)
+Status: v1.2 milestone COMPLETE & SHIPPED (audit passed 6/6; phases archived; lifecycle done)
+Last activity: 2026-06-22 -- v1.2 lifecycle: audit passed → shipped → cleanup (phases 7-9 archived)
 
 Progress: [██████████] 100% (3/3 phases) — Phases 7-9 complete; all CMP-01…CMP-06 delivered
 
