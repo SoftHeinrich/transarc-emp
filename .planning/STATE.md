@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Component-Centric Metric Suite
-status: executing
-stopped_at: Phase 8 complete + verified (3/3 plans, 4/4 SC PASS). Next `/gsd-plan-phase 9` (CMP-05 paper integration).
-last_updated: "2026-06-21T22:35:00.000Z"
-last_activity: 2026-06-21 -- Phase 08 complete (verification passed, 3/3 plans)
+status: phases_complete
+stopped_at: Phase 9 complete + verified (1/1 plan, 3/3 SC PASS). All v1.2 phases (7-9) done; entering milestone lifecycle (audit → complete → cleanup).
+last_updated: "2026-06-22T00:00:00.000Z"
+last_activity: 2026-06-22 -- Phase 09 complete (CMP-05 paper integration, verification passed)
 progress:
   total_phases: 3
-  completed_phases: 2
-  total_plans: 6
-  completed_plans: 6
-  percent: 67
+  completed_phases: 3
+  total_plans: 7
+  completed_plans: 7
+  percent: 100
 ---
 
 # Project State
@@ -26,12 +26,31 @@ See: .planning/PROJECT.md (updated 2026-06-21)
 ## Current Position
 
 Milestone: v1.2 — Component-Centric Metric Suite (defined 2026-06-21)
-Phase: 8 — Multi-System Comparison & Fitness Validation ✓ COMPLETE + VERIFIED (2026-06-21); Phase 7 ✓ COMPLETE
-Plan: 08-01 / 08-02 / 08-03 all complete (3/3); verification passed (4/4 SC)
-Status: Phase 8 done — ready for Phase 9 (CMP-05 paper integration)
-Last activity: 2026-06-21 -- Phase 08 complete (verification passed)
+Phase: 9 — Paper Integration ✓ COMPLETE + VERIFIED (2026-06-22); Phases 7-8 ✓ COMPLETE
+Plan: 09-01 complete (1/1); verification passed (3/3 SC)
+Status: ALL v1.2 phases complete — entering milestone lifecycle (audit → complete → cleanup)
+Last activity: 2026-06-22 -- Phase 09 complete (CMP-05 paper integration, verification passed)
 
-Progress: [███████░░░] 67% (2/3 phases) — Phases 7-8 complete; Phase 9 (paper integration) remains
+Progress: [██████████] 100% (3/3 phases) — Phases 7-9 complete; all CMP-01…CMP-06 delivered
+
+### Phase 9 deliverables (committed feat(09) 7111505 / docs(09) completion)
+
+- **09-01 (CMP-05):** New `eval.tex` Ch2 §`sec:eval:component-suite` ("A Level-Agnostic
+  Component Suite and the Long-Tail Discriminator") — suite-as-one-object (both
+  granularities), universe-reconciliation correction (aggregation second-order;
+  gap −0.099→−0.019 avg, headline component F1 0.714→0.795), tail-coverage discriminator
+  (artemis competitive on micro but last on min_comp 0.279/0.345, abandons real gold
+  components), fitness-scorecard verdict. Cites only retained scripts/reports.
+- Two generated tables via `src/paper/generate_tables.py`: `tab:component-suite`
+  (3 systems × 2 levels) + `tab:metric-fitness` (pooled verdict); byte-identical regen.
+- New stdlib `src/paper/check_eval_structure.py` (SC3 gate; exit 0 — 69 labels/47 refs/
+  15 inputs resolve) in place of pdflatex.
+- **STATE open-item #1 RESOLVED:** the `sentence_f1` gold-negative-FP bug was already
+  fixed in `b9a18f4` (2026-06-03); teammates SAD-SAM Sentence F1 0.703 / avg 0.825
+  confirmed trustworthy (empirically reproduced; 40.9% pure-FP). Stale `eval.tex:417`
+  prose re-anchored Teammates 0.916 → BigBlueButton 0.876 (matches metrics_sad-sam.csv).
+- **Verification:** `09-VERIFICATION.md` — status PASSED, 3/3 SC; every numeric claim
+  cross-checked against the committed CSVs; upstream metric scripts untouched.
 
 ### Phase 8 deliverables (committed ec14244+9fc5da8+69a7aab / 229c843 / e998aea+f9d140b+e8748b9)
 
@@ -134,9 +153,9 @@ None — all v1.1 concerns resolved (metrics API reused `new_metrics_analysis.py
 
 ## Session Continuity
 
-Last session: 2026-06-21T22:35:00.000Z
-Stopped at: Phase 8 complete + verified (3/3 plans, 4/4 SC PASS). Next `/gsd-plan-phase 9` (CMP-05).
-Resume file: .planning/phases/08-multi-system-comparison-fitness-validation/08-VERIFICATION.md
+Last session: 2026-06-22
+Stopped at: Phase 9 complete + verified (1/1 plan, 3/3 SC PASS). ALL v1.2 phases done; running milestone lifecycle (audit → complete → cleanup).
+Resume file: .planning/phases/09-paper-integration/09-VERIFICATION.md
 
 **Phase 8 complete.** Executed manually (no gsd-sdk on PATH) sequentially on the main
 working tree — worktree isolation deliberately disabled because of the environment's git
@@ -149,20 +168,23 @@ Next: `/gsd-plan-phase 9` (CMP-05 paper integration).
 sequentially (manual mode — no gsd-sdk), and verified (gsd-verifier, status passed;
 SC1–SC4 all PASS). Commits: 07-01 `e2f93c5`, 07-02 `55202a9`, 07-03 `70287e0`.
 
-OPEN ITEMS for next session:
+OPEN ITEMS:
 
-1. **SAD-SAM Sentence F1 review (WARNING):** 07-02 refreshed the stale `metrics_sad-sam.csv`
-   placeholder, moving teammates Sentence F1 0.916→0.703 (avg 0.875→0.825) into
-   `consequences.tex`. Confirm these Pillar-1 numbers (possible link to the known
-   `sentence_f1` gold-negative-FP bug) before Phase 9 / any paper use.
+1. **SAD-SAM Sentence F1 review — RESOLVED (2026-06-22, Phase 9 pre-work).** The
+   `sentence_f1` gold-negative-FP bug was already fixed in `b9a18f4` (2026-06-03), before
+   Phase 7; teammates 0.916→0.703 (avg 0.875→0.825) is the *corrected* standard-IR value,
+   not a stale artifact. Empirically reproduced (27/66 = 40.9% teammates pure-FP; canonical
+   `compute_sad_sam_metrics` matches 0.703/0.825; CSV + `metrics_sad-sam.tex` consistent).
+   The one stale consequence — `eval.tex:417` prose on the buggy 0.916 — was re-anchored to
+   BigBlueButton (0.876 vs link 0.793) in Phase 9. Trustworthy & paper-ready.
 
-2. **Branch:** working branch is `gsd/mini-data-inequality`; all v1.2 Phase 7 work
-   (context 0b59a9a + plans + execution) lives here, NOT on master. Decide whether to
-   migrate v1.2 to master/a v1.2 branch before continuing.
+2. **Branch — DECIDED (2026-06-22):** stay on `gsd/mini-data-inequality` (carries all v1.2
+   work). Branch/PR hygiene to be handled at ship time. Branch pushed to origin.
 
-3. `writing/eval.tex` prose still cites old numbers — deliberate Phase-9 (CMP-05) deferral.
-   Phase 9 should also fold in the new CMP-03/CMP-04 artifacts: `reports/COMPONENT_SUITE.md`,
-   `reports/METRIC_FITNESS.md` (the data-derived verdict), and `reports/ARTEMIS_PROVENANCE.md`.
+3. **`eval.tex` prose — DONE (Phase 9).** The new §`sec:eval:component-suite` folds in
+   `reports/COMPONENT_SUITE.md`, `reports/METRIC_FITNESS.md` (data-derived verdict), and the
+   universe-reconciliation correction; `reports/ARTEMIS_PROVENANCE.md` underpins the pinned
+   artemis source. Stale Sentence-F1 example corrected (item #1).
 4. **Phase 8 provenance (D-10): RESOLVED.** `results_artemis_gpt54/` pinned + committed (08-01);
    `reports/ARTEMIS_PROVENANCE.md` is the authoritative-source ledger. `reports_artemis_gpt54_*/`
    and `paper-result/` intentionally remain untracked (documented-secondary, non-destructive).
