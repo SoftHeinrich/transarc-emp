@@ -1,0 +1,17 @@
+\begin{table}[htbp]
+  \centering
+  \caption{Recoverability of \sadcode false negatives through \sadsam false-negative recovery (upper bound on recall gain)}
+  \label{tab:sadsam-coverage}
+  \begin{tabular}{lrrr}
+    \toprule
+    Project & SAD-CODE FNs & Recoverable via SAD-SAM FN Recovery & Coverage \\
+    \midrule
+    mediastore & 34 & 27 & 79.4\% \\
+    teastore & 206 & 206 & 100.0\% \\
+    teammates & 790 & 246 & 31.1\% \\
+    bigbluebutton & 242 & 179 & 74.0\% \\
+    jabref & 0 & 0 & 0.0\% \\
+    \bottomrule
+  \end{tabular}
+  \par\smallskip\footnotesize Source: \texttt{reports/SAD\_SAM\_TP\_GAIN\_STUDY.md}.
+\end{table}

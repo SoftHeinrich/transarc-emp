@@ -1,0 +1,17 @@
+\begin{table}[htbp]
+  \centering
+  \caption{End-to-end \sadcode (\transarc) results per project: gold size, produced links, confusion counts, and \fone (with the expected/threshold values reproduced from the TLR test suite)}
+  \label{tab:transarc-overview}
+  \begin{tabular}{lrrrrrrrrrrr}
+    \toprule
+    Project & Gold & Result & TP & FP & FN & Precision & Recall & F1 & Exp P & Exp R & Exp F1 \\
+    \midrule
+    mediastore & 31 & 18 & 17 & 1 & 14 & 0.944 & 0.548 & 0.694 & 0.940 & 0.548 & 0.690 \\
+    teastore & 27 & 20 & 20 & 0 & 7 & 1.000 & 0.741 & 0.851 & 0.999 & 0.740 & 0.850 \\
+    teammates & 57 & 81 & 49 & 32 & 8 & 0.605 & 0.860 & 0.710 & 0.600 & 0.859 & 0.709 \\
+    bigbluebutton & 62 & 49 & 44 & 5 & 18 & 0.898 & 0.710 & 0.793 & 0.897 & 0.709 & 0.790 \\
+    jabref & 18 & 20 & 18 & 2 & 0 & 0.900 & 1.000 & 0.947 & 0.899 & 0.999 & 0.946 \\
+    \bottomrule
+  \end{tabular}
+  \par\smallskip\footnotesize Source: \texttt{reports/TRANSARC\_EMPIRICAL\_STUDY.md}.
+\end{table}
