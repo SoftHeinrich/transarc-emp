@@ -95,8 +95,9 @@ high-fan-in `preferences` component — the bias manufactures the win.
 `fanin` and `flat` produce the *same ranking* in both averaging regimes. Fan-in's
 value is **legitimacy, not a different answer**: it defends `flat` against the
 "size-blind, over-weights trivial components" objection by showing a principled
-centrality weight reaches the same conclusion. (See `RQ_*` dep-centrality note:
-small-but-central components — JabRef `preferences` fan-in/file 20.0 — are real.)
+centrality weight reaches the same conclusion. The legitimacy rests on the
+size–importance orthogonality below, not on a "small components are central" claim
+(which the data refutes).
 
 **3. `commit` weighting is NOT necessary.**
 On a like-for-like project set (the 4 real-history repos), `commit` and `fanin`
@@ -108,6 +109,75 @@ not a real disagreement. Commit weighting is also the noisier, less reproducible
 signal (external repos, default-branch only, test-churn confound — teammates
 `Test Driver` is 0.4% of link-pairs but 23.5% of commits). **Keep commit activity
 as descriptive prose corroboration; do not use it as a metric weight.**
+
+## Why the file-weight is illegitimate: size ⊥ importance
+
+The enrollment weight (file count) is not just *a* weight — it is a weight
+**uncorrelated with architectural importance**. Across all 59 gold components
+(5 projects), Spearman correlation of component size against dependency centrality:
+
+| project | n | ρ(files, fan-in/file) | ρ(file%, fan-in%) |
+|---------|--:|----------------------:|------------------:|
+| mediastore | 19 | +0.45 | +0.67 |
+| teastore | 19 | −0.19 | −0.03 |
+| teammates | 7 | +0.02 | +0.45 |
+| bigbluebutton | 8 | −0.28 | −0.03 |
+| jabref | 6 | +0.31 | +0.71 |
+| **pooled** | **59** | **+0.20** | **+0.21** |
+
+**The "small components are more central" hypothesis is FALSE.** If it held, these
+would be strongly negative; they are weakly *positive* with inconsistent signs.
+Among below-median-size components, **most are dependency-dead** (fan-in 0:
+mediastore 6/9, teastore 5/7, bbb 4/8). Small usually means peripheral — JabRef
+`preferences` is an existence case, not a rule.
+
+The correct, stronger claim is **decoupling**: file count is orthogonal to
+importance (ρ≈0.20), so the metric misweights in **both directions**, and every
+project exhibits both:
+
+**Under-weighted hubs** (lean footprint, high fan-in):
+
+| project | component | file % | fan-in % | fan-in/file |
+|---------|-----------|-------:|---------:|------------:|
+| teammates | **Common** | 18.2 | 92.9 | 13.2 |
+| jabref | **model** | 12.8 | 69.6 | 9.0 |
+| bigbluebutton | BBB web | 6.9 | 57.1 | 0.4 |
+| mediastore | DB | 6.7 | 33.3 | 2.2 |
+| jabref | preferences | 0.9 | 11.2 | **20.0** |
+
+**Over-weighted leaves** (fat footprint, ~zero fan-in):
+
+| project | component | file % | fan-in % |
+|---------|-----------|-------:|---------:|
+| teammates | **UI** | 44.2 | 1.2 |
+| teastore | **ImageProvider** | 39.3 | 0.0 |
+| jabref | gui | 36.3 | 1.4 |
+| bigbluebutton | FSESL / FreeSWITCH | 29.2 | 0.0 |
+
+The file-metric crowns dependency dead-ends (UI, image IO, FSESL telephony glue)
+as "most important" while starving the hubs everything imports (`Common` owns
+92.9% of teammates' cross-component edges on 18% of its files). `ImageProvider` =
+the clean counter-example: 39.3% of the metric's weight, **zero dependents**.
+
+### Does commit activity show the same decoupling?
+
+Partly, and **more weakly** — commit-touch is itself size-contaminated:
+
+| correlation (4 commit-repos, n=37) | pooled ρ |
+|------------------------------------|---------:|
+| ρ(file%, **commit%**) | **0.48** |
+| ρ(file%, fan-in%) | 0.21 |
+| ρ(fan-in%, commit%) | 0.10 |
+
+Commit-touch correlates with file count **more than twice as strongly** as fan-in
+does (0.48 vs 0.21) — bigger packages simply have more files for commits to land
+on (JabRef ρ=0.94). So commit is a *contaminated* debiasing signal: the size it is
+meant to correct leaks back in. It is also nearly orthogonal to fan-in (ρ=0.10),
+confirming the two measure different things. Commit still surfaces one size-free
+maintenance hotspot — teammates `Test Driver` (2.1% files → 23.5% commits) — but
+as a *weight* it is both redundant with fan-in on the verdict and dirtier on the
+construct. **fan-in is the cleaner orthogonal-to-size importance signal; commit
+stays prose-only.**
 
 ## Recommendation (anti-bias stack)
 
@@ -127,3 +197,12 @@ as descriptive prose corroboration; do not use it as a metric weight.**
 - MediaStore has no commit analysis (1-commit academic snapshot repo).
 - BBB `HTML5 Client`/`Server` share one path prefix → identical commit counts.
 - Smoothing (`w+1`) keeps zero-fan-in / zero-commit components in the average.
+- Fan-in is mined from `.acm datatypeReferencesIds`; TeaStore/BBB cross-service
+  calls go over REST, not datatype references, so their fan-in is sparse and
+  conservative (e.g. TeaStore `Recommender` fan-in% 45.5 rides a tiny absolute
+  total — fan-in/file only 0.4). The under/over-weighting gaps are most reliable
+  on the single-process codebases (jabref, teammates, mediastore).
+- `file_pct`/`fanin_pct` are shares of component-file (resp. edge) incidences;
+  `component_centrality.py` dedups Interface==Component pairs with identical file
+  sets (teammates, bbb), so a file shared only across *distinct* components still
+  counts once per component.
