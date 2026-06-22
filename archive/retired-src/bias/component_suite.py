@@ -232,13 +232,28 @@ def _code_inputs(proj):
     Reconciled universe: a (sentence, file) pair contributes one
     (sentence, component) pair per mapped component; files with NO SAM-CODE
     component are DROPPED (same rule for gold and result, so micro/macro align).
+
+    D-12: ``Interface:`` model elements are dropped from the file->component map.
+    In the SAM-CODE gold every interface element shares its enrolled code extent
+    with a ``Component:`` twin (0 interface-only files in any project), and the
+    doc-to-model gold never links a sentence to an interface (0 of ~195 links),
+    so interfaces add no unique code and no documentation signal -- they only
+    duplicate components (teammates/bbb: exact 2x; jabref: none) or, where their
+    extent is partially distinct (mediastore/teastore), inflate the per-component
+    failure count. Keeping only ``Component:`` elements makes the component count
+    the distinct architectural units (7/10/6/9/6) and removes that distortion;
+    the size-aware tail metrics (min_comp, harmonic mean) are unchanged because
+    they are invariant to duplicating a component.
     """
     code_model = load_code_model_files(proj)
     names = load_model_element_names(proj)
     sam_enrolled = enroll_gold_standard(load_gs_sam_code_raw(proj), code_model)
     file_to_comps = defaultdict(set)
     for ae, fp in sam_enrolled:
-        file_to_comps[fp].add(names.get(ae, ae))
+        name = names.get(ae, ae)
+        if name.startswith("Interface:"):
+            continue
+        file_to_comps[fp].add(name)
 
     enrolled = load_gs_sad_code_enrolled(proj, code_model)  # set[(sentence, file)]
 

@@ -1,30 +1,34 @@
 #!/usr/bin/env python3
-"""Minimal metrics for ARDoCo doc-to-code / doc-to-model trace-link recovery.
+"""The metrics for ARDoCo doc-to-code / doc-to-model trace-link recovery.
 
-A single, self-contained, stdlib-only reimplementation that computes ONLY the
-paper's non-redundant *primary panel* — no MCC/MAP/ACF1/NDG/HUS/decision-F1/
-weighted-F1/sentence-F1 (the redundancy analysis in
-``reports/RQ2_METRIC_REDUNDANCY.md`` showed those are shadowed: Spearman
-rho >= 0.85 with a kept metric and ~0 system-pair rank reversals).
+A single, self-contained, stdlib-only module — the project's SOLE metrics
+implementation. The former canonical stack it was reduced from
+(``src/lib/metrics_api.py``, ``src/bias/component_suite.py``, the RQ2/bias
+side-analyses, ``generate_tables.py``) has been retired to ``archive/``; only
+the base loaders (``src/lib/transarc_error_analysis.py``) are kept. The
+redundancy analysis that justified the reduction showed the dropped columns
+carry no independent ranking signal (Spearman rho >= 0.85 with a kept metric,
+~0 system-pair reversals): no MCC/MAP/ACF1/NDG/HUS/decision-F1/weighted-F1/
+sentence-F1/per-component-macro.
 
-Primary panel
--------------
-    sad-code (doc-to-code) : file P/R/F1, per-component F1, sentence coverage,
-                             noise rate
+Panel
+-----
+    sad-code (doc-to-code) : file P/R/F1, per-component F1 (micro),
+                             worst-component F1, harmonic-mean component F1,
+                             sentence coverage, noise rate
     sad-sam  (doc-to-model): link P/R/F1, sentence coverage, noise rate
                              (per-component F1 collapses onto link F1 with no
                              enrolment, so it is dropped)
 
-This file deliberately does NOT import the existing ``src/`` modules
-(``transarc_error_analysis``, ``evaluation_critique``, ``new_metrics_analysis``,
-``generate_tables``). Every value it prints matches
-``metrics_api.compute_sad_*_metrics`` for the same input set — verified in
-``mini-src/check.py`` — but the whole computation lives here in ~250 lines.
+The worst-component + harmonic pair is the paper's ``metric.tex`` size-aware
+headline (weight each architecture component equally, not each link pair).
+``mini-src/check.py`` pins every cell to a frozen golden table (validated at
+retirement against the then-canonical ``metrics_api`` and the interface-dropped
+``component_suite``). The whole computation lives here, in ~280 lines.
 
-Definitions are taken verbatim from ``src/lib/metrics_api.py``:
-  * per-component F1 is the **micro** form (one P/R/F1 over all
-    (sentence, component) pairs), matching the paper headline
-    ``reports/SADCODE_S11_S13F_VS_TRANSARC.csv``.
+Definitions: see ``compute_sad_code`` (per-component grouping D-01, interface
+drop D-12, worst/harmonic) and ``load_file_to_comps``. Briefly:
+  * per-component F1 (micro) = one P/R/F1 over all (sentence, component) pairs.
   * sentence coverage = fraction of gold sentences with >=1 *correct* hit.
   * noise rate = mean over *predicted* sentences of FP/(TP+FP); lower is better.
 
@@ -212,7 +216,10 @@ def load_file_to_comps(project, code_files):
             raw.add((r["ae_id"], normalize_path(r.get("ce_ids") or r.get("ce_id"))))
     file_to_comps = defaultdict(set)
     for ae, fp in enroll(raw, code_files):
-        file_to_comps[fp].add(names.get(ae, ae))
+        name = names.get(ae, ae)
+        if name.startswith("Interface:"):   # D-12: see compute_sad_code docstring
+            continue
+        file_to_comps[fp].add(name)
     return file_to_comps
 
 
@@ -254,7 +261,32 @@ def result_path(project, results_dir, result_pattern):
 # ── Per-project metric rows ───────────────────────────────────────────────────
 
 def compute_sad_code(project, res):
-    """Primary panel for one doc-to-code result set."""
+    """Primary panel + size-aware suite for one doc-to-code result set.
+
+    Per-component grouping (D-01): each (sentence, file) link maps to one
+    (sentence, component) pair per SAM-CODE component that owns the file; files
+    with NO component are DROPPED (same rule for gold and result).
+
+    D-12 (interface drop): ``Interface:`` model elements are excluded from the
+    file->component map (see ``load_file_to_comps``). In the SAM-CODE gold every
+    interface shares its code extent with a ``Component:`` twin (0 interface-only
+    files) and the doc-to-model gold never links a sentence to an interface, so
+    interfaces add no unique code and no documentation signal -- they only
+    duplicate components or, where partially distinct (mediastore/teastore),
+    inflate the per-component failure count. Keeping only ``Component:`` elements
+    makes the component count the distinct architectural units (7/10/6/9/6); the
+    size-aware tail metrics are invariant to duplicating a component, so worst
+    and harmonic are unchanged by the drop.
+
+    Size-aware suite (the paper's ``metric.tex`` headline, weighting each
+    architecture component equally rather than each link pair):
+      * ``component_f1``           -- micro F1 over all (sentence, component) pairs
+      * ``worst_component_f1``     -- min per-component F1 over GOLD components;
+                                      one abandoned component drives it to 0
+      * ``harmonic_component_f1``  -- harmonic mean of per-component F1 over GOLD
+                                      components; also 0 if any component is missed
+      * ``sentence_coverage``      -- fraction of gold sentences with >=1 hit
+    """
     code_files = load_code_model_files(project)
     gold = enroll(load_gs_sad_code_raw(project), code_files)
     file_to_comps = load_file_to_comps(project, code_files)
@@ -262,15 +294,29 @@ def compute_sad_code(project, res):
     fp_, fr_, ff1 = prf(gold, res)
 
     def to_comp(pairs):
-        # Mapped-only universe (v1.2, D-01): files with NO SAM-CODE component
-        # are DROPPED -- no `(s, c)` singleton fallback -- matching the canonical
-        # metrics_api._compute_component_f1 so mini-src/check.py stays green.
         out = set()
         for s, c in pairs:
             for comp in file_to_comps.get(c, ()):
                 out.add((s, comp))
         return out
-    comp_f1 = prf(to_comp(gold), to_comp(res))[2]
+    gold_c, res_c = to_comp(gold), to_comp(res)
+    comp_f1 = prf(gold_c, res_c)[2]
+
+    # Per-component F1 over the GOLD-only component universe -> worst + harmonic.
+    gold_by_c, res_by_c = defaultdict(set), defaultdict(set)
+    for s, c in gold_c:
+        gold_by_c[c].add(s)
+    for s, c in res_c:
+        res_by_c[c].add(s)
+
+    def comp_score(c):
+        g = {(s, c) for s in gold_by_c.get(c, set())}
+        r = {(s, c) for s in res_by_c.get(c, set())}
+        return prf(g, r)[2]
+    per_gold = [comp_score(c) for c in gold_by_c]
+    worst = min(per_gold) if per_gold else 0.0
+    harmonic = (len(per_gold) / sum(1.0 / x for x in per_gold)
+                if per_gold and all(x > 0 for x in per_gold) else 0.0)
 
     gold_by_s, res_by_s = defaultdict(set), defaultdict(set)
     for s, c in gold:
@@ -282,6 +328,8 @@ def compute_sad_code(project, res):
         "project": project,
         "file_p": fp_, "file_r": fr_, "file_f1": ff1,
         "component_f1": comp_f1,
+        "worst_component_f1": worst,
+        "harmonic_component_f1": harmonic,
         "sentence_coverage": sentence_coverage(gold_by_s, res_by_s),
         "noise_rate": noise_rate(gold_by_s, res_by_s),
     }
@@ -310,6 +358,7 @@ def compute_sad_sam(project, res):
 
 PANELS = {
     "sad-code": ["file_p", "file_r", "file_f1", "component_f1",
+                 "worst_component_f1", "harmonic_component_f1",
                  "sentence_coverage", "noise_rate"],
     "sad-sam":  ["link_p", "link_r", "link_f1",
                  "sentence_coverage", "noise_rate"],
@@ -317,7 +366,8 @@ PANELS = {
 HEADERS = {
     "file_p": "file_P", "file_r": "file_R", "file_f1": "file_F1",
     "link_p": "link_P", "link_r": "link_R", "link_f1": "link_F1",
-    "component_f1": "comp_F1", "sentence_coverage": "sent_cov",
+    "component_f1": "comp_F1", "worst_component_f1": "worst_C",
+    "harmonic_component_f1": "harm_C", "sentence_coverage": "sent_cov",
     "noise_rate": "noise",
 }
 

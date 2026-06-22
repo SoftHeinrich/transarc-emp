@@ -6,6 +6,14 @@ evaluated. The codebase is organized into **two pillars** — a *TransArc
 empirical study* and a *benchmark bias analysis* — and the paper
 (`writing/eval.tex`) is aligned to match them.
 
+> **⚠️ Pipeline retired (2026-06).** Metrics are now computed by one
+> self-contained module — [`mini-src/`](mini-src/README.md):
+> `python3 mini-src/metrics.py --task sad-code|sad-sam`. The two-pillar `src/`
+> script pipeline described below (and the `generate_tables.py` → `eval.tex`
+> table build) has been moved to `archive/retired-src/`; only the base loaders
+> (`src/lib/transarc_error_analysis.py`) remain in `src/`. The pillar sections
+> below are kept as historical documentation of that archived pipeline.
+
 **Audience:** a new researcher/reviewer who needs to understand the two-pillar
 structure and regenerate either pillar's reports from scratch without
 reverse-engineering the scripts.

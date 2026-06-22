@@ -73,7 +73,10 @@ def _oracle_file_inputs(proj):
     sam_enrolled = enroll_gold_standard(load_gs_sam_code_raw(proj), code_model)
     file_to_comps = defaultdict(set)
     for ae, fp in sam_enrolled:
-        file_to_comps[fp].add(names.get(ae, ae))
+        name = names.get(ae, ae)
+        if name.startswith("Interface:"):   # D-12: mirror _code_inputs' interface drop
+            continue
+        file_to_comps[fp].add(name)
     enrolled = load_gs_sad_code_enrolled(proj, code_model)   # set[(sentence, file)]
     return enrolled, file_to_comps
 
