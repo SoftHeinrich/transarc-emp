@@ -1,102 +1,67 @@
-# TransArc-EMP
+# TransArc-EMP — mini studies
 
-A stdlib-only Python analysis workspace plus a LaTeX paper studying ARDoCo's
-transitive Traceability Link Recovery (**TransArc**) and how its benchmark is
-evaluated. The codebase is organized into **two pillars** — a *TransArc
-empirical study* and a *benchmark bias analysis* — and the paper
-(`writing/eval.tex`) is aligned to match them.
+A set of small, **self-contained, stdlib-only** Python studies that compute the
+trace-link-recovery paper's research-question metrics directly from the ARDoCo
+benchmark and the recorded TransArc / agent-linker run results. Each study is one
+directory, runs on a bare `python3`, and verifies itself against a frozen panel.
 
-> **⚠️ Pipeline retired (2026-06).** Metrics are now computed by one
-> self-contained module — [`mini-src/`](mini-src/README.md):
-> `python3 mini-src/metrics.py --task sad-code|sad-sam`. The two-pillar `src/`
-> script pipeline described below (and the `generate_tables.py` → `eval.tex`
-> table build) has been moved to `archive/retired-src/`; only the base loaders
-> (`src/lib/transarc_error_analysis.py`) remain in `src/`. The pillar sections
-> below are kept as historical documentation of that archived pipeline.
+> **Branch layout.** This is the **`mini`** branch — the active, cleaned-up
+> workspace. The full historical two-pillar workspace (the retired `src/`
+> metrics pipeline, the benchmark-bias analyses, every result snapshot, and the
+> `writing/eval.tex` paper) lives on the **`master`** branch, which is now the
+> legacy/full archive. Nothing was deleted — `master` preserves all of it; this
+> branch just tracks the mini-studies and their data.
 
-**Audience:** a new researcher/reviewer who needs to understand the two-pillar
-structure and regenerate either pillar's reports from scratch without
-reverse-engineering the scripts.
+## The studies
+
+| Dir | Question | What it does | Entry points |
+|-----|----------|--------------|--------------|
+| [`mini-src/`](mini-src/README.md) | **RQ1 / RQ2** — link & component metrics | The project's sole metrics implementation: file/link P/R/F1, per-component F1, worst-component & harmonic-mean F1, sentence coverage, noise rate, for `sad-code` (doc-to-code) and `sad-sam` (doc-to-model). Plus the RQ1/RQ2 big table and the no-enroll inflation baseline. | `metrics.py`, `check.py`, `rq12.py`, `noenroll.py` |
+| [`mini-inequality/`](mini-inequality/README.md) | **RQ2 motivation** — data inequality | Concentration inequality of the gold links (Gini, Lorenz, top-k share, enrollment expansion) — why micro-F1 needs the size-aware suite. Self-contained GSD sub-project (own `.planning/`). | `inequality.py`, `motivation.py`, `claim_check.py` |
+| [`mini-rq34/`](mini-rq34/README.md) | **RQ3 / RQ4** — validators & ablation | Validator contribution (cost/benefit, counterfactual macro-F1) and per-module linker ablation (unique TPs, leave-one-out delta, overlap decomposition), at the doc-to-model grain. | `rq34.py` |
+| `mini-data/` | — | Pruned canonical data: the 15 TransArc result CSVs the studies actually read (`<project>/{sad-code,sad-sam,sam-code}/...Tlr_*.csv`, 5 projects). | (data) |
+
+`reports/` holds the top-level mini outputs (`RQ12_BIGTABLE.csv`, `RQ2_PANEL.csv`,
+`NOENROLL_DOC_CODE.{csv,md}`); each study also writes to its own `*/reports/`.
 
 ## Prerequisites
 
-- **Python 3, stdlib only** — no `pip install`, no `requirements.txt`. Every
-  script runs with a bare Python 3 interpreter.
-- **External benchmark data** lives outside this repo at:
+- **Python 3, stdlib only** — no `pip install`, no `requirements.txt`, no
+  third-party packages. Every script runs with a bare interpreter.
+- **External benchmark data** lives outside this repo at
   `/mnt/hostshare/ardoco-home/ardoco/core/tests-base/src/main/resources/benchmark/`
   (5 projects: `mediastore`, `teastore`, `teammates`, `bigbluebutton`, `jabref`).
-- **TransArc run outputs** are already present under `results/`.
-- **How to run any script:** from the repo root run `python3 src/<area>/<script>.py`.
-  Markdown/CSV reports land in `reports/`; LaTeX tables land in `writing/tables/`.
-- **Known limitation:** `pdflatex` is **not** available locally. The paper is
-  validated via `python3 src/paper/generate_tables.py` plus structural checks —
-  there is no PDF build step.
-- For deeper dev/build/leakage rules see the linked rule files (do **not**
-  duplicate their content here): [CLAUDE.md](CLAUDE.md) (project) and
-  [../CLAUDE.md](../CLAUDE.md) (ARDoCo workspace).
+  Override with `$TRANSARC_BENCHMARK`.
+- **Bundled run data** is `mini-data/` (TransArc results). Override the results
+  root with `$TRANSARC_RESULTS_DIR` or `--results-dir`. `mini-rq34/` and some of
+  `mini-src/` additionally read agent-linker run dumps from sibling repos.
 
-## Two Pillars
+## Run & verify
 
-| Pillar | Code dirs | Key scripts | Output reports | Paper chapter |
-|--------|-----------|-------------|----------------|---------------|
-| **Pillar 1 — TransArc empirical study** | `src/transarc/`, `src/lib/` | `transarc_error_analysis.py`, `sad_sam_actual_contribution.py`, `s12c_sadcode_comparison.py` (+ `sad_sam_tp_gain_analysis.py`, `sam_code_cascade_analysis.py`) | `reports/TRANSARC_EMPIRICAL_STUDY.md` (+ contribution / tp-gain / cascade / S12C reports) | `writing/ch1_transarc.tex` (`eval.tex` Ch1) |
-| **Pillar 2 — Benchmark bias & metrics** | `src/bias/`, `src/lib/` (incl. `src/lib/metrics_api.py`), `src/bias/consequences_study.py`, `src/paper/generate_tables.py` | `benchmark_bias_study.py`, `evaluation_critique.py`, `metrics_api.py`, `consequences_study.py`, `generate_tables.py` (+ baselines, holistic/creative metrics) | `reports/BENCHMARK_BIAS_STUDY.md`, `EVALUATION_CRITIQUE.md`, `metrics_*.csv`, `CONSEQUENCES_STUDY.md` | `writing/eval.tex` Ch2 |
+```bash
+# RQ1/RQ2 metrics + self-check (must print PASS)
+python3 mini-src/metrics.py --task sad-code
+python3 mini-src/metrics.py --task sad-sam
+python3 mini-src/check.py            # golden-panel regression, asserts to 1e-4
+python3 mini-src/rq12.py             # -> reports/RQ12_BIGTABLE.csv, RQ2_PANEL.csv
+python3 mini-src/noenroll.py         # no-enroll doc-to-code inflation baseline
 
-## Pillar 1 — Reproduce
+# RQ2 motivation (inequality) — runs its own sanity check vs frozen literals
+python3 mini-inequality/inequality.py
+python3 mini-inequality/motivation.py
 
-The TransArc empirical study. These commands are runnable top-to-bottom from the
-repo root; each regenerates its named report deterministically. (Note:
-`transarc_error_analysis.py` lives in `src/lib/` — it is the Pillar 1 study
-entrypoint plus shared loaders — but is run directly.)
+# RQ3/RQ4 (validators + ablation)
+python3 mini-rq34/rq34.py
+```
 
-| Command | Output |
-|---------|--------|
-| `python3 src/lib/transarc_error_analysis.py` | `reports/TRANSARC_EMPIRICAL_STUDY.md` |
-| `python3 src/transarc/sad_sam_actual_contribution.py` | `reports/SAD_SAM_ACTUAL_CONTRIBUTION.md` |
-| `python3 src/transarc/sad_sam_tp_gain_analysis.py` | `reports/SAD_SAM_TP_GAIN_STUDY.md` |
-| `python3 src/transarc/sam_code_cascade_analysis.py` | `reports/SAM_CODE_CASCADE.md` |
-| `python3 src/transarc/s12c_sadcode_comparison.py` | `reports/S12C_VS_TRANSARC.csv` |
+See each study's own `README.md` for definitions, provenance, and full options.
 
-## Pillar 2 — Reproduce
+## Conventions
 
-The benchmark bias & metrics analysis. Run the standalone bias/baseline/metric
-scripts first, then the Phase-4 metrics API, then the Phase-5 consequences study
-(which **reads the two `metrics_*.csv` files**, so the API must run first).
-
-**1. Standalone bias / baseline / proposed-metric scripts** (any order):
-
-| Command | Output |
-|---------|--------|
-| `python3 src/bias/benchmark_bias_study.py` | `reports/BENCHMARK_BIAS_STUDY.md` |
-| `python3 src/bias/evaluation_critique.py` | `reports/EVALUATION_CRITIQUE.md` |
-| `python3 src/bias/enrollment_bias_analysis.py` | `reports/ENROLLMENT_BIAS_ANALYSIS.md` |
-| `python3 src/bias/extreme_baseline_analysis.py` | `reports/EXTREME_BASELINES.md` |
-| `python3 src/bias/stupid_baseline_analysis.py` | `reports/STUPID_BASELINES.md` |
-| `python3 src/bias/holistic_metrics_analysis.py` | `reports/HOLISTIC_METRICS.md` |
-| `python3 src/bias/creative_metrics_analysis.py` | `reports/CREATIVE_METRICS.md` |
-| `python3 src/bias/sam_code_distribution_analysis.py` | `reports/SAM_CODE_DISTRIBUTION.md` |
-| `python3 src/lib/new_metrics_analysis.py` | `reports/NEW_METRICS_REPORT.md` |
-
-**2. Phase-4 metrics API** (run before the consequences study):
-
-| Command | Output |
-|---------|--------|
-| `python3 src/lib/metrics_api.py --task sad-sam` | `reports/metrics_sad-sam.csv` + `writing/tables/metrics_sad-sam.tex` |
-| `python3 src/lib/metrics_api.py --task sad-code` | `reports/metrics_sad-code.csv` + `writing/tables/metrics_sad-code.tex` |
-
-**3. Phase-5 consequences study** (reads the two `metrics_*.csv` above):
-
-| Command | Output |
-|---------|--------|
-| `python3 src/bias/consequences_study.py` | `reports/CONSEQUENCES_STUDY.md` |
-
-**Supporting/intermediate:** `python3 src/bias/enrollment_distortion_analysis.py`
-prints to stdout and produces no single report file.
-
-## Paper
-
-`python3 src/paper/generate_tables.py` regenerates `writing/tables/*.tex`, which
-are `\input` by `writing/eval.tex` (Ch1 = TransArc empirical study via
-`\input{ch1_transarc}`, Ch2 = Benchmark bias). As noted in the prerequisites,
-`pdflatex` is not available locally — the paper is validated via
-`generate_tables.py` plus structural checks, not a PDF build.
+- **Stdlib only; no cross-module imports.** Each `mini-*` study copies shared
+  definitions (and sanity-checks them for agreement) rather than importing, so it
+  stays runnable in isolation.
+- **No benchmark leakage** — no benchmark-derived word lists in any code
+  (workspace rule); distributional / structural stats only.
+- See [CLAUDE.md](CLAUDE.md) for agent guidance and the workspace
+  [../CLAUDE.md](../CLAUDE.md).

@@ -6,10 +6,10 @@ cross-module imports) that computes **the paper's metrics** for doc-to-code
 
 This is now the project's **sole** metrics implementation. The former canonical
 stack (`src/lib/metrics_api.py`, `src/bias/component_suite.py`, the RQ2/bias
-side-analyses, and the `generate_tables.py` table pipeline) has been retired to
-`archive/`; only the base loaders (`src/lib/transarc_error_analysis.py`) are
-kept for reference. The redundancy analysis that justified the reduction
-(former `reports/RQ2_METRIC_REDUNDANCY.md`) showed the dropped columns carried
+side-analyses, and the `generate_tables.py` table pipeline) has been retired —
+it is preserved on the `master` (legacy) branch (`git show master:<path>`), not
+on this `mini` branch. The redundancy analysis that justified the reduction
+(legacy `reports/RQ2_METRIC_REDUNDANCY.md`) showed the dropped columns carried
 no independent ranking signal (Spearman ρ ≥ 0.85 with a kept metric, ~0
 system-pair reversals).
 

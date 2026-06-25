@@ -3,3 +3,7 @@ claude,Full,run3,0.934548,+0.000000
 claude,NoEntityValid,run3,0.882265,+0.052283
 claude,NoCitation,run3,0.937343,-0.002795
 claude,NoValidator,run3,0.885056,+0.049492
+openai,Full,run3,0.893963,+0.000000
+openai,NoEntityValid,run3,0.875071,+0.018892
+openai,NoCitation,run3,0.861276,+0.032687
+openai,NoValidator,run3,0.853708,+0.040255

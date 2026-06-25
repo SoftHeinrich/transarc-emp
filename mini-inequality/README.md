@@ -23,14 +23,12 @@ paper-ready table are produced by those phases.
 ## Isolation
 
 This directory is a **self-contained GSD sub-project**. Its planning lives in
-`mini-inequality/.planning/` and is intentionally separate from the repo-root
-`.planning/`, which tracks the active **v1.2 Component-Centric Metric Suite**
-milestone. Work happens on branch `gsd/mini-data-inequality`; only `mini-inequality/**`
-is committed there. This keeps the two milestone trackers from colliding — different
-files, different branch.
+`mini-inequality/.planning/`. On the `mini` branch there is no repo-root
+`.planning/` (the legacy two-pillar planning is preserved on `master`), so this
+subdir's planning is the only tracker here.
 
 When running GSD phase commands for this study, target this subdir's planning
-(`mini-inequality/.planning/`) so the v1.2 root milestone is never touched.
+(`mini-inequality/.planning/`).
 
 ## Conventions (inherited)
 

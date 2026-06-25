@@ -2,3 +2,6 @@ backend,linker_set,canonical_run,macro_f1
 claude,entity_only,run3,0.870885
 claude,coref_only,run3,0.436856
 claude,full,run3,0.934548
+openai,entity_only,run3,0.859977
+openai,coref_only,run3,0.415408
+openai,full,run3,0.893963
