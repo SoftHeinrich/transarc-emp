@@ -12,10 +12,17 @@ runs, and emits ONE wide CSV whose columns are the union of both tasks.
 That single big table is a superset of every RQ1/RQ2 cell:
   * RQ1 doc-to-model (tab:rq1-sadsam) = columns ``ss_P, ss_R, ss_linkF1``.
   * RQ1 doc-to-code  (tab:rq1-sadcode) = columns ``sc_P, sc_R, sc_fileF1``.
-  * RQ2 size-aware panel (tab:rq2-summary) = the GPT-5.4 rows' columns
-    ``sc_fileF1, sc_sentCov, sc_worstC, sc_harmC`` (+ the appended Delta row).
+  * RQ2 size-aware panel (tab:rq2-summary) = ``sc_fileF1, sc_sentCov, sc_worstC,
+    sc_harmC``.
 
-It generates only the numbers (a CSV); it does not write .tex. No new metric
+A second, focused CSV (``reports/RQ2_PANEL.csv``) is also emitted for RQ2: it
+lists those four columns for BOTH approach backends (GPT-5.4 **and Claude/sonnet**,
+the latter not in the current paper table), the deltas vs the strongest baseline,
+and a row flagged ``OUTDATED`` carrying the paper's archived approach numbers
+(.62/.71) — produced from a deleted run set, kept only so the stale values are
+visibly marked against the reproducible ones.
+
+It generates only the numbers (CSVs); it does not write .tex. No new metric
 code lives here — every cell comes from ``metrics.compute_sad_{code,sam}``, so
 ``check.py``'s frozen goldens still pin the arithmetic.
 
@@ -75,6 +82,19 @@ ROSTER = [
 LISSA = {"label": "LiSSA (gpt-5-mini)", "backend": "gpt-5-mini", "runs": None,
          "sad-sam":  "model-doc/lissa-{project}-gpt-5-mini.csv",
          "sad-code": "doc-code/lissa-{project}-gpt-5-mini.csv"}
+
+# The paper's RQ2 approach numbers (working/table/rq2-summary.tex), produced from
+# the now-DELETED run set v2.6.5_s20union_gpt_re_medium via the now-deleted
+# /tmp/v265.py. file-F1 still matches (~.87) but the run-sensitive tail does not.
+# Carried here ONLY to flag them as OUTDATED next to the reproducible values;
+# the live RQ2 panel below uses the surviving aalinker-composed dump instead.
+PAPER_RQ2_OUTDATED = {  # approach, GPT-5.4 backend, doc-to-code
+    "sc_fileF1": 0.87, "sc_sentCov": 0.80, "sc_worstC": 0.62, "sc_harmC": 0.71,
+}
+
+# RQ2 size-aware panel: doc-to-code, both approach backends + the two baselines.
+RQ2_SYSTEMS = ["TransArC", "Artemis (GPT-5.4)", "approach (GPT-5.4)", "approach (Claude)"]
+RQ2_COLS = ["sc_fileF1", "sc_sentCov", "sc_worstC", "sc_harmC"]
 
 # Combined big-table column layout: friendly name -> (task, metric key in PANELS).
 SS = "sad-sam"
@@ -175,6 +195,49 @@ def write_csv(rows, path):
             w.writerow([fmt(r[k]) for k in fields])
 
 
+def build_rq2_panel(rows):
+    """RQ2 size-aware rows (doc-to-code), both approach backends + the deltas vs
+    the strongest baseline + the OUTDATED paper reference row."""
+    by = {r["system"]: r for r in rows}
+    panel = []
+    for label in RQ2_SYSTEMS:
+        r = by.get(label)
+        if r is None:
+            continue
+        panel.append({"system": label, **{c: r[c] for c in RQ2_COLS}, "note": ""})
+    art = by.get("Artemis (GPT-5.4)")
+    if art is not None:
+        for label in ("approach (GPT-5.4)", "approach (Claude)"):
+            r = by.get(label)
+            if r is not None:
+                panel.append({"system": f"Delta ({label} - Artemis)",
+                              **{c: r[c] - art[c] for c in RQ2_COLS}, "note": ""})
+    panel.append({"system": "paper approach (GPT-5.4)", **PAPER_RQ2_OUTDATED,
+                  "note": "OUTDATED: from deleted v2.6.5_s20union_gpt_re_medium via /tmp/v265.py"})
+    return panel
+
+
+def print_rq2(panel):
+    print("\nRQ2 size-aware panel (doc-to-code) -- now incl. the Claude/sonnet row")
+    w = max(len(r["system"]) for r in panel) + 1
+    head = "system".ljust(w) + "".join(c.rjust(11) for c in RQ2_COLS) + "  note"
+    print(head)
+    print("-" * (len(head)))
+    for r in panel:
+        print(r["system"].ljust(w) + "".join(fmt(r[c]).rjust(11) for c in RQ2_COLS)
+              + ("  " + r["note"] if r["note"] else ""))
+
+
+def write_rq2_csv(panel, path):
+    fields = ["system"] + RQ2_COLS + ["note"]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(fields)
+        for r in panel:
+            w.writerow([fmt(r[k]) for k in fields])
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -185,19 +248,26 @@ def main():
     args = ap.parse_args()
 
     roster = ROSTER + ([LISSA] if args.lissa else [])
-    rows = [build_row(s) for s in roster]
+    rows = [build_row(s) for s in roster]          # one row per system (no Delta yet)
+
+    big = list(rows)
     d = delta_row(rows, "approach (GPT-5.4)", "Artemis (GPT-5.4)")
     if d:
-        rows.append(d)
-
-    print_table(rows)
+        big.append(d)
+    print_table(big)
     print(f"\nProvenance: {SOTA_LINKS}  (approach = mean of run1/run2/run3)")
     print("RQ1 sad-sam = ss_P/ss_R/ss_linkF1 ; RQ1 sad-code = sc_P/sc_R/sc_fileF1 ;")
-    print("RQ2 panel  = GPT-5.4 rows' sc_fileF1/sc_sentCov/sc_worstC/sc_harmC (+ Delta row).")
+    print("RQ2 panel  = sc_fileF1/sc_sentCov/sc_worstC/sc_harmC for BOTH approach backends.")
 
-    out = Path(args.csv) if args.csv else (m._ARDOCO_HOME / "transarc-emp/reports/RQ12_BIGTABLE.csv")
-    write_csv(rows, out)
-    print(f"\n[rq12] wrote {out}", file=sys.stderr)
+    panel = build_rq2_panel(rows)
+    print_rq2(panel)
+
+    reports = m._ARDOCO_HOME / "transarc-emp/reports"
+    out = Path(args.csv) if args.csv else reports / "RQ12_BIGTABLE.csv"
+    write_csv(big, out)
+    out2 = reports / "RQ2_PANEL.csv"
+    write_rq2_csv(panel, out2)
+    print(f"\n[rq12] wrote {out}\n[rq12] wrote {out2}", file=sys.stderr)
 
 
 if __name__ == "__main__":
