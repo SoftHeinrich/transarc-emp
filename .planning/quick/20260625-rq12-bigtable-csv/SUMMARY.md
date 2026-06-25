@@ -31,6 +31,18 @@ status: complete
 - RQ2 SOTA tail reproduces (TransArc worst .54 / harm .67 / cov .75;
   Artemis .35 / .47 / .71).
 
+## Input provenance verified (GPT = newest, no-reasoning)
+Confirmed the GPT input is the correct run, not the paper's reasoning run:
+- `aalinker[-composed]/gpt-5.4_full` is extracted from
+  `agent-linker/results/v2.6.6_extracts/gpt` (per the dump's `_manifest` `src`).
+- `v2.6.6_extracts` = newest extracts; the plain `gpt` N=3 runner is **no
+  reasoning** (`OPENAI_REASONING_EFFORT` unset → temperature kept; `llm_client.py`),
+  i.e. NOT `run_s20union_gpt_re_medium_n3.sh` (reasoning=medium). Model gpt-5.4
+  (→ gpt-5.4-2026-03-05; `llm_logs` dominant snapshot).
+- The paper's RQ2 used the deleted `v2.6.5_s20union_gpt_re_medium` (reasoning=medium).
+- Re-running after the provenance fixes left every number unchanged — the input
+  was already correct; only docs/labels changed.
+
 ## RQ2 paper numbers marked OUTDATED (resolution)
 The paper's RQ2 approach tail (.62/.71) was produced from the now-deleted run set
 `v2.6.5_s20union_gpt_re_medium` via the deleted `/tmp/v265.py`; it no longer

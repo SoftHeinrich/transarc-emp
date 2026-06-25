@@ -65,6 +65,17 @@ SOTA_LINKS = Path(os.environ.get("SOTA_LINKS", m._ARDOCO_HOME / "sota/recovered-
 # `aalinker`/`aalinker-composed` are the recovered doc-to-model / composed
 # doc-to-code dumps of s_linker20_union. SWATTR is TransArC's deterministic
 # doc-to-model stage (TransArC has no standalone doc-to-model system).
+#
+# GPT input = the NEWEST, NO-REASONING run, by design:
+#   sota/recovered-links/.../aalinker[-composed]/gpt-5.4_full  is extracted from
+#   agent-linker/results/v2.6.6_extracts/gpt (per the dump's _manifest `src`):
+#     * v2.6.6_extracts = newest extracts version,
+#     * the plain `gpt` N=3 runner = NO reasoning (OPENAI_REASONING_EFFORT unset
+#       -> temperature kept; see agent-linker llm_client.py), NOT the
+#       `run_s20union_gpt_re_medium_n3.sh` reasoning=medium runner,
+#     * model gpt-5.4 (resolves to gpt-5.4-2026-03-05).
+#   The paper's RQ2 instead used the deleted reasoning=medium slot — see
+#   PAPER_RQ2_OUTDATED below.
 ROSTER = [
     {"label": "approach (Claude)",  "backend": "claude",  "runs": ["run1", "run2", "run3"],
      "sad-sam":  "model-doc/aalinker/sonnet_full/{run}/{project}.csv",
@@ -83,12 +94,14 @@ LISSA = {"label": "LiSSA (gpt-5-mini)", "backend": "gpt-5-mini", "runs": None,
          "sad-sam":  "model-doc/lissa-{project}-gpt-5-mini.csv",
          "sad-code": "doc-code/lissa-{project}-gpt-5-mini.csv"}
 
-# The paper's RQ2 approach numbers (working/table/rq2-summary.tex), produced from
-# the now-DELETED run set v2.6.5_s20union_gpt_re_medium via the now-deleted
-# /tmp/v265.py. file-F1 still matches (~.87) but the run-sensitive tail does not.
-# Carried here ONLY to flag them as OUTDATED next to the reproducible values;
-# the live RQ2 panel below uses the surviving aalinker-composed dump instead.
-PAPER_RQ2_OUTDATED = {  # approach, GPT-5.4 backend, doc-to-code
+# The paper's RQ2 approach numbers (working/table/rq2-summary.tex) came from the
+# WRONG-CONFIG run: the deleted v2.6.5_s20union_gpt_re_medium slot, i.e. gpt-5.4
+# with reasoning=medium (run_s20union_gpt_re_medium_n3.sh), scored by the deleted
+# /tmp/v265.py. The correct input is the newest NO-REASONING run (v2.6.6_extracts
+# /gpt; see the roster note above). file-F1 is config-robust so it still matches
+# (~.87), but the run-sensitive tail (worst/harmonic) does not. Carried here ONLY
+# to flag these as OUTDATED next to the reproducible no-reasoning values.
+PAPER_RQ2_OUTDATED = {  # approach, gpt-5.4 reasoning=medium, doc-to-code
     "sc_fileF1": 0.87, "sc_sentCov": 0.80, "sc_worstC": 0.62, "sc_harmC": 0.71,
 }
 
@@ -213,7 +226,7 @@ def build_rq2_panel(rows):
                 panel.append({"system": f"Delta ({label} - Artemis)",
                               **{c: r[c] - art[c] for c in RQ2_COLS}, "note": ""})
     panel.append({"system": "paper approach (GPT-5.4)", **PAPER_RQ2_OUTDATED,
-                  "note": "OUTDATED: from deleted v2.6.5_s20union_gpt_re_medium via /tmp/v265.py"})
+                  "note": "OUTDATED: gpt reasoning=medium (deleted v2.6.5_s20union_gpt_re_medium); live rows = no-reasoning v2.6.6"})
     return panel
 
 
