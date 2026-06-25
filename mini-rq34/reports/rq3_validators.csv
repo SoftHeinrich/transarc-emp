@@ -1,0 +1,4 @@
+backend,validator,canonical_run,killed_gold,killed_spurious,kept_gold,kept_spurious,delta_f1_if_removed
+claude,entity,run3,9,33,150,8,+0.052283
+claude,coref,run3,6,1,61,4,-0.002795
+claude,all_combined,run3,15,34,211,12,+0.049492

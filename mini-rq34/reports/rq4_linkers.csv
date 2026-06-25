@@ -1,0 +1,4 @@
+backend,linker,canonical_run,tps_caught,unique_tps,fps,delta_f1_if_removed
+claude,Entity,run3,150,112,8,+0.497691
+claude,Coref,run3,61,23,4,+0.063663
+claude,overlap(only_E/both/only_C),run3,112,38,23,

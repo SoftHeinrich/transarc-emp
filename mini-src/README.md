@@ -1,6 +1,6 @@
 # mini-src — the trace-link metrics
 
-A single self-contained, stdlib-only module (`metrics.py`, ~280 lines, zero
+A single self-contained, stdlib-only module (`metrics.py`, ~450 lines, zero
 cross-module imports) that computes **the paper's metrics** for doc-to-code
 (`sad-code`) and doc-to-model (`sad-sam`) trace-link recovery.
 

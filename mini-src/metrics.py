@@ -24,7 +24,7 @@ The worst-component + harmonic pair is the paper's ``metric.tex`` size-aware
 headline (weight each architecture component equally, not each link pair).
 ``mini-src/check.py`` pins every cell to a frozen golden table (validated at
 retirement against the then-canonical ``metrics_api`` and the interface-dropped
-``component_suite``). The whole computation lives here, in ~280 lines.
+``component_suite``). The whole computation lives here, in ~450 lines.
 
 Definitions: see ``compute_sad_code`` (per-component grouping D-01, interface
 drop D-12, worst/harmonic) and ``load_file_to_comps``. Briefly:
@@ -109,14 +109,26 @@ ACM_FILES = {
 #                         additive: files lacking the column are unaffected.
 _SADSAM_COMPONENT_KEYS = ("modelElementID", "component_id", "componentId", "target_id")
 _SADSAM_SENTENCE_KEYS = ("sentence", "sentence_id")
-_SADCODE_SENTENCE_KEYS = ("modelElementID", "sentence", "sentence_id")
+# `modelElementID` is overloaded: in a sad-code dump it holds the SENTENCE
+# NUMBER, but in a sad-sam dump it holds a model-element GUID. Probe the
+# dedicated sentence columns FIRST so a CSV that carries both a real `sentence`
+# column and a GUID `modelElementID` column is read correctly; fall back to
+# `modelElementID` only for the TransArc sad-code dialect that has nothing else.
+_SADCODE_SENTENCE_KEYS = ("sentence", "sentence_id", "modelElementID")
 _SADCODE_CODE_KEYS = ("codeId", "codeID", "code_path", "target_id")
 
 
 # ── Core metric primitives ────────────────────────────────────────────────────
 
 def prf(gold, res):
-    """(precision, recall, f1) treating gold/res as sets of links."""
+    """(precision, recall, f1) treating gold/res as sets of links.
+
+    Convention: an empty prediction always scores (0, 0, 0) — including the
+    degenerate empty-gold/empty-res case. This is deliberate and load-bearing:
+    the worst/harmonic suite relies on an abandoned component (empty ``res``)
+    yielding F1 = 0, so "predicted nothing" is never treated as vacuously
+    perfect.
+    """
     if not res:
         return 0.0, 0.0, 0.0
     tp = len(gold & res)
@@ -208,7 +220,14 @@ def load_gs_sad_code_raw(project):
 
 
 def load_file_to_comps(project, code_files):
-    """file_path -> {component_name}, from the enrolled SAM-CODE gold."""
+    """file_path -> {component ae_id}, from the enrolled SAM-CODE gold.
+
+    Components are keyed by ``ae_id`` (guaranteed unique), not ``ae_name``: two
+    architecture elements that happened to share a display name would otherwise
+    silently merge into one component bucket and distort the worst/harmonic
+    suite. (``ae_id`` <-> ``ae_name`` is currently 1:1 for every non-interface
+    component, so this keying does not change any panel value.)
+    """
     names, raw = {}, set()
     with open(BENCHMARK / GS_SAM_CODE[project]) as f:
         for r in csv.DictReader(f):
@@ -219,7 +238,7 @@ def load_file_to_comps(project, code_files):
         name = names.get(ae, ae)
         if name.startswith("Interface:"):   # D-12: see compute_sad_code docstring
             continue
-        file_to_comps[fp].add(name)
+        file_to_comps[fp].add(ae)
     return file_to_comps
 
 
@@ -233,27 +252,37 @@ def load_result(path, task):
     links = set()
     if not path.exists():
         return links
+    guid_sentences = False
     with open(path) as f:
         for row in csv.DictReader(f):
             if task == "sad-code":
                 s = _cell(row, _SADCODE_SENTENCE_KEYS)
                 c = _cell(row, _SADCODE_CODE_KEYS)
                 if s and c:
+                    # sad-code sentences are sentence NUMBERS; a GUID-shaped
+                    # value means we are probably scoring a sad-sam dump as
+                    # sad-code (see _SADCODE_SENTENCE_KEYS). Flag, don't drop.
+                    if s.startswith("_"):
+                        guid_sentences = True
                     links.add((s, normalize_path(c)))
             else:
                 c = _cell(row, _SADSAM_COMPONENT_KEYS)
                 s = _cell(row, _SADSAM_SENTENCE_KEYS)
                 if c and s:
                     links.add((c, s))
+    if guid_sentences:
+        print(f"WARNING: {path} has GUID-shaped sad-code sentence ids "
+              f"(e.g. '_...') — is this actually a sad-sam result? "
+              f"Scored as sad-code anyway.", file=sys.stderr)
     return links
 
 
-def result_path(project, results_dir, result_pattern):
+def result_path(project, results_dir, result_pattern, task):
     """Default TransArc layout, or `result_pattern.format(project=...)`."""
     root = Path(results_dir) if results_dir else DEFAULT_RESULTS
     if result_pattern:
         return root / result_pattern.format(project=project)
-    sub, prefix = (("sad-code", "sadCodeTlr") if _TASK == "sad-code"
+    sub, prefix = (("sad-code", "sadCodeTlr") if task == "sad-code"
                    else ("sad-sam", "sadSamTlr"))
     return root / project / sub / f"{prefix}_{project}.csv"
 
@@ -291,6 +320,11 @@ def compute_sad_code(project, res):
     gold = enroll(load_gs_sad_code_raw(project), code_files)
     file_to_comps = load_file_to_comps(project, code_files)
 
+    # NOTE: only the GOLD is enrolled (directory entries -> concrete files).
+    # `res` is intentionally left un-enrolled: result producers emit concrete
+    # file paths, and enrolling a predicted directory would let a system claim
+    # credit for every file under it -- exactly the enrollment inflation this
+    # work studies. Do NOT add symmetric enrollment of `res` here.
     fp_, fr_, ff1 = prf(gold, res)
 
     def to_comp(pairs):
@@ -371,11 +405,10 @@ HEADERS = {
     "noise_rate": "noise",
 }
 
-_TASK = "sad-code"   # set in main(); read by result_path()
-
-
 def average_row(rows, cols):
-    avg = {"project": "Average"}
+    # Label carries the contributor count so a partial average (some projects
+    # skipped for missing results) is never silently presented as a full one.
+    avg = {"project": f"Average (n={len(rows)})"}
     for c in cols:
         avg[c] = sum(r[c] for r in rows) / len(rows) if rows else 0.0
     return avg
@@ -390,7 +423,7 @@ def print_table(task, rows):
     for r in rows:
         line = r["project"].ljust(w) + "".join(f"{r[c]:10.4f}" for c in cols)
         print(line)
-    if rows:
+    if len(rows) > 1:   # an average over a single project is just that project
         avg = average_row(rows, cols)
         print("-" * len(head))
         print(avg["project"].ljust(w) + "".join(f"{avg[c]:10.4f}" for c in cols))
@@ -401,12 +434,11 @@ def write_csv(task, rows, path):
     with open(path, "w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["project"] + cols)
-        for r in list(rows) + ([average_row(rows, cols)] if rows else []):
+        for r in list(rows) + ([average_row(rows, cols)] if len(rows) > 1 else []):
             w.writerow([r["project"]] + [f"{r[c]:.4f}" for c in cols])
 
 
 def main():
-    global _TASK
     ap = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--task", required=True, choices=["sad-code", "sad-sam"])
@@ -418,7 +450,6 @@ def main():
                     help="filename pattern with {project}, relative to --results-dir")
     ap.add_argument("--csv", default=None, help="also write the panel to this CSV")
     args = ap.parse_args()
-    _TASK = args.task
 
     if args.project and args.project not in PROJECTS:
         ap.error(f"unknown project {args.project!r}; expected one of {PROJECTS}")
@@ -427,7 +458,7 @@ def main():
 
     rows = []
     for proj in projects:
-        path = result_path(proj, args.results_dir, args.result_pattern)
+        path = result_path(proj, args.results_dir, args.result_pattern, args.task)
         res = load_result(path, args.task)
         if not res:
             print(f"WARNING: no {args.task} results for {proj} "

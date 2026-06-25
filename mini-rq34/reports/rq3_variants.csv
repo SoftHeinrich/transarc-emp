@@ -1,0 +1,5 @@
+backend,variant,canonical_run,macro_f1,delta_f1_vs_full
+claude,Full,run3,0.934548,+0.000000
+claude,NoEntityValid,run3,0.882265,+0.052283
+claude,NoCitation,run3,0.937343,-0.002795
+claude,NoValidator,run3,0.885056,+0.049492

@@ -1,8 +1,8 @@
 system,sc_fileF1,sc_sentCov,sc_worstC,sc_harmC,note
 TransArC,0.8026,0.7511,0.5445,0.6734,
 Artemis (GPT-5.4),0.8488,0.7091,0.3455,0.4656,
-approach (GPT-5.4),0.8746,0.8108,0.5908,0.7780,
+approach (GPT-5.4),0.8746,0.8108,0.5908,0.778,
 approach (Claude),0.9061,0.8475,0.6949,0.8237,
 Delta (approach (GPT-5.4) - Artemis),0.0258,0.1017,0.2454,0.3124,
-Delta (approach (Claude) - Artemis),0.0572,0.1384,0.3494,0.3580,
-paper approach (GPT-5.4),0.8700,0.8000,0.6200,0.7100,OUTDATED: gpt reasoning=medium (deleted v2.6.5_s20union_gpt_re_medium); live rows = no-reasoning v2.6.6
+Delta (approach (Claude) - Artemis),0.0572,0.1384,0.3494,0.358,
+paper approach (GPT-5.4),0.87,0.8,0.62,0.71,

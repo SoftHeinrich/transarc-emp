@@ -49,29 +49,35 @@ GOLDEN = {
 
 COMPUTE = {"sad-code": mini.compute_sad_code, "sad-sam": mini.compute_sad_sam}
 
-failures = 0
-for task in ("sad-code", "sad-sam"):
-    mini._TASK = task
-    cols = mini.PANELS[task]
-    compute = COMPUTE[task]
-    for proj in mini.PROJECTS:
-        path = mini.result_path(proj, None, None)
-        res = mini.load_result(path, task)
-        if not res:
-            print(f"SKIP  {task:8} {proj:14} (no results at {path})")
-            continue
-        row = compute(proj, res)
-        gold = GOLDEN[task][proj]
-        bad = [(c, row[c], g) for c, g in zip(cols, gold) if abs(row[c] - g) > TOL]
-        for c, mv, g in bad:
-            failures += 1
-            print(f"FAIL  {task:8} {proj:14} {c:22} got={mv:.4f} expected={g:.4f}")
-        if not bad:
-            print(f"OK    {task:8} {proj:14} "
-                  + "  ".join(f"{c}={row[c]:.4f}" for c in cols))
 
-print()
-if failures:
-    print(f"FAILED: {failures} mismatch(es)")
-    sys.exit(1)
-print("PASS: mini-src/metrics.py reproduces the frozen golden panel (sad-code + sad-sam).")
+def run():
+    failures = 0
+    for task in ("sad-code", "sad-sam"):
+        cols = mini.PANELS[task]
+        compute = COMPUTE[task]
+        for proj in mini.PROJECTS:
+            path = mini.result_path(proj, None, None, task)
+            res = mini.load_result(path, task)
+            if not res:
+                print(f"SKIP  {task:8} {proj:14} (no results at {path})")
+                continue
+            row = compute(proj, res)
+            gold = GOLDEN[task][proj]
+            bad = [(c, row[c], g) for c, g in zip(cols, gold) if abs(row[c] - g) > TOL]
+            for c, mv, g in bad:
+                failures += 1
+                print(f"FAIL  {task:8} {proj:14} {c:22} got={mv:.4f} expected={g:.4f}")
+            if not bad:
+                print(f"OK    {task:8} {proj:14} "
+                      + "  ".join(f"{c}={row[c]:.4f}" for c in cols))
+
+    print()
+    if failures:
+        print(f"FAILED: {failures} mismatch(es)")
+        return 1
+    print("PASS: mini-src/metrics.py reproduces the frozen golden panel (sad-code + sad-sam).")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(run())
