@@ -1,4 +1,14 @@
-# TransArc-EMP
+# TransArc-EMP — legacy / full archive (`master`)
+
+> **⚠️ This is the `master` (legacy) branch — the full historical archive.**
+> It holds the complete two-pillar workspace: the TransArc empirical study, the
+> benchmark-bias / metric analyses, the retired `src/` pipeline, every result
+> snapshot, and the `writing/eval.tex` paper. **Active work has moved to the
+> [`mini`](../../tree/mini) branch** — a clean, stdlib-only set of mini-studies
+> (`mini-src/`, `mini-inequality/`, `mini-rq34/`) with a pruned `mini-data/`.
+> Nothing here was deleted; `master` preserves everything. To pull a file from
+> here into another branch: `git checkout master -- <path>` or `git show
+> master:<path>`. The rest of this README documents the legacy two-pillar layout.
 
 A stdlib-only Python analysis workspace plus a LaTeX paper studying ARDoCo's
 transitive Traceability Link Recovery (**TransArc**) and how its benchmark is
