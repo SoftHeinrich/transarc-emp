@@ -65,7 +65,7 @@ BENCHMARK = Path(os.environ.get(
 ))
 DEFAULT_RESULTS = Path(os.environ.get(
     "TRANSARC_RESULTS_DIR",
-    _ARDOCO_HOME / "transarc-emp/results",
+    _ARDOCO_HOME / "transarc-emp/mini-data",
 ))
 
 PROJECTS = ["mediastore", "teastore", "teammates", "bigbluebutton", "jabref"]
@@ -445,7 +445,7 @@ def main():
     ap.add_argument("--project", default=None,
                     help="single project (default: all five)")
     ap.add_argument("--results-dir", default=None,
-                    help="root holding result CSVs (default: bundled results/)")
+                    help="root holding result CSVs (default: bundled mini-data/)")
     ap.add_argument("--result-pattern", default=None,
                     help="filename pattern with {project}, relative to --results-dir")
     ap.add_argument("--csv", default=None, help="also write the panel to this CSV")

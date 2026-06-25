@@ -24,7 +24,7 @@ SOTA doc-code raw links (``sota/recovered-links/doc-code/``, ``sentence_id,targe
   * lissa    (gpt-5-mini)     3/5  -- mediastore, teastore, bigbluebutton
 s20U (``s_linker20_union``, claude/sonnet canonical N=3 sweep): emits doc->model
   links only, so its doc->code links are composed TransArc-style by chaining
-  through ARDoCo's RECOVERED sam-code (``results/<p>/sam-code/samCodeTlr_*.csv``),
+  through ARDoCo's RECOVERED sam-code (``mini-data/<p>/sam-code/samCodeTlr_*.csv``),
   per run, then aggregated over the 3 runs (default: mean of per-run metrics).
 
 Both no-enroll and enrolled file-F1 are printed so the inflation gap is visible.
