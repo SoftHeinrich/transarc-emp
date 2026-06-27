@@ -59,10 +59,15 @@ Roots derive from this file's location; override via `$TRANSARC_BENCHMARK`,
   contaminated (removing one linker lets the other recover some of its hits).
   The leave-one-out `delta_f1_if_removed` is still emitted, but the
   `only_E / both / only_C` cells are the figure.
-- **N=3 → canonical run.** All four per-project CSVs are emitted from a single
-  coherent run (so counts are real integers): the **median-macro-F1** run.
-  All three runs are surfaced in `reports/<backend>/runs_summary.csv`; force a
-  run with `--run runN`.
+- **N=3 → run-aware aggregates.** Top-level CSVs include `run1`, `run2`, `run3`,
+  and an `average` row. The per-project drill-down CSVs are still emitted from
+  one coherent run (so counts are real integers): the **median-macro-F1** run.
+  Force a drill-down/aggregate run with `--run runN`.
+- **RQ2-lens companion.** `rq34_rq2.py` composes the RQ3/RQ4 SAD-SAM link sets
+  through recovered SAM-CODE links and scores them with the RQ2 doc-to-code
+  metric suite, exposing whether validator/linker effects remain visible in
+  file F1, sentence coverage, noise, worst-component F1, and harmonic-component
+  F1.
 
 ## Vendored types (copied, not imported)
 
@@ -80,30 +85,33 @@ python3 rq34.py                 # both backends → reports/
 python3 rq34.py --backends claude
 python3 rq34.py --run run1      # force a specific run
 python3 rq34.py --no-validate   # skip the ablation-JSON cross-check
+python3 rq34_rq2.py             # RQ3/RQ4 variants scored with RQ2 metrics
 ```
 
 ## Outputs (`reports/`)
 
-CSV only — no TeX, no markdown. Dataset-wide aggregates are summed/averaged over
-the 5 projects of the canonical run.
+CSV only — no TeX. Dataset-wide aggregates are summed/averaged over the 5
+projects per run; top-level reports include all three runs plus a run-average.
 
 | File | Content |
 |------|---------|
-| `rq3_validators.csv` | Per validator (+combined), per backend: killed/kept × gold/spurious **summed over the 5 projects**, ΔF1 if removed (mean over 5 projects). |
-| `rq3_variants.csv` | Per backend: macro-F1 of each variant (`Full/NoEntityValid/NoCitation/NoValidator`) + ΔF1 vs Full. |
-| `rq4_linkers.csv` | Per linker (+overlap row), per backend: TPs caught, unique TPs, FPs **summed over the 5 projects**, ΔF1 if removed. |
-| `rq4_variants.csv` | Per backend: macro-F1 of entity-only / coref-only / full link sets. |
+| `rq3_validators.csv` | Per run/backend/validator (+combined): killed/kept × gold/spurious **summed over the 5 projects**, ΔF1 if removed (mean over 5 projects); `average` rows are means over runs. |
+| `rq3_variants.csv` | Per run/backend: macro-F1 of each variant (`Full/NoEntityValid/NoCitation/NoValidator`) + ΔF1 vs Full. |
+| `rq4_linkers.csv` | Per run/backend/linker (+overlap row): TPs caught, unique TPs, FPs **summed over the 5 projects**, ΔF1 if removed; `average` rows are means over runs. |
+| `rq4_variants.csv` | Per run/backend: macro-F1 of entity-only / coref-only / full link sets. |
+| `rq34_rq2_variants.csv` | RQ3 variants after SAD-SAM→SAD-CODE composition, scored with the RQ2 doc-to-code metric panel. |
+| `rq34_rq2_linkers.csv` | RQ4 linker sets after SAD-SAM→SAD-CODE composition, scored with the RQ2 doc-to-code metric panel. |
+| `RQ34_RQ2_INVESTIGATION.md` | Short interpretation of the RQ2-lens variant/linker deltas. |
 | `<backend>/<project>/rq3.csv` | Per project: 4 variant rows: tp/fp/fn/f1. |
 | `<backend>/<project>/rq3_audit.csv` | Per project: 2 validator rows: killed/kept gold/spurious. |
 | `<backend>/<project>/rq4.csv` | Per project: 2 linker rows: tps_caught/unique_tps/fps/delta_f1_if_removed. |
 | `<backend>/<project>/rq4_upset.csv` | Per project: 3 cells: only_E/both/only_C. |
 | `<backend>/runs_summary.csv` | All 3 runs' per-project + macro F1; canonical marked. |
 
-**Aggregation:** the top-level CSVs sum counts (and average ΔF1) over the
-**5 projects of the single canonical run** — not pooled across the 3 runs, so
-counts stay integer and come from one coherent pipeline execution. Per-project,
-un-summed numbers are in the `<backend>/<project>/` CSVs; all three runs are in
-`runs_summary.csv`.
+**Aggregation:** run rows sum counts (and average ΔF1) over the **5 projects of
+one coherent run**. `average` rows are means of the three run rows, so count-like
+columns may be fractional there. Per-project, un-summed numbers are in the
+`<backend>/<project>/` CSVs for the canonical or forced run.
 
 ## Verification
 

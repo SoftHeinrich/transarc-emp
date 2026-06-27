@@ -14,11 +14,11 @@ writes:
     reports/<backend>/<project>/rq4.csv         (2 linker rows)
     reports/<backend>/<project>/rq4_upset.csv   (3 overlap-cell rows)
     reports/<backend>/runs_summary.csv          (all 3 runs, canonical marked)
-    reports/rq3_validators.csv  reports/rq3_variants.csv   (aggregated, both backends)
-    reports/rq4_linkers.csv     reports/rq4_variants.csv   (aggregated, both backends)
+    reports/rq3_validators.csv  reports/rq3_variants.csv   (run-aware aggregates, both backends)
+    reports/rq4_linkers.csv     reports/rq4_variants.csv   (run-aware aggregates, both backends)
 
-CSV only — no TeX, no markdown. Top-level aggregates sum counts (and average
-ΔF1) over the 5 projects of the single canonical (median-macro-F1) run.
+CSV only — no TeX, no markdown. Top-level aggregates include run1/run2/run3
+and an average row; each run sums counts (and averages ΔF1) over the 5 projects.
 
 Method (faithful to alinker-paper working/sections/results.tex):
   * RQ3 measures validator contribution from the full pipeline's *logged
@@ -241,6 +241,18 @@ def rq3_audit(cell: Cell) -> Dict[str, Dict[str, int]]:
             "coref": a(cell.cor_killed, cell.cor_kept)}
 
 
+def rq3_combined_audit(cell: Cell) -> Dict[str, int]:
+    """Unique-link audit matching the NoValidator set-union counterfactual."""
+    killed = cell.ent_killed | cell.cor_killed
+    kept = cell.final
+    return {
+        "killed_gold": len(killed & cell.gold),
+        "killed_spurious": len(killed - cell.gold),
+        "kept_gold": len(kept & cell.gold),
+        "kept_spurious": len(kept - cell.gold),
+    }
+
+
 def rq4_linkers(cell: Cell) -> Dict[str, Dict[str, float]]:
     E, C, G = cell.ent_kept, cell.cor_kept, cell.gold
     _, _, _, f1_full = prf(E | C, G)
@@ -275,7 +287,7 @@ def pick_canonical(per_run: Dict[str, Dict[str, Cell]]) -> str:
 def _write_csv(path: Path, fieldnames: List[str], rows: List[Dict]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=fieldnames)
+        w = csv.DictWriter(f, fieldnames=fieldnames, lineterminator="\n")
         w.writeheader()
         w.writerows(rows)
 
@@ -287,13 +299,22 @@ def read_ablation_full(slot: Path, run: str, project: str) -> Optional[Dict]:
     return json.loads(files[-1].read_text(encoding="utf-8")).get(project, {}).get(VARIANT)
 
 
+def require_phase_files(slot: Path, run: str, backend: str, project: str) -> None:
+    pdir = _phase_dir(slot, run, backend, project)
+    missing = [name for name in ("layer3.pkl", "layer4.pkl", "final.pkl")
+               if not (pdir / name).exists()]
+    if missing:
+        raise SystemExit(f"[{backend}] missing required phase cache for {run}/{project}: "
+                         f"{', '.join(str(pdir / name) for name in missing)}")
+
+
 # --------------------------------------------------------------------------- #
-# Backend aggregate (over the canonical run's 5 projects).
+# Backend aggregate (over one run's 5 projects).
 # --------------------------------------------------------------------------- #
 class BackendAgg:
-    def __init__(self, backend: str, canonical: str):
+    def __init__(self, backend: str, run: str):
         self.backend = backend
-        self.canonical = canonical
+        self.run = run
         self.macro_full = 0.0
         self.macro_no_entity = 0.0
         self.macro_no_coref = 0.0
@@ -302,6 +323,7 @@ class BackendAgg:
         self.macro_coref_only = 0.0
         self.audit = {v: {"killed_gold": 0, "killed_spurious": 0, "kept_gold": 0, "kept_spurious": 0}
                       for v in ("entity", "coref")}
+        self.combined_audit = {"killed_gold": 0, "killed_spurious": 0, "kept_gold": 0, "kept_spurious": 0}
         self.linkers = {l: {"tps_caught": 0, "unique_tps": 0, "fps": 0, "delta_f1_sum": 0.0, "n": 0}
                         for l in ("Entity", "Coref")}
         self.upset = {"only_E": 0, "both": 0, "only_C": 0}
@@ -319,22 +341,51 @@ class BackendAgg:
         return self.macro_full - self.macro_no_all
 
 
+def mean(vals):
+    return statistics.fmean(vals) if vals else 0.0
+
+
+def average_aggs(backend: str, aggs: List[BackendAgg]) -> BackendAgg:
+    avg = BackendAgg(backend, "average")
+    avg.macro_full = mean([a.macro_full for a in aggs])
+    avg.macro_no_entity = mean([a.macro_no_entity for a in aggs])
+    avg.macro_no_coref = mean([a.macro_no_coref for a in aggs])
+    avg.macro_no_all = mean([a.macro_no_all for a in aggs])
+    avg.macro_entity_only = mean([a.macro_entity_only for a in aggs])
+    avg.macro_coref_only = mean([a.macro_coref_only for a in aggs])
+
+    for v in ("entity", "coref"):
+        for k in avg.audit[v]:
+            avg.audit[v][k] = mean([a.audit[v][k] for a in aggs])
+    for k in avg.combined_audit:
+        avg.combined_audit[k] = mean([a.combined_audit[k] for a in aggs])
+    for l in ("Entity", "Coref"):
+        avg.linkers[l]["tps_caught"] = mean([a.linkers[l]["tps_caught"] for a in aggs])
+        avg.linkers[l]["unique_tps"] = mean([a.linkers[l]["unique_tps"] for a in aggs])
+        avg.linkers[l]["fps"] = mean([a.linkers[l]["fps"] for a in aggs])
+        avg.linkers[l]["delta_f1_sum"] = sum(
+            a.linkers[l]["delta_f1_sum"] / max(a.linkers[l]["n"], 1) for a in aggs)
+        avg.linkers[l]["n"] = len(aggs)
+    for c in avg.upset:
+        avg.upset[c] = mean([a.upset[c] for a in aggs])
+    return avg
+
+
+def fmt_count(v):
+    return f"{v:.2f}" if isinstance(v, float) and not v.is_integer() else str(int(v))
+
+
 def process_backend(backend: str, csv_root: Path, run_override: Optional[str],
-                    validate: bool) -> Tuple[BackendAgg, List[str], int, int, int]:
+                    validate: bool) -> Tuple[List[BackendAgg], str, List[str], int, int, int]:
     slot = SLOTS[backend]
     per_run: Dict[str, Dict[str, Cell]] = {}
     for run in RUNS:
         cells = {}
         for project in PROJECTS:
-            if (_phase_dir(slot, run, backend, project) / "final.pkl").exists():
-                cells[project] = compute_cell(slot, run, backend, project)
-        if cells:
-            per_run[run] = cells
-    if not per_run:
-        raise SystemExit(f"[{backend}] no runs found under {slot}")
+            require_phase_files(slot, run, backend, project)
+            cells[project] = compute_cell(slot, run, backend, project)
+        per_run[run] = cells
 
-    if run_override is not None and run_override not in per_run:
-        raise SystemExit(f"[{backend}] --run {run_override} has no loadable cells under {slot}")
     canonical = run_override or pick_canonical(per_run)
 
     # runs_summary.csv
@@ -354,152 +405,164 @@ def process_backend(backend: str, csv_root: Path, run_override: Optional[str],
     _write_csv(csv_root / backend / "runs_summary.csv",
                ["run", "project", "tp", "fp", "fn", "f1", "canonical"], summary)
 
-    agg = BackendAgg(backend, canonical)
-    f1_full_list, f1_ne_list, f1_nc_list, f1_na_list = [], [], [], []
-    f1_e_only_list, f1_c_only_list = [], []
     warns: List[str] = []
     mismatch = 0
     checked = 0
     skipped = 0
 
-    for project in PROJECTS:
-        if project not in per_run[canonical]:
-            continue
-        cell = per_run[canonical][project]
-        warns += [f"  [{backend}/{canonical}/{project}] {w}" for w in cell.warnings]
+    def aggregate_run(run: str, write_drilldowns: bool) -> BackendAgg:
+        nonlocal checked
+        agg = BackendAgg(backend, run)
+        f1_full_list, f1_ne_list, f1_nc_list, f1_na_list = [], [], [], []
+        f1_e_only_list, f1_c_only_list = [], []
 
-        # ---- per-project drill-down CSVs ----
-        base = csv_root / backend / project
-        variants = rq3_variant_sets(cell)
-        v_f1 = {}
-        rq3_rows = []
-        for vname in ("Full", "NoEntityValid", "NoCitation", "NoValidator"):
-            tp, fp, fn, f1 = prf(variants[vname], cell.gold)
-            v_f1[vname] = f1
-            rq3_rows.append({"variant": vname, "project": project, "tp": tp, "fp": fp,
-                             "fn": fn, "f1": f"{f1:.6f}"})
-        _write_csv(base / "rq3.csv", ["variant", "project", "tp", "fp", "fn", "f1"], rq3_rows)
+        for project in PROJECTS:
+            cell = per_run[run][project]
+            warns.extend(f"  [{backend}/{run}/{project}] {w}" for w in cell.warnings)
 
-        audit = rq3_audit(cell)
-        _write_csv(base / "rq3_audit.csv",
-                   ["validator", "killed_gold", "killed_spurious", "kept_gold", "kept_spurious"],
-                   [{"validator": v, **audit[v]} for v in ("entity", "coref")])
+            variants = rq3_variant_sets(cell)
+            v_f1 = {}
+            rq3_rows = []
+            for vname in ("Full", "NoEntityValid", "NoCitation", "NoValidator"):
+                tp, fp, fn, f1 = prf(variants[vname], cell.gold)
+                v_f1[vname] = f1
+                rq3_rows.append({"variant": vname, "project": project, "tp": tp, "fp": fp,
+                                 "fn": fn, "f1": f"{f1:.6f}"})
 
-        linkers = rq4_linkers(cell)
-        _write_csv(base / "rq4.csv",
-                   ["linker", "tps_caught", "unique_tps", "fps", "delta_f1_if_removed"],
-                   [{"linker": l, "tps_caught": linkers[l]["tps_caught"],
-                     "unique_tps": linkers[l]["unique_tps"], "fps": linkers[l]["fps"],
-                     "delta_f1_if_removed": f"{linkers[l]['delta_f1_if_removed']:.6f}"}
-                    for l in ("Entity", "Coref")])
+            audit = rq3_audit(cell)
+            combined_audit = rq3_combined_audit(cell)
+            linkers = rq4_linkers(cell)
+            upset = rq4_upset(cell)
 
-        upset = rq4_upset(cell)
-        _write_csv(base / "rq4_upset.csv", ["cell", "count"],
-                   [{"cell": c, "count": upset[c]} for c in ("only_E", "both", "only_C")])
+            if write_drilldowns:
+                base = csv_root / backend / project
+                _write_csv(base / "rq3.csv", ["variant", "project", "tp", "fp", "fn", "f1"], rq3_rows)
+                _write_csv(base / "rq3_audit.csv",
+                           ["validator", "killed_gold", "killed_spurious", "kept_gold", "kept_spurious"],
+                           [{"validator": v, **audit[v]} for v in ("entity", "coref")])
+                _write_csv(base / "rq4.csv",
+                           ["linker", "tps_caught", "unique_tps", "fps", "delta_f1_if_removed"],
+                           [{"linker": l, "tps_caught": linkers[l]["tps_caught"],
+                             "unique_tps": linkers[l]["unique_tps"], "fps": linkers[l]["fps"],
+                             "delta_f1_if_removed": f"{linkers[l]['delta_f1_if_removed']:.6f}"}
+                            for l in ("Entity", "Coref")])
+                _write_csv(base / "rq4_upset.csv", ["cell", "count"],
+                           [{"cell": c, "count": upset[c]} for c in ("only_E", "both", "only_C")])
 
-        # ---- accumulate aggregate ----
-        f1_full_list.append(v_f1["Full"])
-        f1_ne_list.append(v_f1["NoEntityValid"])
-        f1_nc_list.append(v_f1["NoCitation"])
-        f1_na_list.append(v_f1["NoValidator"])
-        _, _, _, f1e = prf(cell.ent_kept, cell.gold)
-        _, _, _, f1c = prf(cell.cor_kept, cell.gold)
-        f1_e_only_list.append(f1e)
-        f1_c_only_list.append(f1c)
-        for v in ("entity", "coref"):
-            for k in agg.audit[v]:
-                agg.audit[v][k] += audit[v][k]
-        for l in ("Entity", "Coref"):
-            agg.linkers[l]["tps_caught"] += linkers[l]["tps_caught"]
-            agg.linkers[l]["unique_tps"] += linkers[l]["unique_tps"]
-            agg.linkers[l]["fps"] += linkers[l]["fps"]
-            agg.linkers[l]["delta_f1_sum"] += linkers[l]["delta_f1_if_removed"]
-            agg.linkers[l]["n"] += 1
-        for c in agg.upset:
-            agg.upset[c] += upset[c]
+            f1_full_list.append(v_f1["Full"])
+            f1_ne_list.append(v_f1["NoEntityValid"])
+            f1_nc_list.append(v_f1["NoCitation"])
+            f1_na_list.append(v_f1["NoValidator"])
+            _, _, _, f1e = prf(cell.ent_kept, cell.gold)
+            _, _, _, f1c = prf(cell.cor_kept, cell.gold)
+            f1_e_only_list.append(f1e)
+            f1_c_only_list.append(f1c)
+            for v in ("entity", "coref"):
+                for k in agg.audit[v]:
+                    agg.audit[v][k] += audit[v][k]
+            for k in agg.combined_audit:
+                agg.combined_audit[k] += combined_audit[k]
+            for l in ("Entity", "Coref"):
+                agg.linkers[l]["tps_caught"] += linkers[l]["tps_caught"]
+                agg.linkers[l]["unique_tps"] += linkers[l]["unique_tps"]
+                agg.linkers[l]["fps"] += linkers[l]["fps"]
+                agg.linkers[l]["delta_f1_sum"] += linkers[l]["delta_f1_if_removed"]
+                agg.linkers[l]["n"] += 1
+            for c in agg.upset:
+                agg.upset[c] += upset[c]
 
-        if validate:
-            ref = read_ablation_full(slot, canonical, project)
-            if ref:
-                checked += 1
-                tp, fp, fn, _ = prf(cell.final, cell.gold)
-                if (tp, fp, fn) != (int(ref["tp"]), int(ref["fp"]), int(ref["fn"])):
-                    mismatch += 1
-                    warns.append(f"  [{backend}/{canonical}/{project}] FULL MISMATCH vs "
-                                 f"ablation.json: {tp}/{fp}/{fn} != "
-                                 f"{ref['tp']}/{ref['fp']}/{ref['fn']}")
-            else:
-                skipped += 1
-                warns.append(f"  [{backend}/{canonical}/{project}] no ablation_*.json reference "
-                             f"-- Full variant NOT cross-checked")
+            if validate:
+                ref = read_ablation_full(slot, run, project)
+                if ref:
+                    checked += 1
+                    tp, fp, fn, _ = prf(cell.final, cell.gold)
+                    if (tp, fp, fn) != (int(ref["tp"]), int(ref["fp"]), int(ref["fn"])):
+                        raise SystemExit(f"[{backend}/{run}/{project}] FULL MISMATCH vs "
+                                         f"ablation.json: {tp}/{fp}/{fn} != "
+                                         f"{ref['tp']}/{ref['fp']}/{ref['fn']}")
+                else:
+                    raise SystemExit(f"[{backend}/{run}/{project}] missing required "
+                                     "ablation_*.json reference")
 
-    agg.macro_full = statistics.fmean(f1_full_list)
-    agg.macro_no_entity = statistics.fmean(f1_ne_list)
-    agg.macro_no_coref = statistics.fmean(f1_nc_list)
-    agg.macro_no_all = statistics.fmean(f1_na_list)
-    agg.macro_entity_only = statistics.fmean(f1_e_only_list)
-    agg.macro_coref_only = statistics.fmean(f1_c_only_list)
-    return agg, warns, mismatch, checked, skipped
+        agg.macro_full = statistics.fmean(f1_full_list)
+        agg.macro_no_entity = statistics.fmean(f1_ne_list)
+        agg.macro_no_coref = statistics.fmean(f1_nc_list)
+        agg.macro_no_all = statistics.fmean(f1_na_list)
+        agg.macro_entity_only = statistics.fmean(f1_e_only_list)
+        agg.macro_coref_only = statistics.fmean(f1_c_only_list)
+        return agg
+
+    selected_runs = [run_override] if run_override else list(RUNS)
+    aggs = [aggregate_run(run, write_drilldowns=(run == canonical)) for run in selected_runs]
+    if len(aggs) > 1:
+        aggs.append(average_aggs(backend, aggs))
+    return aggs, canonical, warns, mismatch, checked, skipped
 
 
 # --------------------------------------------------------------------------- #
 # Aggregated report writers.
 # --------------------------------------------------------------------------- #
-def write_aggregates(csv_root: Path, aggs: Dict[str, BackendAgg]) -> None:
+def write_aggregates(csv_root: Path, aggs: Dict[str, List[BackendAgg]]) -> None:
     # rq3_validators.csv
     rows = []
-    for backend, agg in aggs.items():
-        for v, dF1 in (("entity", agg.dF1_no_entity), ("coref", agg.dF1_no_coref)):
-            a = agg.audit[v]
-            rows.append({"backend": backend, "validator": v, "canonical_run": agg.canonical,
-                         **a, "delta_f1_if_removed": f"{dF1:+.6f}"})
-        comb = {k: agg.audit["entity"][k] + agg.audit["coref"][k] for k in agg.audit["entity"]}
-        rows.append({"backend": backend, "validator": "all_combined", "canonical_run": agg.canonical,
-                     **comb, "delta_f1_if_removed": f"{agg.dF1_no_all:+.6f}"})
+    for backend, backend_aggs in aggs.items():
+        for agg in backend_aggs:
+            for v, dF1 in (("entity", agg.dF1_no_entity), ("coref", agg.dF1_no_coref)):
+                a = agg.audit[v]
+                rows.append({"backend": backend, "run": agg.run, "validator": v,
+                             **{k: fmt_count(a[k]) for k in a},
+                             "delta_f1_if_removed": f"{dF1:+.6f}"})
+            rows.append({"backend": backend, "run": agg.run, "validator": "all_combined",
+                         **{k: fmt_count(agg.combined_audit[k]) for k in agg.combined_audit},
+                         "delta_f1_if_removed": f"{agg.dF1_no_all:+.6f}"})
     _write_csv(csv_root / "rq3_validators.csv",
-               ["backend", "validator", "canonical_run", "killed_gold", "killed_spurious",
+               ["backend", "run", "validator", "killed_gold", "killed_spurious",
                 "kept_gold", "kept_spurious", "delta_f1_if_removed"], rows)
 
     # rq4_linkers.csv
     rows = []
-    for backend, agg in aggs.items():
-        for l in ("Entity", "Coref"):
-            e = agg.linkers[l]
-            rows.append({"backend": backend, "linker": l, "canonical_run": agg.canonical,
-                         "tps_caught": e["tps_caught"], "unique_tps": e["unique_tps"],
-                         "fps": e["fps"],
-                         "delta_f1_if_removed": f"{e['delta_f1_sum'] / max(e['n'], 1):+.6f}"})
-        rows.append({"backend": backend, "linker": "overlap(only_E/both/only_C)",
-                     "canonical_run": agg.canonical,
-                     "tps_caught": agg.upset["only_E"], "unique_tps": agg.upset["both"],
-                     "fps": agg.upset["only_C"], "delta_f1_if_removed": ""})
+    for backend, backend_aggs in aggs.items():
+        for agg in backend_aggs:
+            for l in ("Entity", "Coref"):
+                e = agg.linkers[l]
+                rows.append({"backend": backend, "run": agg.run, "linker": l,
+                             "tps_caught": fmt_count(e["tps_caught"]),
+                             "unique_tps": fmt_count(e["unique_tps"]),
+                             "fps": fmt_count(e["fps"]),
+                             "delta_f1_if_removed": f"{e['delta_f1_sum'] / max(e['n'], 1):+.6f}"})
+            rows.append({"backend": backend, "run": agg.run, "linker": "overlap(only_E/both/only_C)",
+                         "tps_caught": fmt_count(agg.upset["only_E"]),
+                         "unique_tps": fmt_count(agg.upset["both"]),
+                         "fps": fmt_count(agg.upset["only_C"]), "delta_f1_if_removed": ""})
     _write_csv(csv_root / "rq4_linkers.csv",
-               ["backend", "linker", "canonical_run", "tps_caught", "unique_tps", "fps",
+               ["backend", "run", "linker", "tps_caught", "unique_tps", "fps",
                 "delta_f1_if_removed"], rows)
 
     # rq3_variants.csv -- macro-F1 per RQ3 variant (the "validator removed" sets).
     rows = []
-    for backend, agg in aggs.items():
-        for variant, macro in (("Full", agg.macro_full),
-                               ("NoEntityValid", agg.macro_no_entity),
-                               ("NoCitation", agg.macro_no_coref),
-                               ("NoValidator", agg.macro_no_all)):
-            rows.append({"backend": backend, "variant": variant, "canonical_run": agg.canonical,
-                         "macro_f1": f"{macro:.6f}",
-                         "delta_f1_vs_full": f"{agg.macro_full - macro:+.6f}"})
+    for backend, backend_aggs in aggs.items():
+        for agg in backend_aggs:
+            for variant, macro in (("Full", agg.macro_full),
+                                   ("NoEntityValid", agg.macro_no_entity),
+                                   ("NoCitation", agg.macro_no_coref),
+                                   ("NoValidator", agg.macro_no_all)):
+                rows.append({"backend": backend, "run": agg.run, "variant": variant,
+                             "macro_f1": f"{macro:.6f}",
+                             "delta_f1_vs_full": f"{agg.macro_full - macro:+.6f}"})
     _write_csv(csv_root / "rq3_variants.csv",
-               ["backend", "variant", "canonical_run", "macro_f1", "delta_f1_vs_full"], rows)
+               ["backend", "run", "variant", "macro_f1", "delta_f1_vs_full"], rows)
 
     # rq4_variants.csv -- single-linker macro-F1 (entity-only / coref-only / full).
     rows = []
-    for backend, agg in aggs.items():
-        for label, macro in (("entity_only", agg.macro_entity_only),
-                             ("coref_only", agg.macro_coref_only),
-                             ("full", agg.macro_full)):
-            rows.append({"backend": backend, "linker_set": label, "canonical_run": agg.canonical,
-                         "macro_f1": f"{macro:.6f}"})
+    for backend, backend_aggs in aggs.items():
+        for agg in backend_aggs:
+            for label, macro in (("entity_only", agg.macro_entity_only),
+                                 ("coref_only", agg.macro_coref_only),
+                                 ("full", agg.macro_full)):
+                rows.append({"backend": backend, "run": agg.run, "linker_set": label,
+                             "macro_f1": f"{macro:.6f}"})
     _write_csv(csv_root / "rq4_variants.csv",
-               ["backend", "linker_set", "canonical_run", "macro_f1"], rows)
+               ["backend", "run", "linker_set", "macro_f1"], rows)
 
 
 # --------------------------------------------------------------------------- #
@@ -521,18 +584,19 @@ def main() -> int:
     print(f"[mini-rq34] benchmark = {BENCHMARK}")
     print(f"[mini-rq34] csv-root  = {args.csv_root}")
 
-    aggs: Dict[str, BackendAgg] = {}
+    aggs: Dict[str, List[BackendAgg]] = {}
     for backend in args.backends:
-        agg, warns, mismatch, checked, skipped = process_backend(
+        backend_aggs, canonical, warns, mismatch, checked, skipped = process_backend(
             backend, args.csv_root, args.run, validate=not args.no_validate)
-        aggs[backend] = agg
+        aggs[backend] = backend_aggs
         if args.no_validate:
             flag = "skipped (--no-validate)"
         elif mismatch:
             flag = f"{mismatch} MISMATCH ({checked} checked, {skipped} no-ref)"
         else:
             flag = f"OK ({checked} checked, {skipped} no-ref)"
-        print(f"[mini-rq34] {backend}: canonical={agg.canonical} macro-F1={agg.macro_full:.4f} "
+        run_bits = ", ".join(f"{agg.run}={agg.macro_full:.4f}" for agg in backend_aggs)
+        print(f"[mini-rq34] {backend}: canonical={canonical} macro-F1[{run_bits}] "
               f"validate={flag}")
         for w in warns:
             print(w)

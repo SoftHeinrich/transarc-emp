@@ -6,14 +6,19 @@ scores one result set at a time and prints a per-project panel + macro average.
 The paper's RQ1/RQ2 tables have *systems* on the row axis, the approach averaged
 over three runs, and a per-task layout. This driver closes that gap: it sweeps
 the system roster, scores each through ``metrics.py`` (the sole metric impl),
-macro-averages over the five projects, averages the approach over its three
-runs, and emits ONE wide CSV whose columns are the union of both tasks.
+macro-averages over the five projects, emits each approach run plus its average,
+and writes ONE wide CSV whose columns are the union of both tasks.
 
 That single big table is a superset of every RQ1/RQ2 cell:
-  * RQ1 doc-to-model (tab:rq1-sadsam) = columns ``ss_P, ss_R, ss_linkF1``.
-  * RQ1 doc-to-code  (tab:rq1-sadcode) = columns ``sc_P, sc_R, sc_fileF1``.
-  * RQ2 size-aware panel (tab:rq2-summary) = ``sc_fileF1, sc_sentCov, sc_worstC,
-    sc_harmC``.
+  * RQ1 doc-to-model (tab:rq1-sadsam) = columns
+    ``doc_to_model_link_precision``, ``doc_to_model_link_recall``,
+    ``doc_to_model_link_f1``.
+  * RQ1 doc-to-code  (tab:rq1-sadcode) = columns
+    ``doc_to_code_file_precision``, ``doc_to_code_file_recall``,
+    ``doc_to_code_file_f1``.
+  * RQ2 size-aware panel (tab:rq2-summary) =
+    ``doc_to_code_file_f1``, ``doc_to_code_sentence_coverage``,
+    ``doc_to_code_worst_component_f1``, ``doc_to_code_harmonic_component_f1``.
 
 A second, focused CSV (``reports/RQ2_PANEL.csv``) is also emitted for RQ2: it
 lists those four columns for BOTH approach backends (GPT-5.4 **and Claude/sonnet**,
@@ -102,83 +107,122 @@ LISSA = {"label": "LiSSA (gpt-5-mini)", "backend": "gpt-5-mini", "runs": None,
 # (~.87), but the run-sensitive tail (worst/harmonic) does not. Carried here ONLY
 # to flag these as OUTDATED next to the reproducible no-reasoning values.
 PAPER_RQ2_OUTDATED = {  # approach, gpt-5.4 reasoning=medium, doc-to-code
-    "sc_fileF1": 0.87, "sc_sentCov": 0.80, "sc_worstC": 0.62, "sc_harmC": 0.71,
+    "doc_to_code_file_f1": 0.87,
+    "doc_to_code_sentence_coverage": 0.80,
+    "doc_to_code_worst_component_f1": 0.62,
+    "doc_to_code_harmonic_component_f1": 0.71,
 }
 
 # RQ2 size-aware panel: doc-to-code, both approach backends + the two baselines.
 RQ2_SYSTEMS = ["TransArC", "Artemis (GPT-5.4)", "approach (GPT-5.4)", "approach (Claude)"]
-RQ2_COLS = ["sc_fileF1", "sc_sentCov", "sc_worstC", "sc_harmC"]
+RQ2_COLS = [
+    "doc_to_code_file_f1",
+    "doc_to_code_sentence_coverage",
+    "doc_to_code_worst_component_f1",
+    "doc_to_code_harmonic_component_f1",
+]
 
 # Combined big-table column layout: friendly name -> (task, metric key in PANELS).
 SS = "sad-sam"
 SC = "sad-code"
 COLUMNS = [
-    ("ss_P",       SS, "link_p"),       ("ss_R",       SS, "link_r"),
-    ("ss_linkF1",  SS, "link_f1"),      ("ss_sentCov", SS, "sentence_coverage"),
-    ("ss_noise",   SS, "noise_rate"),
-    ("sc_P",       SC, "file_p"),       ("sc_R",       SC, "file_r"),
-    ("sc_fileF1",  SC, "file_f1"),      ("sc_compF1",  SC, "component_f1"),
-    ("sc_worstC",  SC, "worst_component_f1"),
-    ("sc_harmC",   SC, "harmonic_component_f1"),
-    ("sc_sentCov", SC, "sentence_coverage"),
-    ("sc_noise",   SC, "noise_rate"),
+    ("doc_to_model_link_precision", SS, "link_p"),
+    ("doc_to_model_link_recall", SS, "link_r"),
+    ("doc_to_model_link_f1", SS, "link_f1"),
+    ("doc_to_model_sentence_coverage", SS, "sentence_coverage"),
+    ("doc_to_model_noise_rate", SS, "noise_rate"),
+    ("doc_to_code_file_precision", SC, "file_p"),
+    ("doc_to_code_file_recall", SC, "file_r"),
+    ("doc_to_code_file_f1", SC, "file_f1"),
+    ("doc_to_code_component_micro_f1", SC, "component_f1"),
+    ("doc_to_code_worst_component_f1", SC, "worst_component_f1"),
+    ("doc_to_code_harmonic_component_f1", SC, "harmonic_component_f1"),
+    ("doc_to_code_sentence_coverage", SC, "sentence_coverage"),
+    ("doc_to_code_noise_rate", SC, "noise_rate"),
 ]
 
 
-def macro_panel(system, task):
-    """Macro-averaged metric vector for one system on one task.
+def run_panels(system, task):
+    """Per-run macro-averaged metric vectors for one system on one task.
 
-    Scores every project through ``metrics.compute_*`` (skipping projects whose
-    result file is absent), macro-averages, and — for multi-run systems —
-    averages those macro vectors over the runs (the paper's "mean of three
-    runs"). Returns (vector_dict | None, n_projects_covered).
+    Scores every project through ``metrics.compute_*`` (failing if any required
+    result file is absent or empty), then macro-averages over projects. Returns
+    ``[(run_label, vector_dict), ...]``. Single-shot systems use ``run=single``.
     """
     cols = m.PANELS[task]
     compute = m.compute_sad_code if task == SC else m.compute_sad_sam
     pattern = system[task]
     runs = system["runs"] or [None]
 
-    run_vectors, n_covered = [], 0
+    run_vectors = []
     for run in runs:
         rows = []
         for proj in m.PROJECTS:
             rel = pattern.format(run=run, project=proj) if run else pattern.format(project=proj)
             path = SOTA_LINKS / rel
             if not path.exists():
-                continue
+                raise SystemExit(f"missing required {task} result for {system['label']} "
+                                 f"{run or 'single'} {proj}: {path}")
             res = m.load_result(path, task)
             if not res:
-                continue
+                raise SystemExit(f"empty/unparseable required {task} result for "
+                                 f"{system['label']} {run or 'single'} {proj}: {path}")
             rows.append(compute(proj, res))
-        if not rows:
-            continue
-        run_vectors.append({c: sum(r[c] for r in rows) / len(rows) for c in cols})
-        n_covered = max(n_covered, len(rows))
-    if not run_vectors:
-        return None, 0
-    vec = {c: sum(v[c] for v in run_vectors) / len(run_vectors) for c in cols}
-    return vec, n_covered
+        if len(rows) != len(m.PROJECTS):
+            raise SystemExit(f"incomplete {task} panel for {system['label']} "
+                             f"{run or 'single'}: {len(rows)}/{len(m.PROJECTS)} projects")
+        run_vectors.append((run or "single", {c: sum(r[c] for r in rows) / len(rows) for c in cols}))
+    if len(run_vectors) != len(runs):
+        raise SystemExit(f"incomplete {task} run set for {system['label']}: "
+                         f"{len(run_vectors)}/{len(runs)} runs")
+    return run_vectors
 
 
-def build_row(system):
-    """One big-table row: {label, backend, n_ss, n_sc, <COLUMNS...>}."""
-    ss_vec, n_ss = macro_panel(system, SS)
-    sc_vec, n_sc = macro_panel(system, SC)
-    row = {"system": system["label"], "backend": system["backend"],
-           "n_ss": n_ss, "n_sc": n_sc}
+def average_vec(run_vectors, task):
+    cols = m.PANELS[task]
+    return {c: sum(v[c] for _run, v in run_vectors) / len(run_vectors) for c in cols}
+
+
+def build_row(system, run_label, ss_vec, sc_vec):
+    row = {"system": system["label"], "backend": system["backend"], "run": run_label,
+           "doc_to_model_projects": len(m.PROJECTS), "doc_to_code_projects": len(m.PROJECTS)}
     for name, task, key in COLUMNS:
         vec = ss_vec if task == SS else sc_vec
-        row[name] = vec[key] if vec is not None else None
+        row[name] = vec[key]
     return row
+
+
+def build_rows(system):
+    """Big-table rows for one system: per-run rows plus average for multi-run systems."""
+    ss_runs = run_panels(system, SS)
+    sc_runs = run_panels(system, SC)
+    if [r for r, _v in ss_runs] != [r for r, _v in sc_runs]:
+        raise SystemExit(f"run labels differ between tasks for {system['label']}")
+    if system["runs"] is None:
+        return [build_row(system, "single", ss_runs[0][1], sc_runs[0][1])]
+
+    rows = [build_row(system, run, ss_vec, sc_vec)
+            for (run, ss_vec), (_run2, sc_vec) in zip(ss_runs, sc_runs)]
+    rows.append(build_row(system, "average", average_vec(ss_runs, SS), average_vec(sc_runs, SC)))
+    return rows
+
+
+def summary_row(rows, label):
+    return next((r for r in rows if r["system"] == label and r["run"] in ("average", "single")), None)
+
+
+def row_for(rows, label, run):
+    return next((r for r in rows if r["system"] == label and r["run"] == run), None)
 
 
 def delta_row(rows, a_label, b_label):
     """Δ row (a − b), per the RQ2 panel's Δ = approach − Artemis column."""
-    a = next((r for r in rows if r["system"] == a_label), None)
-    b = next((r for r in rows if r["system"] == b_label), None)
+    a = summary_row(rows, a_label)
+    b = summary_row(rows, b_label)
     if not a or not b:
         return None
-    out = {"system": f"Delta ({a_label} - {b_label})", "backend": "", "n_ss": "", "n_sc": ""}
+    out = {"system": f"Delta ({a_label} - {b_label})", "backend": "", "run": "delta",
+           "doc_to_model_projects": "", "doc_to_code_projects": ""}
     for name, _, _ in COLUMNS:
         out[name] = (a[name] - b[name]) if (a[name] is not None and b[name] is not None) else None
     return out
@@ -191,41 +235,54 @@ def fmt(v):
 def print_table(rows):
     names = [c[0] for c in COLUMNS]
     w = max(len(r["system"]) for r in rows) + 1
-    head = "system".ljust(w) + "".join(n.rjust(11) for n in names)
+    widths = [max(len(n), 8) + 2 for n in names]
+    head = "system".ljust(w) + "run".rjust(9) + "".join(n.rjust(width) for n, width in zip(names, widths))
     print(head)
     print("-" * len(head))
     for r in rows:
-        print(r["system"].ljust(w) + "".join(fmt(r[n]).rjust(11) for n in names))
+        print(r["system"].ljust(w) + r["run"].rjust(9)
+              + "".join(fmt(r[n]).rjust(width) for n, width in zip(names, widths)))
 
 
 def write_csv(rows, path):
-    fields = ["system", "backend", "n_ss", "n_sc"] + [c[0] for c in COLUMNS]
+    fields = ["system", "backend", "run", "doc_to_model_projects", "doc_to_code_projects"] + [c[0] for c in COLUMNS]
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w", newline="") as f:
-        w = csv.writer(f)
+        w = csv.writer(f, lineterminator="\n")
         w.writerow(fields)
         for r in rows:
             w.writerow([fmt(r[k]) for k in fields])
 
 
 def build_rq2_panel(rows):
-    """RQ2 size-aware rows (doc-to-code), both approach backends + the deltas vs
-    the strongest baseline + the OUTDATED paper reference row."""
-    by = {r["system"]: r for r in rows}
+    """RQ2 size-aware rows (doc-to-code), approach runs + averages + deltas."""
     panel = []
-    for label in RQ2_SYSTEMS:
-        r = by.get(label)
+    for label in ("TransArC", "Artemis (GPT-5.4)"):
+        r = row_for(rows, label, "single")
         if r is None:
             continue
-        panel.append({"system": label, **{c: r[c] for c in RQ2_COLS}, "note": ""})
-    art = by.get("Artemis (GPT-5.4)")
+        panel.append({"system": label, "run": "single",
+                      **{c: r[c] for c in RQ2_COLS}, "note": ""})
+
+    approach_runs = ["run1", "run2", "run3", "average"]
+    for label in ("approach (GPT-5.4)", "approach (Claude)"):
+        for run in approach_runs:
+            r = row_for(rows, label, run)
+            if r is not None:
+                panel.append({"system": label, "run": run,
+                              **{c: r[c] for c in RQ2_COLS}, "note": ""})
+
+    art = row_for(rows, "Artemis (GPT-5.4)", "single")
     if art is not None:
         for label in ("approach (GPT-5.4)", "approach (Claude)"):
-            r = by.get(label)
-            if r is not None:
+            for run in approach_runs:
+                r = row_for(rows, label, run)
+                if r is None:
+                    continue
                 panel.append({"system": f"Delta ({label} - Artemis)",
+                              "run": run,
                               **{c: r[c] - art[c] for c in RQ2_COLS}, "note": ""})
-    panel.append({"system": "paper approach (GPT-5.4)", **PAPER_RQ2_OUTDATED,
+    panel.append({"system": "paper approach (GPT-5.4)", "run": "paper", **PAPER_RQ2_OUTDATED,
                   "note": "OUTDATED: gpt reasoning=medium (deleted v2.6.5_s20union_gpt_re_medium); live rows = no-reasoning v2.6.6"})
     return panel
 
@@ -233,19 +290,21 @@ def build_rq2_panel(rows):
 def print_rq2(panel):
     print("\nRQ2 size-aware panel (doc-to-code) -- now incl. the Claude/sonnet row")
     w = max(len(r["system"]) for r in panel) + 1
-    head = "system".ljust(w) + "".join(c.rjust(11) for c in RQ2_COLS) + "  note"
+    widths = [max(len(c), 8) + 2 for c in RQ2_COLS]
+    head = "system".ljust(w) + "run".rjust(9) + "".join(c.rjust(width) for c, width in zip(RQ2_COLS, widths)) + "  note"
     print(head)
     print("-" * (len(head)))
     for r in panel:
-        print(r["system"].ljust(w) + "".join(fmt(r[c]).rjust(11) for c in RQ2_COLS)
+        print(r["system"].ljust(w) + r["run"].rjust(9)
+              + "".join(fmt(r[c]).rjust(width) for c, width in zip(RQ2_COLS, widths))
               + ("  " + r["note"] if r["note"] else ""))
 
 
 def write_rq2_csv(panel, path):
-    fields = ["system"] + RQ2_COLS + ["note"]
+    fields = ["system", "run"] + RQ2_COLS + ["note"]
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w", newline="") as f:
-        w = csv.writer(f)
+        w = csv.writer(f, lineterminator="\n")
         w.writerow(fields)
         for r in panel:
             w.writerow([fmt(r[k]) for k in fields])
@@ -256,21 +315,25 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--csv", default=None,
                     help="output CSV path (default: <evaluation>/reports/RQ12_BIGTABLE.csv)")
+    ap.add_argument("--rq2-csv", default=None,
+                    help="RQ2 panel CSV path (default: reports/RQ2_PANEL.csv, or next to --csv)")
     ap.add_argument("--lissa", action="store_true",
-                    help="also include the LiSSA row (covers 3/5 projects for doc-to-code)")
+                    help="also include LiSSA; aborts unless all required project files are present")
     args = ap.parse_args()
 
     roster = ROSTER + ([LISSA] if args.lissa else [])
-    rows = [build_row(s) for s in roster]          # one row per system (no Delta yet)
+    rows = [row for system in roster for row in build_rows(system)]
 
     big = list(rows)
     d = delta_row(rows, "approach (GPT-5.4)", "Artemis (GPT-5.4)")
     if d:
         big.append(d)
     print_table(big)
-    print(f"\nProvenance: {SOTA_LINKS}  (approach = mean of run1/run2/run3)")
-    print("RQ1 sad-sam = ss_P/ss_R/ss_linkF1 ; RQ1 sad-code = sc_P/sc_R/sc_fileF1 ;")
-    print("RQ2 panel  = sc_fileF1/sc_sentCov/sc_worstC/sc_harmC for BOTH approach backends.")
+    print(f"\nProvenance: {SOTA_LINKS}  (approach rows = run1/run2/run3 plus average)")
+    print("RQ1 doc-to-model = doc_to_model_link_precision/recall/f1; "
+          "RQ1 doc-to-code = doc_to_code_file_precision/recall/f1.")
+    print("RQ2 panel = doc_to_code_file_f1, doc_to_code_sentence_coverage, "
+          "doc_to_code_worst_component_f1, doc_to_code_harmonic_component_f1.")
 
     panel = build_rq2_panel(rows)
     print_rq2(panel)
@@ -278,7 +341,8 @@ def main():
     reports = m._ARDOCO_HOME / "transarc-emp/reports"
     out = Path(args.csv) if args.csv else reports / "RQ12_BIGTABLE.csv"
     write_csv(big, out)
-    out2 = reports / "RQ2_PANEL.csv"
+    out2 = Path(args.rq2_csv) if args.rq2_csv else (
+        out.parent / "RQ2_PANEL.csv" if args.csv else reports / "RQ2_PANEL.csv")
     write_rq2_csv(panel, out2)
     print(f"\n[rq12] wrote {out}\n[rq12] wrote {out2}", file=sys.stderr)
 
