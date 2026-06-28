@@ -1,0 +1,13 @@
+backend,run,linker,tps_caught,unique_tps,fps,delta_f1_if_removed
+openai,run1,Entity,147,135,0,+0.683109
+openai,run1,Coref,33,21,1,+0.059924
+openai,run1,overlap(only_E/both/only_C),135,12,21,
+openai,run2,Entity,147,138,1,+0.695936
+openai,run2,Coref,29,20,3,+0.054408
+openai,run2,overlap(only_E/both/only_C),138,9,20,
+openai,run3,Entity,147,138,1,+0.702561
+openai,run3,Coref,28,19,3,+0.053897
+openai,run3,overlap(only_E/both/only_C),138,9,19,
+openai,average,Entity,147,137,0.67,+0.693869
+openai,average,Coref,30,20,2.33,+0.056076
+openai,average,overlap(only_E/both/only_C),137,10,20,
