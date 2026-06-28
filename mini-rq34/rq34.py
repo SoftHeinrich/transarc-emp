@@ -64,7 +64,9 @@ BENCHMARK = Path(os.environ.get(
 
 PROJECTS = ["mediastore", "teastore", "teammates", "bigbluebutton", "jabref"]
 RUNS = ["run1", "run2", "run3"]
-VARIANT = "s_linker20_union"
+# The phase_cache subdir name = the linker's _VARIANT_NAME. Defaults to the s20_union
+# sweep; override via $RQ34_VARIANT to score a different canonical (e.g. s_linker21).
+VARIANT = os.environ.get("RQ34_VARIANT", "s_linker20_union")
 
 # backend -> (results slot, phase_cache backend subdir, paper role)
 SLOTS: Dict[str, Path] = {
