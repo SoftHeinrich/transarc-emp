@@ -40,6 +40,11 @@ BE_DIR = os.environ.get("S21_BE_DIR", "gpt")
 BE_TAG = os.environ.get("S21_BE_TAG", "gpt-5.4")
 CONFIG = os.environ.get("S21_CONFIG", "gpt-5.4_s21")
 MANIFEST_TAG = os.environ.get("S21_MANIFEST_TAG", "s21")
+# Knowledge tier recorded in the manifest. Default "full" keeps the canonical S21
+# build byte-identical. For the no-knowledge sweep, run with S21_KNOW=noknow plus
+# the noknow EXTRACTS_S21/S21_CONFIG/S21_MANIFEST_TAG overrides so it writes a
+# distinct *_s21_noknow config slot and tags the rows knowledge=noknow.
+KNOW = os.environ.get("S21_KNOW", "full")
 
 
 # ---- helpers (verbatim from sota/recovered-links/build_unified.py) ----------
@@ -136,7 +141,7 @@ def build_s21(md_gold, arcotl_bridge):
                         l.get("confidence", ""), l.get("source", "")] for l in links])
             P, R, F, tp, npred, ngold = f1(md_pairs, md_gold[proj])
             md_man.append(dict(task="model-doc", system="aalinker", config=CONFIG,
-                               backend=BE_TAG, knowledge="full", run=run, project=proj,
+                               backend=BE_TAG, knowledge=KNOW, run=run, project=proj,
                                n_links=n_md, P=f"{P:.4f}", R=f"{R:.4f}", F1=f"{F:.4f}",
                                src=os.path.relpath(jpath, _ARDOCO_HOME), sha=sha256(jpath)))
 
@@ -151,7 +156,7 @@ def build_s21(md_gold, arcotl_bridge):
             n_dc = write_norm(f"{cbase}.csv", dc_pairs)
             write_raw(f"{cbase}.raw.csv", ["sentence_id", "via_component", "target_id"], raw_rows)
             dc_man.append(dict(task="doc-code", system="aalinker-composed", config=CONFIG,
-                               backend=BE_TAG, knowledge="full", run=run, project=proj,
+                               backend=BE_TAG, knowledge=KNOW, run=run, project=proj,
                                n_links=n_dc, P="", R="", F1="",
                                src=f"model-doc/aalinker/{CONFIG}/{run}/{proj}.csv o model-code/arcotl/{proj}.csv",
                                sha=""))
