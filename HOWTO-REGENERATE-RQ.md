@@ -50,9 +50,12 @@ slot named **`<backend>_<knowledge-tag>`**:
 
 | Config slot | Backend | Knowledge | Built by |
 |-------------|---------|-----------|----------|
-| `gpt-5.4_full`, `sonnet_full`     | gpt-5.4 / claude | full (s20_union) | `build_unified.py` |
 | `gpt-5.4_s21`, `sonnet_s21`       | gpt-5.4 / claude | full (s_linker21)| `build_s21_dump.py` |
 | `gpt-5.4_s21_noknow`, `sonnet_s21_noknow` | gpt-5.4 / claude | noknow (s_linker21) | `build_s21_dump.py` (with `S21_KNOW=noknow`) |
+
+**s21 is the only shipped approach config.** `build_unified.py` also emits legacy
+`gpt-5.4_full` / `sonnet_full` slots from the old `s_linker20_union` run — these
+are **deprecated**; s21 supersedes them, so ignore those slots everywhere.
 
 Each slot holds `model-doc/aalinker/<slot>/run{1,2,3}/<project>.csv` (doc→model)
 and `doc-code/aalinker-composed/<slot>/run{1,2,3}/<project>.csv` (doc→code,
@@ -69,7 +72,9 @@ Skip this if `sota/recovered-links/` is already populated. The build is
 ```bash
 HOME_ABS=/mnt/hostshare/ardoco-home
 
-# (a) baselines + full s20_union slots (gpt-5.4_full / sonnet_full) + arcotl bridge + gold
+# (a) gold standards + ArCoTL model→code bridge + SOTA baselines (TransArC, Artemis).
+#     The s21 build below depends on the gold + bridge this produces, so run it first.
+#     (It also emits the deprecated s20_union approach slots; s21 supersedes them — ignore.)
 python3 ../sota/recovered-links/build_unified.py
 
 # (b) s_linker21 FULL slots (gpt-5.4_s21 / sonnet_s21)
@@ -111,12 +116,11 @@ python3 mini-src/rq12.py
 # RQ2 cell-grain panel + rank-correlation of size-aware metrics vs file F1
 python3 mini-src/rq2_corr.py
 #   → reports/RQ2_CELLS.csv, reports/RQ2_CORR.csv
-
-# No-enrollment doc-to-code comparison (RQ2 motivation / benchmark-bias pillar)
-python3 mini-src/noenroll.py --csv reports/NOENROLL_DOC_CODE.csv
-#   prints the macro panel to stdout; --csv writes the CSV (omit it for stdout only).
-#   reports/NOENROLL_DOC_CODE.md is hand-written commentary — NOT generated.
 ```
+
+> `mini-src/noenroll.py` (the no-enrollment benchmark-bias side analysis) is
+> **deprecated** — it scores the old `s_linker20_union` run and is not part of the
+> s21 RQ1–RQ4 pipeline. Skip it.
 
 ### Which CSV column feeds which paper table
 
@@ -136,9 +140,11 @@ cp reports/RQ12_BIGTABLE.csv reports/s21/RQ12_BIGTABLE_s21.csv
 cp reports/RQ2_PANEL.csv     reports/s21/RQ2_PANEL.csv
 ```
 
-⚠️ **Gotcha:** these tables carry TWO approach rows. `approach (GPT-5.4)` is the
-OLD s20union baseline; `approach S21 (GPT-5.4)` is the latest. **Always read the
-`S21` rows** for the current paper numbers.
+⚠️ **Gotcha:** rq12's default table still carries deprecated `s20_union` approach
+rows (`approach (GPT-5.4)` / `approach (Claude)`) alongside the current
+`approach S21 (...)` rows. **Read only the `S21` rows.** To drop the legacy rows
+entirely, remove the `gpt-5.4_full` / `sonnet_full` entries from `ROSTER` in
+`mini-src/rq12.py`.
 
 ---
 
@@ -172,10 +178,8 @@ Useful flags / env knobs:
 python3 mini-rq34/rq34.py --backends openai          # one backend only
 python3 mini-rq34/rq34.py --run run1                 # force a drill-down run
 python3 mini-rq34/rq34.py --no-validate              # skip the ablation-JSON cross-check
-# Point at different run slots / variant (e.g. score the old s20_union):
-RQ34_VARIANT=s_linker20_union \
-  RQ34_OPENAI_SLOT=$HOME_ABS/agent-linker/results/v2.6.5_s20union_gpt \
-  python3 mini-rq34/rq34.py --backends openai
+# Point at a different run slot via env (RQ34_VARIANT / RQ34_OPENAI_SLOT /
+# RQ34_CLAUDE_SLOT) — see §4b for the no-knowledge invocation.
 ```
 
 ---
@@ -256,7 +260,6 @@ HOME_ABS=/mnt/hostshare/ardoco-home
 # 1. sota dump (full + noknow, both backends) — see §1 for the 5 build commands
 # 2. RQ1 + RQ2
 python3 mini-src/rq12.py && python3 mini-src/rq2_corr.py
-python3 mini-src/noenroll.py --csv reports/NOENROLL_DOC_CODE.csv
 cp reports/RQ12_BIGTABLE.csv reports/s21/RQ12_BIGTABLE_s21.csv
 cp reports/RQ2_PANEL.csv     reports/s21/RQ2_PANEL.csv
 # 3. RQ3 + RQ4
