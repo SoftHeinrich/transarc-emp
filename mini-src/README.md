@@ -63,7 +63,7 @@ python3 mini-src/metrics.py --task sad-code --project jabref --csv /tmp/panel.cs
 # Score arbitrarily-named result CSVs (column dialect auto-detected):
 python3 mini-src/metrics.py --task sad-code \
     --results-dir /path/to/run \
-    --result-pattern 's_linker20_union_{project}_links.csv'
+    --result-pattern 's_linker21_{project}_links.csv'
 ```
 
 Benchmark and result roots default to the bundled tree and can be overridden via

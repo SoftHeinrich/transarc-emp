@@ -1,5 +1,5 @@
 variant,project,tp,fp,fn,f1
-Full,jabref,16,0,2,0.941176
-NoEntityValid,jabref,18,2,0,0.947368
-NoCitation,jabref,16,1,2,0.914286
-NoValidator,jabref,18,2,0,0.947368
+Full,jabref,18,0,0,1.000000
+NoEntityValid,jabref,18,3,0,0.923077
+NoCitation,jabref,18,5,0,0.878049
+NoValidator,jabref,18,7,0,0.837209

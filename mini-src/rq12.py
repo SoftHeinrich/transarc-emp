@@ -68,38 +68,31 @@ SOTA_LINKS = Path(os.environ.get("SOTA_LINKS", m._ARDOCO_HOME / "sota/recovered-
 # Each entry resolves a per-(run,)project file path for both tasks. `runs=None`
 # means single-shot (deterministic / SOTA); a run list means mean-of-runs.
 # `aalinker`/`aalinker-composed` are the recovered doc-to-model / composed
-# doc-to-code dumps of s_linker20_union. SWATTR is TransArC's deterministic
-# doc-to-model stage (TransArC has no standalone doc-to-model system).
+# doc-to-code dumps. SWATTR is TransArC's deterministic doc-to-model stage
+# (TransArC has no standalone doc-to-model system).
 #
-# GPT input = the NEWEST, NO-REASONING run, by design:
-#   sota/recovered-links/.../aalinker[-composed]/gpt-5.4_full  is extracted from
-#   agent-linker/results/v2.6.6_extracts/gpt (per the dump's _manifest `src`):
-#     * v2.6.6_extracts = newest extracts version,
-#     * the plain `gpt` N=3 runner = NO reasoning (OPENAI_REASONING_EFFORT unset
-#       -> temperature kept; see agent-linker llm_client.py), NOT the
-#       `run_s20union_gpt_re_medium_n3.sh` reasoning=medium runner,
-#     * model gpt-5.4 (resolves to gpt-5.4-2026-03-05).
-#   The paper's RQ2 instead used the deleted reasoning=medium slot — see
-#   PAPER_RQ2_OUTDATED below.
+# CANONICAL = S21 (s_linker21, layered no-reasoning validator), N=3. The bare
+# "approach (...)" rows are S21 — the configuration the paper reports (GPT-5.4 =
+# main body, Claude = appendix mirror); the `*_s21` aalinker slots are built by
+# build_s21_dump.py. The prior canonical s_linker20_union (the `*_full` slots,
+# the NO-REASONING extract from agent-linker/results/v2.6.6_extracts) is kept as
+# the "approach s20union (...)" rows for side-by-side comparison only. The paper's
+# RQ2 numbers came from a now-deleted reasoning=medium slot — see PAPER_RQ2_OUTDATED.
 ROSTER = [
-    {"label": "approach (Claude)",  "backend": "claude",  "runs": ["run1", "run2", "run3"],
-     "sad-sam":  "model-doc/aalinker/sonnet_full/{run}/{project}.csv",
-     "sad-code": "doc-code/aalinker-composed/sonnet_full/{run}/{project}.csv"},
+    # Canonical: s_linker21 (S21), N=3 — bare "approach" = S21 everywhere downstream.
     {"label": "approach (GPT-5.4)", "backend": "gpt-5.4", "runs": ["run1", "run2", "run3"],
-     "sad-sam":  "model-doc/aalinker/gpt-5.4_full/{run}/{project}.csv",
-     "sad-code": "doc-code/aalinker-composed/gpt-5.4_full/{run}/{project}.csv"},
-    # S21 (canonical Full = s_linker21, layered no-reasoning validator); gpt-5.4 N=3.
-    # New gpt-5.4_s21 config slot built by sota/recovered-links/build_s21.py — the
-    # gpt-5.4_full rows above remain the s20_union baseline for side-by-side comparison.
-    {"label": "approach S21 (GPT-5.4)", "backend": "gpt-5.4", "runs": ["run1", "run2", "run3"],
      "sad-sam":  "model-doc/aalinker/gpt-5.4_s21/{run}/{project}.csv",
      "sad-code": "doc-code/aalinker-composed/gpt-5.4_s21/{run}/{project}.csv"},
-    # S21 Claude/Sonnet appendix mirror; sonnet_s21 config slot built by build_s21_dump.py
-    # with the sonnet env knobs (S21_CONFIG=sonnet_s21). sonnet_full above stays the
-    # s20_union Claude baseline for side-by-side comparison.
-    {"label": "approach S21 (Claude)", "backend": "claude", "runs": ["run1", "run2", "run3"],
+    {"label": "approach (Claude)",  "backend": "claude",  "runs": ["run1", "run2", "run3"],
      "sad-sam":  "model-doc/aalinker/sonnet_s21/{run}/{project}.csv",
      "sad-code": "doc-code/aalinker-composed/sonnet_s21/{run}/{project}.csv"},
+    # Prior canonical, kept for side-by-side comparison: s_linker20_union (`*_full`).
+    {"label": "approach s20union (GPT-5.4)", "backend": "gpt-5.4", "runs": ["run1", "run2", "run3"],
+     "sad-sam":  "model-doc/aalinker/gpt-5.4_full/{run}/{project}.csv",
+     "sad-code": "doc-code/aalinker-composed/gpt-5.4_full/{run}/{project}.csv"},
+    {"label": "approach s20union (Claude)", "backend": "claude", "runs": ["run1", "run2", "run3"],
+     "sad-sam":  "model-doc/aalinker/sonnet_full/{run}/{project}.csv",
+     "sad-code": "doc-code/aalinker-composed/sonnet_full/{run}/{project}.csv"},
     {"label": "Artemis (GPT-5.4)",  "backend": "gpt-5.4", "runs": None,
      "sad-sam":  "model-doc/artemis-{project}-gpt-5.4.csv",
      "sad-code": "doc-code/artemis-{project}-gpt-5.4.csv"},
@@ -126,7 +119,7 @@ PAPER_RQ2_OUTDATED = {  # approach, gpt-5.4 reasoning=medium, doc-to-code
 }
 
 # RQ2 size-aware panel: doc-to-code, both approach backends + the two baselines.
-RQ2_SYSTEMS = ["TransArC", "Artemis (GPT-5.4)", "approach S21 (GPT-5.4)", "approach S21 (Claude)", "approach (GPT-5.4)", "approach (Claude)"]
+RQ2_SYSTEMS = ["TransArC", "Artemis (GPT-5.4)", "approach (GPT-5.4)", "approach (Claude)", "approach s20union (GPT-5.4)", "approach s20union (Claude)"]
 RQ2_COLS = [
     "doc_to_code_file_f1",
     "doc_to_code_sentence_coverage",
@@ -277,7 +270,7 @@ def build_rq2_panel(rows):
                       **{c: r[c] for c in RQ2_COLS}, "note": ""})
 
     approach_runs = ["run1", "run2", "run3", "average"]
-    for label in ("approach S21 (GPT-5.4)", "approach S21 (Claude)", "approach (GPT-5.4)", "approach (Claude)"):
+    for label in ("approach (GPT-5.4)", "approach (Claude)", "approach s20union (GPT-5.4)", "approach s20union (Claude)"):
         for run in approach_runs:
             r = row_for(rows, label, run)
             if r is not None:
@@ -286,7 +279,7 @@ def build_rq2_panel(rows):
 
     art = row_for(rows, "Artemis (GPT-5.4)", "single")
     if art is not None:
-        for label in ("approach S21 (GPT-5.4)", "approach S21 (Claude)", "approach (GPT-5.4)", "approach (Claude)"):
+        for label in ("approach (GPT-5.4)", "approach (Claude)", "approach s20union (GPT-5.4)", "approach s20union (Claude)"):
             for run in approach_runs:
                 r = row_for(rows, label, run)
                 if r is None:

@@ -28,15 +28,15 @@ one mini-study that depends on run internals rather than scored result CSVs.
 
 ## Inputs
 
-The canonical N=3 `s_linker20_union` sweep (v2.6.5) in the agent-linker repo:
+The canonical N=3 `s_linker21` sweep (v2.6.6) in the agent-linker repo:
 
-| Backend  | Paper role | Results slot (default)                                  |
-|----------|-----------|----------------------------------------------------------|
-| `claude` | main body | `../agent-linker/results/v2.6.5_s20union_sonnet`         |
-| `openai` | appendix  | `../agent-linker/results/v2.6.5_s20union/gpt`            |
+| Backend  | Paper role      | Results slot (default)                      |
+|----------|-----------------|---------------------------------------------|
+| `openai` | main body       | `../agent-linker/results/v2.6.6_s21_gpt`    |
+| `claude` | appendix mirror | `../agent-linker/results/v2.6.6_s21_sonnet` |
 
 Per `run{1,2,3}/<project>/` it reads
-`phase_cache/s_linker20_union/<backend>/<project>/{layer3,layer4,final}.pkl`:
+`phase_cache/s_linker21/<backend>/<project>/{layer3,layer4,final}.pkl`:
 
 - `layer3` → entity linker `candidates` + validator-approved `validated`
   (→ entity kept/killed sets).
@@ -46,7 +46,8 @@ Per `run{1,2,3}/<project>/` it reads
 Gold standard: `goldstandard_sad_*-sam_*.csv` under `$TRANSARC_BENCHMARK`.
 
 Roots derive from this file's location; override via `$TRANSARC_BENCHMARK`,
-`$RQ34_CLAUDE_SLOT`, `$RQ34_OPENAI_SLOT`.
+`$RQ34_VARIANT`, `$RQ34_CLAUDE_SLOT`, `$RQ34_OPENAI_SLOT` (e.g. point these at
+the prior `s_linker20_union` / `v2.6.5_s20union*` slots for a side-by-side).
 
 ## Method notes (faithful to `working/sections/results.tex`)
 
@@ -117,8 +118,8 @@ columns may be fractional there. Per-project, un-summed numbers are in the
 
 `rq34.py` cross-checks every Full-variant `tp/fp/fn` against the run's
 `ablation_*.json` and prints `validate=OK` per backend (mismatches are listed).
-The canonical-run macro-F1 (`claude` run3 0.9345, `openai` run3 0.8940)
-reproduces the figures in the sweep's own `README.md`.
+The canonical-run macro-F1 (`claude` run1 0.9318, `openai` run3 0.9338; the
+median-macro run per backend) is reproduced from the s21 sweep's phase cache.
 
 ## Conventions (inherited)
 

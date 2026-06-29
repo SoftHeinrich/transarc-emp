@@ -2,9 +2,9 @@
 """mini-rq34 — paper RQ3 (validator contribution) + RQ4 (per-module ablation)
 metrics, computed from the agent-linker running results.
 
-Self-contained, stdlib-only. Reads the canonical N=3 ``s_linker20_union`` sweep
-(``v2.6.5_s20union_sonnet`` -> Claude / paper main body; ``v2.6.5_s20union/gpt``
--> GPT-5.4 / appendix), reconstructs each validator's per-link decisions and
+Self-contained, stdlib-only. Reads the canonical N=3 ``s_linker21`` sweep
+(``v2.6.6_s21_gpt`` -> GPT-5.4 / paper main body; ``v2.6.6_s21_sonnet``
+-> Claude / appendix mirror), reconstructs each validator's per-link decisions and
 each linker's provenance from the ``phase_cache`` pickles (``layer3``,
 ``layer4``, ``final``), scores every link against the SAD-SAM gold standard, and
 writes:
@@ -64,16 +64,17 @@ BENCHMARK = Path(os.environ.get(
 
 PROJECTS = ["mediastore", "teastore", "teammates", "bigbluebutton", "jabref"]
 RUNS = ["run1", "run2", "run3"]
-# The phase_cache subdir name = the linker's _VARIANT_NAME. Defaults to the s20_union
-# sweep; override via $RQ34_VARIANT to score a different canonical (e.g. s_linker21).
-VARIANT = os.environ.get("RQ34_VARIANT", "s_linker20_union")
+# The phase_cache subdir name = the linker's _VARIANT_NAME. Defaults to the canonical
+# s21 sweep; override via $RQ34_VARIANT to score the prior s_linker20_union canonical.
+VARIANT = os.environ.get("RQ34_VARIANT", "s_linker21")
 
 # backend -> (results slot, phase_cache backend subdir, paper role)
+# Canonical = s21: GPT-5.4 (openai) = paper main body, Claude = appendix mirror.
 SLOTS: Dict[str, Path] = {
     "claude": Path(os.environ.get(
-        "RQ34_CLAUDE_SLOT", _ARDOCO_HOME / "agent-linker/results/v2.6.5_s20union_sonnet")),
+        "RQ34_CLAUDE_SLOT", _ARDOCO_HOME / "agent-linker/results/v2.6.6_s21_sonnet")),
     "openai": Path(os.environ.get(
-        "RQ34_OPENAI_SLOT", _ARDOCO_HOME / "agent-linker/results/v2.6.5_s20union/gpt")),
+        "RQ34_OPENAI_SLOT", _ARDOCO_HOME / "agent-linker/results/v2.6.6_s21_gpt")),
 }
 PCACHE_BACKEND = {"claude": "claude", "openai": "openai"}
 
