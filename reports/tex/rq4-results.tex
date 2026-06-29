@@ -3,13 +3,14 @@
 \begin{table}[t]
 \caption{RQ4 module ablation on the GPT-5.4 backend.}
 \label{tab:rq4}
-\centering\small
-\setlength{\tabcolsep}{5pt}
+\centering\footnotesize
+\setlength{\tabcolsep}{3pt}
+\adjustbox{max width=\columnwidth}{
 \begin{tabular}{@{}l rrrrrr@{}}
 \toprule
- & \multicolumn{1}{c}{doc-to-model} & \multicolumn{4}{c}{doc-to-code (size-aware suite)} & \multicolumn{1}{c}{} \\
+ & \multicolumn{1}{c}{doc-to-model} & \multicolumn{4}{c}{doc-to-code (size-aware)} & \multicolumn{1}{c}{} \\
 \cmidrule(lr){2-2}\cmidrule(lr){3-6}
-Variant & Macro \fone & File \fone & Sent.\ cov. & Worst\ \fone & Harm.\ \fone & Uniq.\ TP \\
+Variant & Macro\ \fone & File\ \fone & Cov & Worst & Harm & Uniq.\ TP \\
 \midrule
 Full & \textbf{.936} & \textbf{.906} & \textbf{.84} & \textbf{.75} & \textbf{.88} & -- \\
 \linkerB{} only & .880 & .860 & .74 & .69 & .83 & \textbf{137} \\
@@ -17,4 +18,5 @@ Full & \textbf{.936} & \textbf{.906} & \textbf{.84} & \textbf{.75} & \textbf{.88
 No knowledge & .878 & .851 & .77 & .53 & .66 & -- \\
 \bottomrule
 \end{tabular}
+}
 \end{table}

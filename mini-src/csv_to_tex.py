@@ -85,6 +85,9 @@ def render(spec):
     out.append("\\centering" + spec.get("size", "\\small"))
     if spec.get("colsep"):
         out.append(f"\\setlength{{\\tabcolsep}}{{{spec['colsep']}}}")
+    if spec.get("fit"):
+        width = "\\textwidth" if spec.get("star") else "\\columnwidth"
+        out.append("\\adjustbox{max width=" + width + "}{")
     out.append(f"\\begin{{tabular}}{{{colspec}}}")
     out.append("\\toprule")
 
@@ -133,6 +136,8 @@ def render(spec):
 
     out.append("\\bottomrule")
     out.append("\\end{tabular}")
+    if spec.get("fit"):
+        out.append("}")
     if spec.get("footnote"):
         out.append(f"\\par\\smallskip\\footnotesize {spec['footnote']}")
     out.append("\\end{table*}" if spec.get("star") else "\\end{table}")
@@ -241,16 +246,17 @@ SPECS = [
      ]},
 
     # ---- RQ4 body (was fig:rq4-ablation) ----
-    {"csv": "rq4.csv", "out": "rq4-results.tex", "label": "tab:rq4", "colsep": "5pt",
+    {"csv": "rq4.csv", "out": "rq4-results.tex", "label": "tab:rq4", "size": "\\footnotesize",
+     "colsep": "3pt", "fit": True,
      "caption": "RQ4 module ablation on the GPT-5.4 backend.",
      "labels": [{"field": "variant", "header": "Variant", "map": VAR_MAP}],
-     "groups": [("doc-to-model", 1), ("doc-to-code (size-aware suite)", 4), ("", 1)],
+     "groups": [("doc-to-model", 1), ("doc-to-code (size-aware)", 4), ("", 1)],
      "cols": [
-         {"field": "doc_to_model_macro_f1", "header": "Macro \\fone", "kind": "f3", "bold": "max"},
-         {"field": "dc_file_f1", "header": "File \\fone", "kind": "f3", "bold": "max"},
-         {"field": "dc_sentence_coverage", "header": "Sent.\\ cov.", "kind": "f2", "bold": "max"},
-         {"field": "dc_worst_component_f1", "header": "Worst\\ \\fone", "kind": "f2", "bold": "max"},
-         {"field": "dc_harmonic_component_f1", "header": "Harm.\\ \\fone", "kind": "f2", "bold": "max"},
+         {"field": "doc_to_model_macro_f1", "header": "Macro\\ \\fone", "kind": "f3", "bold": "max"},
+         {"field": "dc_file_f1", "header": "File\\ \\fone", "kind": "f3", "bold": "max"},
+         {"field": "dc_sentence_coverage", "header": "Cov", "kind": "f2", "bold": "max"},
+         {"field": "dc_worst_component_f1", "header": "Worst", "kind": "f2", "bold": "max"},
+         {"field": "dc_harmonic_component_f1", "header": "Harm", "kind": "f2", "bold": "max"},
          {"field": "unique_tps", "header": "Uniq.\\ TP", "kind": "int", "bold": "max"},
      ]},
 
