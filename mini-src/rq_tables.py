@@ -18,7 +18,8 @@ Run the upstream generators first (see HOWTO-REGENERATE-RQ.md):
     #   + the two no-knowledge rq34_rq2 runs (see HOWTO §4) for the RQ4 "No knowledge" row
 
 Outputs (reports/tex_src/):
-    rq1.csv  rq2.csv  rq3.csv  rq4.csv                 -- the four BODY tables (GPT-5.4)
+    rq1.csv  rq2.csv  rq3.csv  rq4.csv                 -- the four BODY tables (GPT-5.4; rq3 = mean of 3 runs)
+    rq3_claude.csv  rq3_perrun.csv  rq3_perrun_claude.csv  rq3_perproject.csv  -- RQ3 appendix tables
     bigtable_rq12_avg.csv   bigtable_rq12_perproject.csv   -- RQ1+RQ2 appendix big tables
     bigtable_rq4_avg.csv    bigtable_rq4_perproject.csv    -- RQ4 appendix big tables
 """
@@ -69,15 +70,6 @@ def write_csv(name, fieldnames, rows):
         w.writeheader()
         w.writerows(rows)
     print(f"[rq_tables] wrote {path}")
-
-
-def canonical_run(backend_dir: str) -> str:
-    """The median-macro run rq34.py marked canonical, from runs_summary.csv."""
-    rows = read_csv(RQ34 / backend_dir / "runs_summary.csv")
-    for r in rows:
-        if r["project"] == "MACRO" and r["canonical"] == "yes":
-            return r["run"]
-    raise SystemExit(f"[rq_tables] no canonical run flagged in {backend_dir}/runs_summary.csv")
 
 
 def i(v):
@@ -133,30 +125,51 @@ def build_rq2(big):
 
 
 # --------------------------------------------------------------------------- #
-# RQ3 body table (GPT-5.4 canonical run): per-judge confusion matrix
+# RQ3 confusion matrix (per-judge): mean over the three runs for the body table
+# and the Claude mirror, plus a per-run breakdown for the appendix. Both backends.
 # --------------------------------------------------------------------------- #
 PROJ_DISPLAY = {"mediastore": "MediaStore", "teastore": "TeaStore", "teammates": "Teammates",
                 "bigbluebutton": "BigBlueButton", "jabref": "JabRef"}
 
+RQ3_RUNS = ["run1", "run2", "run3"]
+RQ3_COLS = ["ent_reject", "ent_keep", "coref_reject", "coref_keep"]
 
-def build_rq3(backend, out):
-    """Per-judge confusion matrix for one backend (its canonical run)."""
-    run = canonical_run(backend)
-    val = index(read_csv(RQ34 / "rq3_validators.csv"), "backend", "run", "validator")
-    ent = val[(backend, run, "entity")]
-    cor = val[(backend, run, "coref")]
-    # Pivot to the display matrix: rows = true class, cols = judge x {REJECT, KEEP}.
-    # The TP-REJECT cell reports the *unique* rejected true positives (those this judge
-    # rejects that the other judge would keep) — the recall cost attributable to it alone.
-    rows = [
-        {"true_class": "False positive (FP)",
+
+def _rq3_matrix(ent, cor, extra=None):
+    """The two-row FP/TP confusion matrix shared by the mean and per-run tables.
+
+    rows = true class, cols = judge x {REJECT, KEEP}. The TP-REJECT cell reports the
+    *unique* rejected true positives (those this judge rejects that the other judge would
+    keep) — the recall cost attributable to it alone. ``extra`` prepends fixed columns
+    (e.g. the run label) to every row.
+    """
+    base = extra or {}
+    return [
+        {**base, "true_class": "False positive (FP)",
          "ent_reject": i(ent["rejected_fp"]), "ent_keep": i(ent["kept_fp"]),
          "coref_reject": i(cor["rejected_fp"]), "coref_keep": i(cor["kept_fp"])},
-        {"true_class": "True positive (TP)",
+        {**base, "true_class": "True positive (TP)",
          "ent_reject": i(ent["unique_rejected_tp"]), "ent_keep": i(ent["kept_tp"]),
          "coref_reject": i(cor["unique_rejected_tp"]), "coref_keep": i(cor["kept_tp"])},
     ]
-    write_csv(out, ["true_class", "ent_reject", "ent_keep", "coref_reject", "coref_keep"], rows)
+
+
+def build_rq3(backend, out):
+    """Per-judge confusion matrix for one backend, averaged over the three runs."""
+    val = index(read_csv(RQ34 / "rq3_validators.csv"), "backend", "run", "validator")
+    rows = _rq3_matrix(val[(backend, "average", "entity")], val[(backend, "average", "coref")])
+    write_csv(out, ["true_class"] + RQ3_COLS, rows)
+
+
+def build_rq3_perrun(backend, out):
+    """Per-judge confusion matrix for one backend, broken out by individual run —
+    the per-run detail behind the averaged body/appendix table."""
+    val = index(read_csv(RQ34 / "rq3_validators.csv"), "backend", "run", "validator")
+    rows = []
+    for run in RQ3_RUNS:
+        rows += _rq3_matrix(val[(backend, run, "entity")], val[(backend, run, "coref")],
+                            extra={"run": run})
+    write_csv(out, ["run", "true_class"] + RQ3_COLS, rows)
 
 
 def build_rq3_perproject(backend="openai", out="rq3_perproject.csv"):
@@ -311,6 +324,8 @@ def main():
     build_rq2(big)
     build_rq3("openai", "rq3.csv")
     build_rq3("claude", "rq3_claude.csv")
+    build_rq3_perrun("openai", "rq3_perrun.csv")
+    build_rq3_perrun("claude", "rq3_perrun_claude.csv")
     build_rq3_perproject("openai", "rq3_perproject.csv")
     build_rq4()
     build_bigtable_rq12_avg(big)

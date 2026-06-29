@@ -247,7 +247,8 @@ top of the CSVs above:
 ```bash
 # (a) reshape the wide CSVs into one small "this is the table" CSV per float
 python3 mini-src/rq_tables.py
-#   → reports/tex_src/rq1.csv  rq2.csv  rq3.csv  rq3_claude.csv  rq3_perproject.csv  rq4.csv   (body + RQ3 appendix)
+#   → reports/tex_src/rq1.csv  rq2.csv  rq3.csv  rq4.csv                                   (body; rq3 = mean of 3 runs)
+#   → reports/tex_src/rq3_claude.csv  rq3_perrun.csv  rq3_perrun_claude.csv  rq3_perproject.csv  (RQ3 appendix)
 #   → reports/tex_src/bigtable_rq12_avg.csv  bigtable_rq12_perproject.csv               (RQ1+RQ2 big tables)
 #   → reports/tex_src/bigtable_rq4_avg.csv   bigtable_rq4_perproject.csv                (RQ4 big tables)
 
@@ -269,7 +270,8 @@ cp reports/tex/rq1-results.tex reports/tex/rq2-results.tex \
    reports/tex/rq3-confusion.tex reports/tex/rq4-results.tex   ../alinker-paper/table/
 cp reports/tex/big-table.tex reports/tex/big-table-perproject.tex \
    reports/tex/rq4-bigtable.tex reports/tex/rq4-bigtable-perproject.tex \
-   reports/tex/rq3-confusion-claude.tex reports/tex/rq3-perproject.tex   ../alinker-paper/appendix/
+   reports/tex/rq3-confusion-claude.tex reports/tex/rq3-perproject.tex \
+   reports/tex/rq3-perrun.tex reports/tex/rq3-perrun-claude.tex   ../alinker-paper/appendix/
 ```
 
 The copied files carry a `% GENERATED ... do not edit by hand` header; edit the CSV
@@ -279,13 +281,15 @@ specs and re-render instead. Which float each CSV feeds:
 |---------------------|-------------|-----------------|
 | body RQ1 `tab:rq1` | `rq1.csv` | GPT-5.4, macro |
 | body RQ2 `tab:rq2` | `rq2.csv` | GPT-5.4, macro size-aware |
-| body RQ3 `tab:rq3-confusion` | `rq3.csv` | GPT-5.4, canonical run |
+| body RQ3 `tab:rq3-confusion` | `rq3.csv` | GPT-5.4, mean of 3 runs |
 | body RQ4 `tab:rq4` | `rq4.csv` | GPT-5.4, macro |
 | appendix `tab:detailed-macro` | `bigtable_rq12_avg.csv` | both backends, whole suite |
 | appendix `tab:detailed-perproject` | `bigtable_rq12_perproject.csv` | both backends, per project |
 | appendix `tab:rq4-detailed` | `bigtable_rq4_avg.csv` | both backends, whole suite |
 | appendix `tab:rq4-perproject` | `bigtable_rq4_perproject.csv` | both backends, per project |
-| appendix `tab:rq3-confusion-claude` | `rq3_claude.csv` | Claude, canonical run |
+| appendix `tab:rq3-confusion-claude` | `rq3_claude.csv` | Claude, mean of 3 runs |
+| appendix `tab:rq3-perrun` | `rq3_perrun.csv` | GPT-5.4, per run |
+| appendix `tab:rq3-perrun-claude` | `rq3_perrun_claude.csv` | Claude, per run |
 | appendix `tab:rq3-perproject` | `rq3_perproject.csv` | GPT-5.4, per project |
 
 ---
@@ -326,7 +330,7 @@ RQ34_VARIANT=s_linker21 RQ34_CLAUDE_SLOT=$HOME_ABS/agent-linker/results/v2.6.6_s
 # 5. paper tables: reshape -> render -> copy into ../alinker-paper (see §5)
 python3 mini-src/rq_tables.py && python3 mini-src/csv_to_tex.py
 cp reports/tex/{rq1-results,rq2-results,rq3-confusion,rq4-results}.tex ../alinker-paper/table/
-cp reports/tex/{big-table,big-table-perproject,rq4-bigtable,rq4-bigtable-perproject,rq3-confusion-claude,rq3-perproject}.tex ../alinker-paper/appendix/
+cp reports/tex/{big-table,big-table-perproject,rq4-bigtable,rq4-bigtable-perproject,rq3-confusion-claude,rq3-perproject,rq3-perrun,rq3-perrun-claude}.tex ../alinker-paper/appendix/
 # 6. verify
 python3 mini-src/check.py
 ```

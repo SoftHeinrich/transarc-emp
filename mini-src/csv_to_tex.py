@@ -158,6 +158,7 @@ BIGSYS_MAP = {"approach (GPT-5.4)": "\\approach{} (GPT-5.4)", "approach (Claude)
 VAR_MAP = {"Full": "Full", "Direct": "\\linkerB{} only",
            "Indirect": "\\linkerC{} only", "No knowledge": "No knowledge"}
 BACKEND_MAP = {"openai": "GPT-5.4", "claude": "Claude"}
+RUN_MAP = {"run1": "Run 1", "run2": "Run 2", "run3": "Run 3"}
 
 # the curated "whole suite" shown in the big tables (link P/R/F1 + file P/R/F1 + size-aware)
 SUITE9 = [
@@ -206,10 +207,10 @@ SPECS = [
          {"field": "harmonic_component_f1", "header": "Harm.\\ \\fone", "kind": "f2", "bold": "max"},
      ]},
 
-    # ---- RQ3 body confusion matrix ----
+    # ---- RQ3 body confusion matrix (mean of 3 runs) ----
     {"csv": "rq3.csv", "out": "rq3-confusion.tex", "label": "tab:rq3-confusion",
      "colspec": "@{}l cc @{\\hskip 2.2em} cc@{}",
-     "caption": "RQ3 judge confusion on the GPT-5.4 backend.",
+     "caption": "RQ3 judge confusion on the GPT-5.4 backend, averaged over the three runs.",
      "labels": [{"field": "true_class", "header": "True class"}],
      "groups": [("\\entValidator{}", 2), ("\\corefValidator{}", 2)],
      "cols": [
@@ -219,11 +220,41 @@ SPECS = [
          {"field": "coref_keep", "header": "KEEP", "kind": "int"},
      ]},
 
-    # ---- RQ3 Claude mirror (appendix) ----
+    # ---- RQ3 Claude mirror, mean of 3 runs (appendix) ----
     {"csv": "rq3_claude.csv", "out": "rq3-confusion-claude.tex", "label": "tab:rq3-confusion-claude",
      "colspec": "@{}l cc @{\\hskip 2.2em} cc@{}",
-     "caption": "RQ3 judge confusion on the Claude Sonnet backend.",
+     "caption": "RQ3 judge confusion on the Claude Sonnet backend, averaged over the three runs.",
      "labels": [{"field": "true_class", "header": "True class"}],
+     "groups": [("\\entValidator{}", 2), ("\\corefValidator{}", 2)],
+     "cols": [
+         {"field": "ent_reject", "header": "REJECT", "kind": "int"},
+         {"field": "ent_keep", "header": "KEEP", "kind": "int"},
+         {"field": "coref_reject", "header": "REJECT", "kind": "int"},
+         {"field": "coref_keep", "header": "KEEP", "kind": "int"},
+     ]},
+
+    # ---- RQ3 per-run confusion matrix, GPT-5.4 (appendix) ----
+    {"csv": "rq3_perrun.csv", "out": "rq3-perrun.tex", "label": "tab:rq3-perrun", "no_bold": True,
+     "colspec": "@{}ll cc @{\\hskip 2.2em} cc@{}",
+     "caption": "RQ3 judge confusion per run on the GPT-5.4 backend "
+                "(the three runs behind \\autoref{tab:rq3-confusion}).",
+     "labels": [{"field": "run", "header": "Run", "map": RUN_MAP, "group_by": True},
+                {"field": "true_class", "header": "True class"}],
+     "groups": [("\\entValidator{}", 2), ("\\corefValidator{}", 2)],
+     "cols": [
+         {"field": "ent_reject", "header": "REJECT", "kind": "int"},
+         {"field": "ent_keep", "header": "KEEP", "kind": "int"},
+         {"field": "coref_reject", "header": "REJECT", "kind": "int"},
+         {"field": "coref_keep", "header": "KEEP", "kind": "int"},
+     ]},
+
+    # ---- RQ3 per-run confusion matrix, Claude Sonnet (appendix) ----
+    {"csv": "rq3_perrun_claude.csv", "out": "rq3-perrun-claude.tex", "label": "tab:rq3-perrun-claude",
+     "no_bold": True, "colspec": "@{}ll cc @{\\hskip 2.2em} cc@{}",
+     "caption": "RQ3 judge confusion per run on the Claude Sonnet backend "
+                "(the three runs behind \\autoref{tab:rq3-confusion-claude}).",
+     "labels": [{"field": "run", "header": "Run", "map": RUN_MAP, "group_by": True},
+                {"field": "true_class", "header": "True class"}],
      "groups": [("\\entValidator{}", 2), ("\\corefValidator{}", 2)],
      "cols": [
          {"field": "ent_reject", "header": "REJECT", "kind": "int"},
