@@ -1,0 +1,321 @@
+#!/usr/bin/env python3
+"""Consolidate the canonical RQ CSVs into per-table "this is the table" CSVs.
+
+The numbers behind the paper's research questions are produced by several
+engines (``rq12.py`` for RQ1/RQ2, ``rq34.py`` + ``rq34_rq2.py`` for RQ3/RQ4)
+and land in wide, machine-oriented CSVs. This driver is the *reshape* layer: it
+selects the exact rows/columns each paper float needs and writes one small,
+human-readable CSV per table under ``reports/tex_src/``. ``csv_to_tex.py`` then
+renders each of those into a booktabs ``.tex`` table — so the CSV is reviewable
+on its own and the TeX step stays dumb.
+
+It performs NO metric computation; every cell is copied from an upstream CSV.
+Run the upstream generators first (see HOWTO-REGENERATE-RQ.md):
+
+    python3 mini-src/rq12.py            # RQ12_BIGTABLE.csv, RQ12_PERPROJECT.csv, RQ2_PANEL.csv
+    python3 mini-rq34/rq34.py           # rq3_validators.csv, rq4_variants.csv, rq4_linkers.csv, runs_summary
+    python3 mini-rq34/rq34_rq2.py       # rq34_rq2_linkers.csv (+ _perproject); FULL slots
+    #   + the two no-knowledge rq34_rq2 runs (see HOWTO §4) for the RQ4 "No knowledge" row
+
+Outputs (reports/tex_src/):
+    rq1.csv  rq2.csv  rq3.csv  rq4.csv                 -- the four BODY tables (GPT-5.4)
+    bigtable_rq12_avg.csv   bigtable_rq12_perproject.csv   -- RQ1+RQ2 appendix big tables
+    bigtable_rq4_avg.csv    bigtable_rq4_perproject.csv    -- RQ4 appendix big tables
+"""
+
+from __future__ import annotations
+
+import csv
+import sys
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+EVAL = HERE.parent                                  # .../transarc-emp
+REPORTS = EVAL / "reports"
+RQ34 = EVAL / "mini-rq34" / "reports"
+RQ34_NOKNOW = {                                     # backend -> no-knowledge rq34_rq2 report dir
+    "openai": EVAL / "mini-rq34" / "reports_s21_noknow",
+    "claude": EVAL / "mini-rq34" / "reports_s21_noknow_sonnet",
+}
+TEX_SRC = REPORTS / "tex_src"
+
+PROJECTS = ["mediastore", "teastore", "teammates", "bigbluebutton", "jabref"]
+
+# Whole doc-to-code suite, in display order (matches rq34_rq2 PANEL / RQ12 columns).
+DC_SUITE = ["file_precision", "file_recall", "file_f1", "component_micro_f1",
+            "worst_component_f1", "harmonic_component_f1", "sentence_coverage", "noise_rate"]
+
+
+# --------------------------------------------------------------------------- #
+# IO helpers
+# --------------------------------------------------------------------------- #
+def read_csv(path: Path):
+    if not path.exists():
+        raise SystemExit(f"[rq_tables] missing required input CSV: {path}\n"
+                         f"  run the upstream generator first (see HOWTO-REGENERATE-RQ.md).")
+    with path.open(encoding="utf-8") as f:
+        return list(csv.DictReader(f))
+
+
+def index(rows, *keys):
+    return {tuple(r[k] for k in keys): r for r in rows}
+
+
+def write_csv(name, fieldnames, rows):
+    TEX_SRC.mkdir(parents=True, exist_ok=True)
+    path = TEX_SRC / name
+    with path.open("w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=fieldnames, lineterminator="\n")
+        w.writeheader()
+        w.writerows(rows)
+    print(f"[rq_tables] wrote {path}")
+
+
+def canonical_run(backend_dir: str) -> str:
+    """The median-macro run rq34.py marked canonical, from runs_summary.csv."""
+    rows = read_csv(RQ34 / backend_dir / "runs_summary.csv")
+    for r in rows:
+        if r["project"] == "MACRO" and r["canonical"] == "yes":
+            return r["run"]
+    raise SystemExit(f"[rq_tables] no canonical run flagged in {backend_dir}/runs_summary.csv")
+
+
+def i(v):
+    """Round a possibly-fractional count string to an integer for display."""
+    return str(round(float(v))) if v not in ("", None) else ""
+
+
+# --------------------------------------------------------------------------- #
+# RQ1 / RQ2 body tables (GPT-5.4)
+# --------------------------------------------------------------------------- #
+def build_rq1(big):
+    """One row per display system; SWATTR/TransArC split the bundled TransArc row."""
+    ap = big[("approach (GPT-5.4)", "average")]
+    ar = big[("Artemis (GPT-5.4)", "single")]
+    tx = big[("TransArC", "single")]
+    cols = ["dm_p", "dm_r", "dm_f1", "dc_p", "dc_r", "dc_f1"]
+
+    def row(label, src, dm=True, dc=True):
+        return {
+            "system": label,
+            "dm_p": src["doc_to_model_link_precision"] if dm else "",
+            "dm_r": src["doc_to_model_link_recall"] if dm else "",
+            "dm_f1": src["doc_to_model_link_f1"] if dm else "",
+            "dc_p": src["doc_to_code_file_precision"] if dc else "",
+            "dc_r": src["doc_to_code_file_recall"] if dc else "",
+            "dc_f1": src["doc_to_code_file_f1"] if dc else "",
+        }
+
+    rows = [
+        row("approach", ap),
+        row("Artemis", ar),
+        row("SWATTR", tx, dm=True, dc=False),       # TransArc's deterministic doc-to-model stage
+        row("TransArC", tx, dm=False, dc=True),     # TransArc proper = doc-to-code only
+    ]
+    write_csv("rq1.csv", ["system"] + cols, rows)
+
+
+def build_rq2(big):
+    """RQ2 size-aware suite, doc-to-code, GPT-5.4 (the former fig:rq2-profile)."""
+    rows = []
+    for label, key in (("approach", ("approach (GPT-5.4)", "average")),
+                       ("Artemis", ("Artemis (GPT-5.4)", "single")),
+                       ("TransArC", ("TransArC", "single"))):
+        s = big[key]
+        rows.append({"system": label,
+                     "file_f1": s["doc_to_code_file_f1"],
+                     "sentence_coverage": s["doc_to_code_sentence_coverage"],
+                     "worst_component_f1": s["doc_to_code_worst_component_f1"],
+                     "harmonic_component_f1": s["doc_to_code_harmonic_component_f1"]})
+    write_csv("rq2.csv",
+              ["system", "file_f1", "sentence_coverage", "worst_component_f1", "harmonic_component_f1"],
+              rows)
+
+
+# --------------------------------------------------------------------------- #
+# RQ3 body table (GPT-5.4 canonical run): per-judge confusion matrix
+# --------------------------------------------------------------------------- #
+PROJ_DISPLAY = {"mediastore": "MediaStore", "teastore": "TeaStore", "teammates": "Teammates",
+                "bigbluebutton": "BigBlueButton", "jabref": "JabRef"}
+
+
+def build_rq3(backend, out):
+    """Per-judge confusion matrix for one backend (its canonical run)."""
+    run = canonical_run(backend)
+    val = index(read_csv(RQ34 / "rq3_validators.csv"), "backend", "run", "validator")
+    ent = val[(backend, run, "entity")]
+    cor = val[(backend, run, "coref")]
+    # Pivot to the display matrix: rows = true class, cols = judge x {REJECT, KEEP}.
+    rows = [
+        {"true_class": "False positive (FP)",
+         "ent_reject": i(ent["rejected_fp"]), "ent_keep": i(ent["kept_fp"]),
+         "coref_reject": i(cor["rejected_fp"]), "coref_keep": i(cor["kept_fp"])},
+        {"true_class": "True positive (TP)",
+         "ent_reject": i(ent["rejected_tp"]), "ent_keep": i(ent["kept_tp"]),
+         "coref_reject": i(cor["rejected_tp"]), "coref_keep": i(cor["kept_tp"])},
+    ]
+    write_csv(out, ["true_class", "ent_reject", "ent_keep", "coref_reject", "coref_keep"], rows)
+
+
+def build_rq3_perproject(backend="openai", out="rq3_perproject.csv"):
+    """Per-project FP/TP rejected for each judge (canonical run) + a Macro mean row."""
+    cols = ["ent_fp_rej", "ent_tp_rej", "coref_fp_rej", "coref_tp_rej"]
+    rows, acc = [], {c: [] for c in cols}
+    for proj in PROJECTS:
+        audit = {r["validator"]: r for r in read_csv(RQ34 / backend / proj / "rq3_audit.csv")}
+        e, c = audit["entity"], audit["coref"]
+        vals = {"ent_fp_rej": int(e["rejected_fp"]), "ent_tp_rej": int(e["rejected_tp"]),
+                "coref_fp_rej": int(c["rejected_fp"]), "coref_tp_rej": int(c["rejected_tp"])}
+        rows.append({"project": PROJ_DISPLAY[proj], **{k: str(v) for k, v in vals.items()}})
+        for k, v in vals.items():
+            acc[k].append(v)
+    rows.append({"project": "Macro",
+                 **{k: str(round(sum(acc[k]) / len(acc[k]))) for k in cols}})
+    write_csv(out, ["project"] + cols, rows)
+
+
+# --------------------------------------------------------------------------- #
+# RQ4 body table (GPT-5.4): the four ablation variants on the size-aware suite
+# --------------------------------------------------------------------------- #
+def _rq4_variant_cells(backend, dm_full, dm_noknow, size_link, size_noknow, uniq):
+    """Assemble the four RQ4 variant rows for one backend.
+
+    dm_full/dm_noknow: rq4_variants.csv (linker_set->macro_f1) for full / no-knowledge slot.
+    size_link: rq34_rq2_linkers.csv rows (linker_set Full/EntityOnly/CorefOnly).
+    size_noknow: no-knowledge rq34_rq2_variants.csv 'Full' row (both linkers, knowledge off).
+    uniq: rq4_linkers.csv rows (Entity/Coref unique_tps).
+    """
+    def panel(src):
+        return {f"dc_{c}": src[f"doc_to_code_{c}"] for c in DC_SUITE}
+
+    return [
+        {"variant": "Full", "doc_to_model_macro_f1": dm_full["full"],
+         **panel(size_link[(backend, "average", "Full")]), "unique_tps": ""},
+        {"variant": "Direct", "doc_to_model_macro_f1": dm_full["entity_only"],
+         **panel(size_link[(backend, "average", "EntityOnly")]),
+         "unique_tps": i(uniq[(backend, "average", "Entity")]["unique_tps"])},
+        {"variant": "Indirect", "doc_to_model_macro_f1": dm_full["coref_only"],
+         **panel(size_link[(backend, "average", "CorefOnly")]),
+         "unique_tps": i(uniq[(backend, "average", "Coref")]["unique_tps"])},
+        {"variant": "No knowledge", "doc_to_model_macro_f1": dm_noknow["full"],
+         **panel(size_noknow), "unique_tps": ""},
+    ]
+
+
+def _load_rq4_sources(backend):
+    dm_full = {r["linker_set"]: r["macro_f1"]
+               for r in read_csv(RQ34 / "rq4_variants.csv")
+               if r["backend"] == backend and r["run"] == "average"}
+    dm_noknow = {r["linker_set"]: r["macro_f1"]
+                 for r in read_csv(RQ34_NOKNOW[backend] / "rq4_variants.csv")
+                 if r["backend"] == backend and r["run"] == "average"}
+    size_link = index(read_csv(RQ34 / "rq34_rq2_linkers.csv"), "backend", "run", "linker_set")
+    size_noknow = index(read_csv(RQ34_NOKNOW[backend] / "rq34_rq2_variants.csv"),
+                        "backend", "run", "variant")[(backend, "average", "Full")]
+    uniq = index(read_csv(RQ34 / "rq4_linkers.csv"), "backend", "run", "linker")
+    return dm_full, dm_noknow, size_link, size_noknow, uniq
+
+
+def build_rq4():
+    dm_full, dm_noknow, size_link, size_noknow, uniq = _load_rq4_sources("openai")
+    rows = _rq4_variant_cells("openai", dm_full, dm_noknow, size_link, size_noknow, uniq)
+    fields = (["variant", "doc_to_model_macro_f1"]
+              + [f"dc_{c}" for c in ("file_f1", "sentence_coverage",
+                                     "worst_component_f1", "harmonic_component_f1")]
+              + ["unique_tps"])
+    # Body table shows only the headline tail metrics; keep the four key ones.
+    rows = [{k: r[k] for k in fields} for r in rows]
+    write_csv("rq4.csv", fields, rows)
+
+
+# --------------------------------------------------------------------------- #
+# RQ1+RQ2 big tables (whole suite, both backends): average + per-project
+# --------------------------------------------------------------------------- #
+SUITE_COLS = (["doc_to_model_link_precision", "doc_to_model_link_recall", "doc_to_model_link_f1",
+               "doc_to_model_sentence_coverage", "doc_to_model_noise_rate"]
+              + [f"doc_to_code_{c}" for c in DC_SUITE])
+
+BIG_SYSTEMS = [  # (display label, (system, run) key into RQ12_BIGTABLE)
+    ("approach (GPT-5.4)", ("approach (GPT-5.4)", "average")),
+    ("approach (Claude)",  ("approach (Claude)", "average")),
+    ("Artemis (GPT-5.4)",  ("Artemis (GPT-5.4)", "single")),
+    ("TransArC",           ("TransArC", "single")),
+]
+BIG_SYSTEMS_PP = [lab for lab, _ in BIG_SYSTEMS]  # per-project keyed by system label only
+
+
+def build_bigtable_rq12_avg(big):
+    rows = []
+    for label, key in BIG_SYSTEMS:
+        s = big[key]
+        rows.append({"system": label, **{c: s[c] for c in SUITE_COLS}})
+    write_csv("bigtable_rq12_avg.csv", ["system"] + SUITE_COLS, rows)
+
+
+def build_bigtable_rq12_perproject():
+    pp = index(read_csv(REPORTS / "RQ12_PERPROJECT.csv"), "system", "project")
+    rows = []
+    for label in BIG_SYSTEMS_PP:
+        for proj in PROJECTS:
+            s = pp[(label, proj)]
+            rows.append({"system": label, "project": proj, **{c: s[c] for c in SUITE_COLS}})
+    write_csv("bigtable_rq12_perproject.csv", ["system", "project"] + SUITE_COLS, rows)
+
+
+# --------------------------------------------------------------------------- #
+# RQ4 big tables (whole suite, both backends): average + per-project
+# --------------------------------------------------------------------------- #
+RQ4_DISPLAY = [("Full", "Full"), ("Direct", "Direct"),
+               ("Indirect", "Indirect"), ("No knowledge", "No knowledge")]
+
+
+def build_bigtable_rq4_avg():
+    fields = ["backend", "variant", "doc_to_model_macro_f1"] + [f"dc_{c}" for c in DC_SUITE] + ["unique_tps"]
+    rows = []
+    for backend in ("openai", "claude"):
+        dm_full, dm_noknow, size_link, size_noknow, uniq = _load_rq4_sources(backend)
+        for r in _rq4_variant_cells(backend, dm_full, dm_noknow, size_link, size_noknow, uniq):
+            rows.append({"backend": backend, **r})
+    write_csv("bigtable_rq4_avg.csv", fields, rows)
+
+
+def build_bigtable_rq4_perproject():
+    """Doc-to-code suite per (backend, variant, project). doc-to-model macro F1 is
+    avg-only (no per-project per-variant link F1 is computed), so it is omitted here."""
+    link_pp = index(read_csv(RQ34 / "rq34_rq2_linkers_perproject.csv"),
+                    "backend", "run", "linker_set", "project")
+    fields = ["backend", "variant", "project"] + [f"dc_{c}" for c in DC_SUITE]
+    setmap = {"Full": "Full", "Direct": "EntityOnly", "Indirect": "CorefOnly"}
+    rows = []
+    for backend in ("openai", "claude"):
+        noknow_pp = index(read_csv(RQ34_NOKNOW[backend] / "rq34_rq2_variants_perproject.csv"),
+                          "backend", "run", "variant", "project")
+        for variant, _ in RQ4_DISPLAY:
+            for proj in PROJECTS:
+                if variant == "No knowledge":
+                    s = noknow_pp[(backend, "average", "Full", proj)]
+                else:
+                    s = link_pp[(backend, "average", setmap[variant], proj)]
+                rows.append({"backend": backend, "variant": variant, "project": proj,
+                             **{f"dc_{c}": s[f"doc_to_code_{c}"] for c in DC_SUITE}})
+    write_csv("bigtable_rq4_perproject.csv", fields, rows)
+
+
+# --------------------------------------------------------------------------- #
+def main():
+    big = index(read_csv(REPORTS / "RQ12_BIGTABLE.csv"), "system", "run")
+    build_rq1(big)
+    build_rq2(big)
+    build_rq3("openai", "rq3.csv")
+    build_rq3("claude", "rq3_claude.csv")
+    build_rq3_perproject("openai", "rq3_perproject.csv")
+    build_rq4()
+    build_bigtable_rq12_avg(big)
+    build_bigtable_rq12_perproject()
+    build_bigtable_rq4_avg()
+    build_bigtable_rq4_perproject()
+    print(f"\n[rq_tables] table CSVs written under {TEX_SRC}", file=sys.stderr)
+
+
+if __name__ == "__main__":
+    main()

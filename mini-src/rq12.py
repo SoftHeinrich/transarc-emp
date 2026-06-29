@@ -212,6 +212,60 @@ def build_rows(system):
     return rows
 
 
+def project_panels(system, task):
+    """Per-*project* metric vectors for one system on one task, averaged over runs.
+
+    The orthogonal aggregation to ``run_panels`` (which macro-averages over
+    projects per run): here we keep the project axis and average each project's
+    vector over the system's runs. Feeds the per-project big table. Single-shot
+    systems contribute their one run unchanged.
+    """
+    cols = m.PANELS[task]
+    compute = m.compute_sad_code if task == SC else m.compute_sad_sam
+    pattern = system[task]
+    runs = system["runs"] or [None]
+
+    per_proj = {proj: [] for proj in m.PROJECTS}
+    for run in runs:
+        for proj in m.PROJECTS:
+            rel = pattern.format(run=run, project=proj) if run else pattern.format(project=proj)
+            path = SOTA_LINKS / rel
+            if not path.exists():
+                raise SystemExit(f"missing required {task} result for {system['label']} "
+                                 f"{run or 'single'} {proj}: {path}")
+            res = m.load_result(path, task)
+            if not res:
+                raise SystemExit(f"empty/unparseable required {task} result for "
+                                 f"{system['label']} {run or 'single'} {proj}: {path}")
+            per_proj[proj].append(compute(proj, res))
+    return {proj: {c: sum(r[c] for r in vecs) / len(vecs) for c in cols}
+            for proj, vecs in per_proj.items()}
+
+
+def build_perproject_rows(system):
+    """One row per (system, project): the full suite, mean over the system's runs."""
+    ss = project_panels(system, SS)
+    sc = project_panels(system, SC)
+    rows = []
+    for proj in m.PROJECTS:
+        row = {"system": system["label"], "backend": system["backend"], "project": proj}
+        for name, task, key in COLUMNS:
+            vec = ss[proj] if task == SS else sc[proj]
+            row[name] = vec[key]
+        rows.append(row)
+    return rows
+
+
+def write_perproject_csv(rows, path):
+    fields = ["system", "backend", "project"] + [c[0] for c in COLUMNS]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", newline="") as f:
+        w = csv.writer(f, lineterminator="\n")
+        w.writerow(fields)
+        for r in rows:
+            w.writerow([fmt(r[k]) for k in fields])
+
+
 def summary_row(rows, label):
     return next((r for r in rows if r["system"] == label and r["run"] in ("average", "single")), None)
 
@@ -322,6 +376,9 @@ def main():
                     help="output CSV path (default: <evaluation>/reports/RQ12_BIGTABLE.csv)")
     ap.add_argument("--rq2-csv", default=None,
                     help="RQ2 panel CSV path (default: reports/RQ2_PANEL.csv, or next to --csv)")
+    ap.add_argument("--perproject-csv", default=None,
+                    help="per-project full-suite CSV path "
+                         "(default: reports/RQ12_PERPROJECT.csv, or next to --csv)")
     ap.add_argument("--lissa", action="store_true",
                     help="also include LiSSA; aborts unless all required project files are present")
     args = ap.parse_args()
@@ -349,7 +406,12 @@ def main():
     out2 = Path(args.rq2_csv) if args.rq2_csv else (
         out.parent / "RQ2_PANEL.csv" if args.csv else reports / "RQ2_PANEL.csv")
     write_rq2_csv(panel, out2)
-    print(f"\n[rq12] wrote {out}\n[rq12] wrote {out2}", file=sys.stderr)
+
+    pp_rows = [row for system in roster for row in build_perproject_rows(system)]
+    out3 = Path(args.perproject_csv) if args.perproject_csv else (
+        out.parent / "RQ12_PERPROJECT.csv" if args.csv else reports / "RQ12_PERPROJECT.csv")
+    write_perproject_csv(pp_rows, out3)
+    print(f"\n[rq12] wrote {out}\n[rq12] wrote {out2}\n[rq12] wrote {out3}", file=sys.stderr)
 
 
 if __name__ == "__main__":

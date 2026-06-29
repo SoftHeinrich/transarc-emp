@@ -281,9 +281,32 @@ def write_csv(path: Path, fieldnames: List[str], rows: List[Dict[str, str]]) -> 
         w.writerows(rows)
 
 
-def build_rows(backends: List[str], runs: List[str]) -> Tuple[List[Dict[str, str]], List[Dict[str, str]]]:
+def add_average_perproject(rows: List[Dict[str, str]], keys: List[str]) -> List[Dict[str, str]]:
+    """Average per-project rows over runs, per (keys..., project)."""
+    out = list(rows)
+    groups = sorted({tuple(r[k] for k in keys) + (r["project"],) for r in rows})
+    for group in groups:
+        keyvals, project = group[:-1], group[-1]
+        subset = [r for r in rows
+                  if tuple(r[k] for k in keys) == keyvals
+                  and r["project"] == project and r["run"] in rq.RUNS]
+        if len(subset) != len(rq.RUNS):
+            continue
+        avg = {k: v for k, v in zip(keys, keyvals)}
+        avg["run"] = "average"
+        avg["project"] = project
+        for c in PANEL:
+            avg[c] = f"{sum(float(r[c]) for r in subset) / len(subset):.6f}"
+        out.append(avg)
+    return out
+
+
+def build_rows(backends: List[str], runs: List[str]):
+    """Returns (variant macro, linker macro, variant per-project, linker per-project)."""
     variant_rows: List[Dict[str, str]] = []
     linker_rows: List[Dict[str, str]] = []
+    variant_pp: List[Dict[str, str]] = []
+    linker_pp: List[Dict[str, str]] = []
 
     for backend in backends:
         slot = rq.SLOTS[backend]
@@ -297,6 +320,9 @@ def build_rows(backends: List[str], runs: List[str]) -> Tuple[List[Dict[str, str
                 variant_scores = score_project_sets(project, rq.rq3_variant_sets(cell))
                 for name, score in variant_scores.items():
                     variant_project_rows[name].append(score)
+                    variant_pp.append({"backend": backend, "run": run, "variant": name,
+                                       "project": project,
+                                       **{c: f"{score[c]:.6f}" for c in PANEL}})
 
                 linker_sets = {
                     "Full": cell.final,
@@ -306,6 +332,9 @@ def build_rows(backends: List[str], runs: List[str]) -> Tuple[List[Dict[str, str
                 linker_scores = score_project_sets(project, linker_sets)
                 for name, score in linker_scores.items():
                     linker_project_rows[name].append(score)
+                    linker_pp.append({"backend": backend, "run": run, "linker_set": name,
+                                      "project": project,
+                                      **{c: f"{score[c]:.6f}" for c in PANEL}})
 
             full_variant = macro(variant_project_rows["Full"])
             for name in ("Full", "NoEntityValid", "NoCitation", "NoValidator"):
@@ -326,7 +355,9 @@ def build_rows(backends: List[str], runs: List[str]) -> Tuple[List[Dict[str, str
                 linker_rows.append(row)
 
     return (add_average(variant_rows, ["backend", "variant"]),
-            add_average(linker_rows, ["backend", "linker_set"]))
+            add_average(linker_rows, ["backend", "linker_set"]),
+            add_average_perproject(variant_pp, ["backend", "variant"]),
+            add_average_perproject(linker_pp, ["backend", "linker_set"]))
 
 
 def row_by(rows: List[Dict[str, str]], **query) -> Dict[str, str]:
@@ -391,17 +422,23 @@ def main() -> int:
     args = ap.parse_args()
 
     rq.install_unpickler()
-    variant_rows, linker_rows = build_rows(args.backends, args.runs)
+    variant_rows, linker_rows, variant_pp, linker_pp = build_rows(args.backends, args.runs)
 
     delta_cols = [f"delta_{c}_vs_full" for c in DELTA_COLS]
     write_csv(args.csv_root / "rq34_rq2_variants.csv",
               ["backend", "run", "variant"] + PANEL + delta_cols, variant_rows)
     write_csv(args.csv_root / "rq34_rq2_linkers.csv",
               ["backend", "run", "linker_set"] + PANEL + delta_cols, linker_rows)
+    write_csv(args.csv_root / "rq34_rq2_variants_perproject.csv",
+              ["backend", "run", "variant", "project"] + PANEL, variant_pp)
+    write_csv(args.csv_root / "rq34_rq2_linkers_perproject.csv",
+              ["backend", "run", "linker_set", "project"] + PANEL, linker_pp)
     write_summary(args.csv_root / "RQ34_RQ2_INVESTIGATION.md", variant_rows, linker_rows)
 
     print(f"[rq34-rq2] wrote {args.csv_root / 'rq34_rq2_variants.csv'}")
     print(f"[rq34-rq2] wrote {args.csv_root / 'rq34_rq2_linkers.csv'}")
+    print(f"[rq34-rq2] wrote {args.csv_root / 'rq34_rq2_variants_perproject.csv'}")
+    print(f"[rq34-rq2] wrote {args.csv_root / 'rq34_rq2_linkers_perproject.csv'}")
     print(f"[rq34-rq2] wrote {args.csv_root / 'RQ34_RQ2_INVESTIGATION.md'}")
     return 0
 

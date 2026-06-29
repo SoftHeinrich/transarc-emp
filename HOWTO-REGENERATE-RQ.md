@@ -112,6 +112,7 @@ metric code — `metrics.py` is the sole implementation, pinned by `check.py`.
 python3 mini-src/rq12.py
 #   → reports/RQ12_BIGTABLE.csv   (superset of every RQ1/RQ2 cell)
 #   → reports/RQ2_PANEL.csv       (focused RQ2 size-aware panel, both backends)
+#   → reports/RQ12_PERPROJECT.csv (per system×backend×project, whole suite — feeds the per-project big table)
 
 # RQ2 cell-grain panel + rank-correlation of size-aware metrics vs file F1
 python3 mini-src/rq2_corr.py
@@ -165,6 +166,8 @@ python3 mini-rq34/rq34.py
 # RQ3/RQ4 link sets composed to doc-to-code and re-scored with the RQ2 metric panel
 python3 mini-rq34/rq34_rq2.py
 #   → reports/rq34_rq2_variants.csv, reports/rq34_rq2_linkers.csv
+#   → reports/rq34_rq2_variants_perproject.csv, reports/rq34_rq2_linkers_perproject.csv
+#                                                (per-project size-aware — feeds the RQ4 per-project big table)
 #   → reports/RQ34_RQ2_INVESTIGATION.md
 ```
 
@@ -236,7 +239,58 @@ RQ34_VARIANT=s_linker21 \
 
 ---
 
-## 5. Verification
+## 5. Paper tables: per-RQ CSVs → TeX (the CSV→TeX pipeline)
+
+The paper's RQ floats are **generated**, not hand-typed. Two stdlib scripts sit on
+top of the CSVs above:
+
+```bash
+# (a) reshape the wide CSVs into one small "this is the table" CSV per float
+python3 mini-src/rq_tables.py
+#   → reports/tex_src/rq1.csv  rq2.csv  rq3.csv  rq3_claude.csv  rq3_perproject.csv  rq4.csv   (body + RQ3 appendix)
+#   → reports/tex_src/bigtable_rq12_avg.csv  bigtable_rq12_perproject.csv               (RQ1+RQ2 big tables)
+#   → reports/tex_src/bigtable_rq4_avg.csv   bigtable_rq4_perproject.csv                (RQ4 big tables)
+
+# (b) render each tex_src CSV into a booktabs .tex via the SPECS registry
+python3 mini-src/csv_to_tex.py
+#   → reports/tex/*.tex   (rq{1,2,3,4}-results / rq3-confusion / big-table* / rq4-bigtable*)
+```
+
+`rq_tables.py` does NO metric math — it only selects rows/columns from the CSVs in
+§2–§4 (it reads the no-knowledge `rq34_rq2_*` for the RQ4 "No knowledge" row, so run
+§4 first). `csv_to_tex.py` is a declarative renderer: edit the `SPECS` list to change
+columns, headers, precision, bolding, or captions. Re-running is byte-identical.
+
+**Copy into the paper** (the manual snapshot step — the generated `.tex` lives here,
+the paper just consumes copies):
+
+```bash
+cp reports/tex/rq1-results.tex reports/tex/rq2-results.tex \
+   reports/tex/rq3-confusion.tex reports/tex/rq4-results.tex   ../alinker-paper/table/
+cp reports/tex/big-table.tex reports/tex/big-table-perproject.tex \
+   reports/tex/rq4-bigtable.tex reports/tex/rq4-bigtable-perproject.tex \
+   reports/tex/rq3-confusion-claude.tex reports/tex/rq3-perproject.tex   ../alinker-paper/appendix/
+```
+
+The copied files carry a `% GENERATED ... do not edit by hand` header; edit the CSV
+specs and re-render instead. Which float each CSV feeds:
+
+| Paper float (label) | tex_src CSV | Backend / grain |
+|---------------------|-------------|-----------------|
+| body RQ1 `tab:rq1` | `rq1.csv` | GPT-5.4, macro |
+| body RQ2 `tab:rq2` | `rq2.csv` | GPT-5.4, macro size-aware |
+| body RQ3 `tab:rq3-confusion` | `rq3.csv` | GPT-5.4, canonical run |
+| body RQ4 `tab:rq4` | `rq4.csv` | GPT-5.4, macro |
+| appendix `tab:detailed-macro` | `bigtable_rq12_avg.csv` | both backends, whole suite |
+| appendix `tab:detailed-perproject` | `bigtable_rq12_perproject.csv` | both backends, per project |
+| appendix `tab:rq4-detailed` | `bigtable_rq4_avg.csv` | both backends, whole suite |
+| appendix `tab:rq4-perproject` | `bigtable_rq4_perproject.csv` | both backends, per project |
+| appendix `tab:rq3-confusion-claude` | `rq3_claude.csv` | Claude, canonical run |
+| appendix `tab:rq3-perproject` | `rq3_perproject.csv` | GPT-5.4, per project |
+
+---
+
+## 6. Verification
 
 ```bash
 python3 mini-src/check.py     # frozen-golden regression on metrics.py → PASS
@@ -264,7 +318,15 @@ cp reports/RQ12_BIGTABLE.csv reports/s21/RQ12_BIGTABLE_s21.csv
 cp reports/RQ2_PANEL.csv     reports/s21/RQ2_PANEL.csv
 # 3. RQ3 + RQ4
 python3 mini-rq34/rq34.py && python3 mini-rq34/rq34_rq2.py
-# 4. no-knowledge ablation — see §4
-# 5. verify
+# 4. no-knowledge ablation — see §4 (needed for the RQ4 "No knowledge" big-table row)
+RQ34_VARIANT=s_linker21 RQ34_OPENAI_SLOT=$HOME_ABS/agent-linker/results/v2.6.6_s21_noknow_gpt \
+  python3 mini-rq34/rq34_rq2.py --backends openai --csv-root mini-rq34/reports_s21_noknow
+RQ34_VARIANT=s_linker21 RQ34_CLAUDE_SLOT=$HOME_ABS/agent-linker/results/v2.6.6_s21_noknow_sonnet \
+  python3 mini-rq34/rq34_rq2.py --backends claude --csv-root mini-rq34/reports_s21_noknow_sonnet
+# 5. paper tables: reshape -> render -> copy into ../alinker-paper (see §5)
+python3 mini-src/rq_tables.py && python3 mini-src/csv_to_tex.py
+cp reports/tex/{rq1-results,rq2-results,rq3-confusion,rq4-results}.tex ../alinker-paper/table/
+cp reports/tex/{big-table,big-table-perproject,rq4-bigtable,rq4-bigtable-perproject,rq3-confusion-claude,rq3-perproject}.tex ../alinker-paper/appendix/
+# 6. verify
 python3 mini-src/check.py
 ```

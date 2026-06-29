@@ -4,17 +4,22 @@ metrics against link-level (file) F1.
 
 ``rq12.py`` macro-averages each system's per-project ``metrics.compute_sad_code``
 vectors into ONE row per system; the per-project cells are computed and thrown
-away. The RQ2 claim in the paper (``eval.tex`` sec:exp:rq2, ``results.tex``
-sec:results:rq2) is stated at the *cell* grain: "Across (system, project) cells
-we report the rank correlation between link-level \\fone\\ and each additional
-metric. A low correlation shows the metric adds information \\fone\\ does not."
-This driver keeps the cells and computes that correlation.
+away. This driver keeps the cells: it emits the per-(system, project) panel that
+backs the paper's appendix table ``tab:rq2-tail`` (appendix/rq2-tail.tex) and the
+per-project worst-component claims in ``results.tex`` sec:results:rq2.
 
-Cells = the three systems shown in the RQ2 body floats (fig:rq2-profile,
-fig:rq2-grid) on the doc-to-code task, GPT-5.4 backend, x the five projects:
-  TransArC, Artemis (GPT-5.4), approach (GPT-5.4; s_linker21, N=3 mean).
-=> 15 cells. The approach cell is the mean of run1/run2/run3 (same N=3 mean the
-grid uses); the two baselines are single-shot.
+NOTE the rank correlation is computed and written (RQ2_CORR.csv) only as a
+DIAGNOSTIC: the paper does NOT report it. Under the canonical s21 variant the
+size-aware metrics correlate too strongly with file F1 (coverage rho .90,
+worst-component .67, harmonic .70) to read as "adds information file F1 does not",
+so RQ2 was reframed around the limitation a looks-good standard score hides rather
+than around a low correlation.
+
+Cells = the three systems shown in the RQ2 body floats (fig:rq2-profile) on the
+doc-to-code task, GPT-5.4 backend, x the five projects:
+  TransArC, Artemis (GPT-5.4), approach (GPT-5.4; canonical Full s_linker21, N=3 mean).
+=> 15 cells. The approach cell is the mean of run1/run2/run3; the two baselines
+are single-shot.
 
 For each cell: file F1, sentence coverage, worst-component F1, harmonic-mean
 component F1 -- the same four ``RQ2_COLS`` as ``RQ2_PANEL.csv``. We then report
@@ -42,7 +47,9 @@ sys.path.insert(0, str(HERE))
 import metrics as m   # noqa: E402  (sole metric impl + loaders)
 import rq12           # noqa: E402  (ROSTER + SOTA_LINKS resolution)
 
-# RQ2 cell systems, by approach backend. Labels must match rq12.ROSTER.
+# RQ2 cell systems, by backend. Labels must match rq12.ROSTER. Canonical Full =
+# s_linker21 (S21); rq12.ROSTER's plain "approach (...)" labels resolve to the S21
+# dump (gpt-5.4_s21 / sonnet_s21), matching the body RQ2 floats.
 SYSTEMS = {
     "gpt-5.4": ["TransArC", "Artemis (GPT-5.4)", "approach (GPT-5.4)"],
     "claude":  ["TransArC", "Artemis (GPT-5.4)", "approach (Claude)"],
@@ -184,7 +191,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--backend", choices=sorted(SYSTEMS), default="gpt-5.4",
-                    help="approach backend for the approach cell (default: gpt-5.4, the RQ2 body backend)")
+                    help="approach variant for the approach cell (default: gpt-5.4 = S21, the RQ2 body variant)")
     ap.add_argument("--cells", default=None, help="per-cell CSV path (default: reports/RQ2_CELLS.csv)")
     ap.add_argument("--corr", default=None, help="correlation CSV path (default: reports/RQ2_CORR.csv)")
     args = ap.parse_args()

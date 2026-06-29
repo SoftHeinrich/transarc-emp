@@ -5,11 +5,14 @@ metrics** directly from the agent-linker *running results*. It is the RQ3/RQ4
 counterpart to `mini-inequality/` (RQ2 motivation) and `mini-src/` (RQ1/RQ2
 link- and component-level metrics).
 
-- **RQ3 — validator contribution.** For each of the two validators (the
+- **RQ3 — validator contribution.** A candidate link is a TP if it is in the
+  gold standard, an FP otherwise. For each of the two validators (the
   `\entValidator` two-pass evidence gate on the entity linker, and the
   `\corefValidator` quoted-antecedent gate on the coreference linker): how many
-  gold links it rejects (cost), how many spurious links it rejects (benefit),
-  and the counterfactual macro-F1 change if it is switched off.
+  TPs it rejects (cost), how many of those rejected TPs are *unique* to it (TPs the
+  other validator does not also reject), and how many FPs it rejects (benefit). The
+  `Full / No*Valid / NoValidator` variant macro-F1 is still reported as raw F1,
+  but no per-validator ΔF1.
 - **RQ4 — per-module ablation.** For each linker (`Entity` = `\linkerB`,
   `Coref` = `\linkerC`): true positives caught, *unique* true positives no
   other linker caught, false positives, and the leave-one-out macro-F1 delta —
@@ -39,8 +42,8 @@ Per `run{1,2,3}/<project>/` it reads
 `phase_cache/s_linker21/<backend>/<project>/{layer3,layer4,final}.pkl`:
 
 - `layer3` → entity linker `candidates` + validator-approved `validated`
-  (→ entity kept/killed sets).
-- `layer4` → `coref_raw` + `coref_validated` (→ coref kept/killed sets).
+  (→ entity kept/rejected sets).
+- `layer4` → `coref_raw` + `coref_validated` (→ coref kept/rejected sets).
 - `final` → the emitted link set (= entity-kept ∪ coref-kept, deduped).
 
 Gold standard: `goldstandard_sad_*-sam_*.csv` under `$TRANSARC_BENCHMARK`.
@@ -51,11 +54,13 @@ the prior `s_linker20_union` / `v2.6.5_s20union*` slots for a side-by-side).
 
 ## Method notes (faithful to `working/sections/results.tex`)
 
-- **RQ3 is measured from logged decisions, not by re-running.** The
-  "validator removed" link set is the final set with that validator's rejected
-  links added back in; the resulting macro-F1 drop is the validator's
-  contribution. `Full / NoEntityValid / NoCitation / NoValidator` are derived
-  this way per project, then macro-averaged.
+- **RQ3 is measured from logged decisions, not by re-running.** The headline
+  per-validator signal is its rejected/kept TP/FP counts plus the *unique rejected
+  TP* (TPs it rejects that the other validator does not). The
+  `Full / NoEntityValid / NoCitation / NoValidator` "validator removed" link
+  sets (final set with that validator's rejected links added back) are still
+  derived per project and macro-averaged, but reported as raw macro-F1 only —
+  no per-validator ΔF1.
 - **RQ4 uses set overlap as the headline**, because leave-one-out is
   contaminated (removing one linker lets the other recover some of its hits).
   The leave-one-out `delta_f1_if_removed` is still emitted, but the
@@ -96,22 +101,22 @@ projects per run; top-level reports include all three runs plus a run-average.
 
 | File | Content |
 |------|---------|
-| `rq3_validators.csv` | Per run/backend/validator (+combined): killed/kept × gold/spurious **summed over the 5 projects**, ΔF1 if removed (mean over 5 projects); `average` rows are means over runs. |
-| `rq3_variants.csv` | Per run/backend: macro-F1 of each variant (`Full/NoEntityValid/NoCitation/NoValidator`) + ΔF1 vs Full. |
+| `rq3_validators.csv` | Per run/backend/validator (+combined): rejected/kept × TP/FP and `unique_rejected_tp` (TPs rejected by this validator but not the other; blank on the `all_combined` row) **summed over the 5 projects**; `average` rows are means over runs. |
+| `rq3_variants.csv` | Per run/backend: macro-F1 of each variant (`Full/NoEntityValid/NoCitation/NoValidator`). Raw F1 only — no ΔF1. |
 | `rq4_linkers.csv` | Per run/backend/linker (+overlap row): TPs caught, unique TPs, FPs **summed over the 5 projects**, ΔF1 if removed; `average` rows are means over runs. |
 | `rq4_variants.csv` | Per run/backend: macro-F1 of entity-only / coref-only / full link sets. |
 | `rq34_rq2_variants.csv` | RQ3 variants after SAD-SAM→SAD-CODE composition, scored with the RQ2 doc-to-code metric panel. |
 | `rq34_rq2_linkers.csv` | RQ4 linker sets after SAD-SAM→SAD-CODE composition, scored with the RQ2 doc-to-code metric panel. |
 | `RQ34_RQ2_INVESTIGATION.md` | Short interpretation of the RQ2-lens variant/linker deltas. |
 | `<backend>/<project>/rq3.csv` | Per project: 4 variant rows: tp/fp/fn/f1. |
-| `<backend>/<project>/rq3_audit.csv` | Per project: 2 validator rows: killed/kept gold/spurious. |
+| `<backend>/<project>/rq3_audit.csv` | Per project: 2 validator rows: rejected/kept TP/FP + unique_rejected_tp. |
 | `<backend>/<project>/rq4.csv` | Per project: 2 linker rows: tps_caught/unique_tps/fps/delta_f1_if_removed. |
 | `<backend>/<project>/rq4_upset.csv` | Per project: 3 cells: only_E/both/only_C. |
 | `<backend>/runs_summary.csv` | All 3 runs' per-project + macro F1; canonical marked. |
 
-**Aggregation:** run rows sum counts (and average ΔF1) over the **5 projects of
-one coherent run**. `average` rows are means of the three run rows, so count-like
-columns may be fractional there. Per-project, un-summed numbers are in the
+**Aggregation:** run rows sum counts over the **5 projects of one coherent
+run** (RQ4 also averages its leave-one-out ΔF1). `average` rows are means of the
+three run rows, so count-like columns may be fractional there. Per-project, un-summed numbers are in the
 `<backend>/<project>/` CSVs for the canonical or forced run.
 
 ## Verification

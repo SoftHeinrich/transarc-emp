@@ -18,13 +18,18 @@ writes:
     reports/rq4_linkers.csv     reports/rq4_variants.csv   (run-aware aggregates, both backends)
 
 CSV only — no TeX, no markdown. Top-level aggregates include run1/run2/run3
-and an average row; each run sums counts (and averages ΔF1) over the 5 projects.
+and an average row; each run sums counts over the 5 projects (RQ4 also averages
+its leave-one-out ΔF1).
 
 Method (faithful to alinker-paper working/sections/results.tex):
   * RQ3 measures validator contribution from the full pipeline's *logged
-    decisions*, not by re-running with a validator removed. The "validator
-    removed" link set is the final set with that validator's rejected links
-    added back; the macro-F1 drop is the contribution.
+    decisions*, not by re-running with a validator removed. A candidate link is
+    a TP if it is in the gold standard, an FP otherwise. Per validator we report
+    the TP/FP links it rejects and keeps, and — as the headline cost signal — the
+    *unique rejected TP*: true links that validator rejects that the other
+    validator does not (the analog of RQ4's unique_tps). The Full / No*Valid /
+    NoValidator variant macro-F1 is still emitted as raw F1 (no per-validator
+    ΔF1).
   * RQ4 decomposes each linker by *set overlap* (only_E / both / only_C). The
     leave-one-out delta-F1 is also emitted but is the contaminated comparison
     (the surviving linker recovers some removed hits), so overlap is headline.
@@ -169,12 +174,12 @@ def _key(obj) -> LinkKey:
 
 
 def _validated_sets(candidates: List, validated: List) -> Tuple[Set[LinkKey], Set[LinkKey]]:
-    """(kept, killed) for one linker. ``kept`` = the validator-approved output
-    actually emitted (authoritative ``validated`` list); ``killed`` = proposed
+    """(kept, rejected) for one linker. ``kept`` = the validator-approved output
+    actually emitted (authoritative ``validated`` list); ``rejected`` = proposed
     candidates the validator rejected."""
     kept = {_key(x) for x in validated}
-    killed = {_key(x) for x in candidates} - kept
-    return kept, killed
+    rejected = {_key(x) for x in candidates} - kept
+    return kept, rejected
 
 
 # --------------------------------------------------------------------------- #
@@ -186,9 +191,9 @@ class Cell:
         self.gold: Set[LinkKey] = set()
         self.final: Set[LinkKey] = set()
         self.ent_kept: Set[LinkKey] = set()
-        self.ent_killed: Set[LinkKey] = set()
+        self.ent_rejected: Set[LinkKey] = set()
         self.cor_kept: Set[LinkKey] = set()
-        self.cor_killed: Set[LinkKey] = set()
+        self.cor_rejected: Set[LinkKey] = set()
         self.warnings: List[str] = []
 
 
@@ -208,8 +213,8 @@ def compute_cell(slot: Path, run: str, backend: str, project: str) -> Cell:
     cell = Cell(project)
     cell.gold = load_gold(project)
     cell.final = {_key(x) for x in fin["final"]}
-    cell.ent_kept, cell.ent_killed = _validated_sets(l3["candidates"], l3["validated"])
-    cell.cor_kept, cell.cor_killed = _validated_sets(l4["coref_raw"], l4["coref_validated"])
+    cell.ent_kept, cell.ent_rejected = _validated_sets(l3["candidates"], l3["validated"])
+    cell.cor_kept, cell.cor_rejected = _validated_sets(l4["coref_raw"], l4["coref_validated"])
 
     union = cell.ent_kept | cell.cor_kept
     if union != cell.final:
@@ -226,33 +231,43 @@ def compute_cell(slot: Path, run: str, backend: str, project: str) -> Cell:
 def rq3_variant_sets(cell: Cell) -> Dict[str, Set[LinkKey]]:
     return {
         "Full": cell.final,
-        "NoEntityValid": cell.final | cell.ent_killed,
-        "NoCitation": cell.final | cell.cor_killed,
-        "NoValidator": cell.final | cell.ent_killed | cell.cor_killed,
+        "NoEntityValid": cell.final | cell.ent_rejected,
+        "NoCitation": cell.final | cell.cor_rejected,
+        "NoValidator": cell.final | cell.ent_rejected | cell.cor_rejected,
     }
 
 
 def rq3_audit(cell: Cell) -> Dict[str, Dict[str, int]]:
-    def a(killed, kept):
+    # A candidate link is a TP if it is in the gold standard, an FP otherwise.
+    # "rejected" = the validator dropped the link; "kept" = it survived to the output.
+    # rejected_tp = true links wrongly dropped (cost); rejected_fp = false links
+    # correctly dropped (benefit).
+    ent_rejected_tp = cell.ent_rejected & cell.gold
+    cor_rejected_tp = cell.cor_rejected & cell.gold
+
+    def a(rejected, kept, unique_rejected_tp):
         return {
-            "killed_gold": len(killed & cell.gold),
-            "killed_spurious": len(killed - cell.gold),
-            "kept_gold": len(kept & cell.gold),
-            "kept_spurious": len(kept - cell.gold),
+            "rejected_tp": len(rejected & cell.gold),
+            # TPs THIS validator rejects that the other validator does not
+            # (the per-validator analog of RQ4's unique_tps).
+            "unique_rejected_tp": len(unique_rejected_tp),
+            "rejected_fp": len(rejected - cell.gold),
+            "kept_tp": len(kept & cell.gold),
+            "kept_fp": len(kept - cell.gold),
         }
-    return {"entity": a(cell.ent_killed, cell.ent_kept),
-            "coref": a(cell.cor_killed, cell.cor_kept)}
+    return {"entity": a(cell.ent_rejected, cell.ent_kept, ent_rejected_tp - cor_rejected_tp),
+            "coref": a(cell.cor_rejected, cell.cor_kept, cor_rejected_tp - ent_rejected_tp)}
 
 
 def rq3_combined_audit(cell: Cell) -> Dict[str, int]:
     """Unique-link audit matching the NoValidator set-union counterfactual."""
-    killed = cell.ent_killed | cell.cor_killed
+    rejected = cell.ent_rejected | cell.cor_rejected
     kept = cell.final
     return {
-        "killed_gold": len(killed & cell.gold),
-        "killed_spurious": len(killed - cell.gold),
-        "kept_gold": len(kept & cell.gold),
-        "kept_spurious": len(kept - cell.gold),
+        "rejected_tp": len(rejected & cell.gold),
+        "rejected_fp": len(rejected - cell.gold),
+        "kept_tp": len(kept & cell.gold),
+        "kept_fp": len(kept - cell.gold),
     }
 
 
@@ -324,24 +339,13 @@ class BackendAgg:
         self.macro_no_all = 0.0
         self.macro_entity_only = 0.0
         self.macro_coref_only = 0.0
-        self.audit = {v: {"killed_gold": 0, "killed_spurious": 0, "kept_gold": 0, "kept_spurious": 0}
+        self.audit = {v: {"rejected_tp": 0, "unique_rejected_tp": 0,
+                          "rejected_fp": 0, "kept_tp": 0, "kept_fp": 0}
                       for v in ("entity", "coref")}
-        self.combined_audit = {"killed_gold": 0, "killed_spurious": 0, "kept_gold": 0, "kept_spurious": 0}
+        self.combined_audit = {"rejected_tp": 0, "rejected_fp": 0, "kept_tp": 0, "kept_fp": 0}
         self.linkers = {l: {"tps_caught": 0, "unique_tps": 0, "fps": 0, "delta_f1_sum": 0.0, "n": 0}
                         for l in ("Entity", "Coref")}
         self.upset = {"only_E": 0, "both": 0, "only_C": 0}
-
-    @property
-    def dF1_no_entity(self):  # contribution of the entity validator
-        return self.macro_full - self.macro_no_entity
-
-    @property
-    def dF1_no_coref(self):
-        return self.macro_full - self.macro_no_coref
-
-    @property
-    def dF1_no_all(self):
-        return self.macro_full - self.macro_no_all
 
 
 def mean(vals):
@@ -441,7 +445,8 @@ def process_backend(backend: str, csv_root: Path, run_override: Optional[str],
                 base = csv_root / backend / project
                 _write_csv(base / "rq3.csv", ["variant", "project", "tp", "fp", "fn", "f1"], rq3_rows)
                 _write_csv(base / "rq3_audit.csv",
-                           ["validator", "killed_gold", "killed_spurious", "kept_gold", "kept_spurious"],
+                           ["validator", "rejected_tp", "unique_rejected_tp",
+                            "rejected_fp", "kept_tp", "kept_fp"],
                            [{"validator": v, **audit[v]} for v in ("entity", "coref")])
                 _write_csv(base / "rq4.csv",
                            ["linker", "tps_caught", "unique_tps", "fps", "delta_f1_if_removed"],
@@ -510,17 +515,17 @@ def write_aggregates(csv_root: Path, aggs: Dict[str, List[BackendAgg]]) -> None:
     rows = []
     for backend, backend_aggs in aggs.items():
         for agg in backend_aggs:
-            for v, dF1 in (("entity", agg.dF1_no_entity), ("coref", agg.dF1_no_coref)):
+            for v in ("entity", "coref"):
                 a = agg.audit[v]
                 rows.append({"backend": backend, "run": agg.run, "validator": v,
-                             **{k: fmt_count(a[k]) for k in a},
-                             "delta_f1_if_removed": f"{dF1:+.6f}"})
+                             **{k: fmt_count(a[k]) for k in a}})
+            # unique_rejected_tp is undefined for the union row (no "other" validator).
             rows.append({"backend": backend, "run": agg.run, "validator": "all_combined",
-                         **{k: fmt_count(agg.combined_audit[k]) for k in agg.combined_audit},
-                         "delta_f1_if_removed": f"{agg.dF1_no_all:+.6f}"})
+                         "unique_rejected_tp": "",
+                         **{k: fmt_count(agg.combined_audit[k]) for k in agg.combined_audit}})
     _write_csv(csv_root / "rq3_validators.csv",
-               ["backend", "run", "validator", "killed_gold", "killed_spurious",
-                "kept_gold", "kept_spurious", "delta_f1_if_removed"], rows)
+               ["backend", "run", "validator", "rejected_tp", "unique_rejected_tp",
+                "rejected_fp", "kept_tp", "kept_fp"], rows)
 
     # rq4_linkers.csv
     rows = []
@@ -550,10 +555,9 @@ def write_aggregates(csv_root: Path, aggs: Dict[str, List[BackendAgg]]) -> None:
                                    ("NoCitation", agg.macro_no_coref),
                                    ("NoValidator", agg.macro_no_all)):
                 rows.append({"backend": backend, "run": agg.run, "variant": variant,
-                             "macro_f1": f"{macro:.6f}",
-                             "delta_f1_vs_full": f"{agg.macro_full - macro:+.6f}"})
+                             "macro_f1": f"{macro:.6f}"})
     _write_csv(csv_root / "rq3_variants.csv",
-               ["backend", "run", "variant", "macro_f1", "delta_f1_vs_full"], rows)
+               ["backend", "run", "variant", "macro_f1"], rows)
 
     # rq4_variants.csv -- single-linker macro-F1 (entity-only / coref-only / full).
     rows = []
