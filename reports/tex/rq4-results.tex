@@ -6,16 +6,16 @@
 \centering\footnotesize
 \setlength{\tabcolsep}{3pt}
 \adjustbox{max width=\columnwidth}{
-\begin{tabular}{@{}l rrrrrr@{}}
+\begin{tabular}{@{}l rrrrr@{}}
 \toprule
- & \multicolumn{1}{c}{doc-to-model} & \multicolumn{4}{c}{doc-to-code (size-aware)} & \multicolumn{1}{c}{} \\
+ & \multicolumn{1}{c}{doc-to-model} & \multicolumn{4}{c}{doc-to-code (size-aware)} \\
 \cmidrule(lr){2-2}\cmidrule(lr){3-6}
-Variant & Macro\ \fone & File\ \fone & Cov & Worst & Harm & Uniq.\ TP \\
+Variant & Macro\ \fone & File\ \fone & Cov & Worst & Harm \\
 \midrule
-Full & \textbf{.936} & \textbf{.906} & \textbf{.84} & \textbf{.75} & \textbf{.88} & -- \\
-\linkerB{} only & .880 & .860 & .74 & .69 & .83 & \textbf{137} \\
-\linkerC{} only & .242 & .238 & .15 & .00 & .00 & 20 \\
-No knowledge & .878 & .851 & .77 & .53 & .66 & -- \\
+Full & \textbf{.936} & \textbf{.906} & \textbf{.84} & \textbf{.75} & \textbf{.88} \\
+\linkerB{} only & .880 & .860 & .74 & .69 & .83 \\
+\linkerC{} only & .242 & .238 & .15 & .00 & .00 \\
+No knowledge & .878 & .851 & .77 & .53 & .66 \\
 \bottomrule
 \end{tabular}
 }

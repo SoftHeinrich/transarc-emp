@@ -250,14 +250,13 @@ SPECS = [
      "colsep": "3pt", "fit": True,
      "caption": "RQ4 module ablation on the GPT-5.4 backend.",
      "labels": [{"field": "variant", "header": "Variant", "map": VAR_MAP}],
-     "groups": [("doc-to-model", 1), ("doc-to-code (size-aware)", 4), ("", 1)],
+     "groups": [("doc-to-model", 1), ("doc-to-code (size-aware)", 4)],
      "cols": [
          {"field": "doc_to_model_macro_f1", "header": "Macro\\ \\fone", "kind": "f3", "bold": "max"},
          {"field": "dc_file_f1", "header": "File\\ \\fone", "kind": "f3", "bold": "max"},
          {"field": "dc_sentence_coverage", "header": "Cov", "kind": "f2", "bold": "max"},
          {"field": "dc_worst_component_f1", "header": "Worst", "kind": "f2", "bold": "max"},
          {"field": "dc_harmonic_component_f1", "header": "Harm", "kind": "f2", "bold": "max"},
-         {"field": "unique_tps", "header": "Uniq.\\ TP", "kind": "int", "bold": "max"},
      ]},
 
     # ---- RQ1+RQ2 big table: average, both backends ----
@@ -284,7 +283,7 @@ SPECS = [
      "caption": "RQ4 module ablation, both backends.",
      "labels": [{"field": "backend", "header": "Backend", "map": BACKEND_MAP, "group_by": True},
                 {"field": "variant", "header": "Variant", "map": VAR_MAP}],
-     "groups": [("doc-to-model", 1), ("doc-to-code (file \\fone)", 3), ("size-aware", 3), ("", 1)],
+     "groups": [("doc-to-model", 1), ("doc-to-code (file \\fone)", 3), ("size-aware", 3)],
      "cols": [
          {"field": "doc_to_model_macro_f1", "header": "\\fone", "kind": "f3", "bold": "max"},
          {"field": "dc_file_precision", "header": "P", "kind": "f2", "bold": "max"},
@@ -293,7 +292,6 @@ SPECS = [
          {"field": "dc_sentence_coverage", "header": "Cov", "kind": "f2", "bold": "max"},
          {"field": "dc_worst_component_f1", "header": "Worst", "kind": "f2", "bold": "max"},
          {"field": "dc_harmonic_component_f1", "header": "Harm", "kind": "f2", "bold": "max"},
-         {"field": "unique_tps", "header": "Uniq.\\ TP", "kind": "int", "bold": "max"},
      ]},
 
     # ---- RQ4 big table: per project, both backends (doc-to-code suite) ----
