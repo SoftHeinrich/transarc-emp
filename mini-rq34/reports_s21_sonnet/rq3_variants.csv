@@ -1,0 +1,17 @@
+backend,run,variant,macro_f1,delta_f1_vs_full
+claude,run1,Full,0.931787,+0.000000
+claude,run1,NoEntityValid,0.895254,+0.036533
+claude,run1,NoCitation,0.911625,+0.020162
+claude,run1,NoValidator,0.887340,+0.044447
+claude,run2,Full,0.937307,+0.000000
+claude,run2,NoEntityValid,0.896395,+0.040912
+claude,run2,NoCitation,0.908469,+0.028838
+claude,run2,NoValidator,0.883231,+0.054076
+claude,run3,Full,0.910266,+0.000000
+claude,run3,NoEntityValid,0.859347,+0.050919
+claude,run3,NoCitation,0.888455,+0.021811
+claude,run3,NoValidator,0.857289,+0.052976
+claude,average,Full,0.926453,+0.000000
+claude,average,NoEntityValid,0.883665,+0.042788
+claude,average,NoCitation,0.902850,+0.023604
+claude,average,NoValidator,0.875954,+0.050500

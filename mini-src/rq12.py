@@ -94,6 +94,12 @@ ROSTER = [
     {"label": "approach S21 (GPT-5.4)", "backend": "gpt-5.4", "runs": ["run1", "run2", "run3"],
      "sad-sam":  "model-doc/aalinker/gpt-5.4_s21/{run}/{project}.csv",
      "sad-code": "doc-code/aalinker-composed/gpt-5.4_s21/{run}/{project}.csv"},
+    # S21 Claude/Sonnet appendix mirror; sonnet_s21 config slot built by build_s21_dump.py
+    # with the sonnet env knobs (S21_CONFIG=sonnet_s21). sonnet_full above stays the
+    # s20_union Claude baseline for side-by-side comparison.
+    {"label": "approach S21 (Claude)", "backend": "claude", "runs": ["run1", "run2", "run3"],
+     "sad-sam":  "model-doc/aalinker/sonnet_s21/{run}/{project}.csv",
+     "sad-code": "doc-code/aalinker-composed/sonnet_s21/{run}/{project}.csv"},
     {"label": "Artemis (GPT-5.4)",  "backend": "gpt-5.4", "runs": None,
      "sad-sam":  "model-doc/artemis-{project}-gpt-5.4.csv",
      "sad-code": "doc-code/artemis-{project}-gpt-5.4.csv"},
@@ -120,7 +126,7 @@ PAPER_RQ2_OUTDATED = {  # approach, gpt-5.4 reasoning=medium, doc-to-code
 }
 
 # RQ2 size-aware panel: doc-to-code, both approach backends + the two baselines.
-RQ2_SYSTEMS = ["TransArC", "Artemis (GPT-5.4)", "approach S21 (GPT-5.4)", "approach (GPT-5.4)", "approach (Claude)"]
+RQ2_SYSTEMS = ["TransArC", "Artemis (GPT-5.4)", "approach S21 (GPT-5.4)", "approach S21 (Claude)", "approach (GPT-5.4)", "approach (Claude)"]
 RQ2_COLS = [
     "doc_to_code_file_f1",
     "doc_to_code_sentence_coverage",
@@ -271,7 +277,7 @@ def build_rq2_panel(rows):
                       **{c: r[c] for c in RQ2_COLS}, "note": ""})
 
     approach_runs = ["run1", "run2", "run3", "average"]
-    for label in ("approach S21 (GPT-5.4)", "approach (GPT-5.4)", "approach (Claude)"):
+    for label in ("approach S21 (GPT-5.4)", "approach S21 (Claude)", "approach (GPT-5.4)", "approach (Claude)"):
         for run in approach_runs:
             r = row_for(rows, label, run)
             if r is not None:
@@ -280,7 +286,7 @@ def build_rq2_panel(rows):
 
     art = row_for(rows, "Artemis (GPT-5.4)", "single")
     if art is not None:
-        for label in ("approach S21 (GPT-5.4)", "approach (GPT-5.4)", "approach (Claude)"):
+        for label in ("approach S21 (GPT-5.4)", "approach S21 (Claude)", "approach (GPT-5.4)", "approach (Claude)"):
             for run in approach_runs:
                 r = row_for(rows, label, run)
                 if r is None:

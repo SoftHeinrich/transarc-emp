@@ -1,0 +1,13 @@
+backend,run,linker_set,macro_f1
+claude,run1,entity_only,0.866467
+claude,run1,coref_only,0.589083
+claude,run1,full,0.931787
+claude,run2,entity_only,0.864041
+claude,run2,coref_only,0.643188
+claude,run2,full,0.937307
+claude,run3,entity_only,0.851447
+claude,run3,coref_only,0.598889
+claude,run3,full,0.910266
+claude,average,entity_only,0.860652
+claude,average,coref_only,0.610387
+claude,average,full,0.926453

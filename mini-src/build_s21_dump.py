@@ -19,7 +19,7 @@ are read from the already-built sota dump rather than rebuilt from raw sources.
 
     python3 mini-src/build_s21_dump.py
 """
-import csv, hashlib, json, os
+import csv, glob, hashlib, json, os
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent              # .../transarc-emp/mini-src
@@ -30,8 +30,16 @@ EXTRACTS_S21 = os.environ.get(
 
 PROJECTS = ["mediastore", "teastore", "teammates", "bigbluebutton", "jabref"]
 RUNS = ["run1", "run2", "run3"]
-BE_DIR, BE_TAG = "gpt", "gpt-5.4"
-CONFIG = "gpt-5.4_s21"
+# Backend knobs are env-overridable so the SAME builder serves both S21 backends
+# (D-04 REVISED: gpt-5.4 = body, Claude/Sonnet = appendix mirror). Defaults keep the
+# original gpt-5.4 behaviour byte-identical. For the Sonnet appendix dump, run with
+#   EXTRACTS_S21=<…/v2.6.6_extracts_s21_sonnet> S21_BE_DIR=sonnet S21_BE_TAG=claude
+#   S21_CONFIG=sonnet_s21 S21_MANIFEST_TAG=s21_sonnet
+# so it writes a NEW sonnet_s21 config slot and a distinct manifest (no gpt clobber).
+BE_DIR = os.environ.get("S21_BE_DIR", "gpt")
+BE_TAG = os.environ.get("S21_BE_TAG", "gpt-5.4")
+CONFIG = os.environ.get("S21_CONFIG", "gpt-5.4_s21")
+MANIFEST_TAG = os.environ.get("S21_MANIFEST_TAG", "s21")
 
 
 # ---- helpers (verbatim from sota/recovered-links/build_unified.py) ----------
@@ -150,18 +158,51 @@ def build_s21(md_gold, arcotl_bridge):
     return md_man, dc_man
 
 
+def rebuild_unified(root):
+    """Aggregate every per-task manifest into UNIFIED_MANIFEST.csv.
+
+    Globs `_manifest.csv` (the s20_union/full + arcotl base, written by
+    build_unified.py) plus all `_manifest_*.csv` add-ons (S21 backends, written
+    here) under each task dir, in canonical task order
+    (model-doc -> doc-code -> model-code). Decoupled from which builder produced
+    each manifest, so the unified file is complete regardless of run order and a
+    fresh `build_s21_dump.py` run alone refreshes it from the persisted dump.
+    Idempotent; dedupes on (task, config, run, project)."""
+    task_dirs = [
+        ("model-doc",  f"{root}/model-doc/aalinker"),
+        ("doc-code",   f"{root}/doc-code/aalinker-composed"),
+        ("model-code", f"{root}/model-code/arcotl"),
+    ]
+    seen, rows = set(), []
+    for _task, d in task_dirs:
+        manifests = sorted(glob.glob(f"{d}/_manifest.csv")) + sorted(glob.glob(f"{d}/_manifest_*.csv"))
+        for mf in manifests:
+            with open(mf) as f:
+                for r in csv.DictReader(f):
+                    key = (r["task"], r["config"], r["run"], r["project"])
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    rows.append(r)
+    write_manifest(f"{root}/UNIFIED_MANIFEST.csv", rows)
+    return len(rows)
+
+
 def main():
     md_gold = load_gold()
     arcotl_bridge = load_bridge()
     md_man, dc_man = build_s21(md_gold, arcotl_bridge)
 
-    write_manifest(f"{ROOT}/model-doc/aalinker/_manifest_s21.csv", md_man)
-    write_manifest(f"{ROOT}/doc-code/aalinker-composed/_manifest_s21.csv", dc_man)
+    write_manifest(f"{ROOT}/model-doc/aalinker/_manifest_{MANIFEST_TAG}.csv", md_man)
+    write_manifest(f"{ROOT}/doc-code/aalinker-composed/_manifest_{MANIFEST_TAG}.csv", dc_man)
+
+    n_unified = rebuild_unified(ROOT)
 
     fs = [float(r["F1"]) for r in md_man]
     print(f"\n== S21 model-doc F1 vs gold (integrity) ==")
     print(f"  {CONFIG:14s} macro-F1 = {sum(fs)/len(fs):.4f}  ({len(fs)} cells)")
     print(f"wrote {len(md_man)} model-doc + {len(dc_man)} doc-code(composed) S21 entries into {ROOT}.")
+    print(f"rebuilt UNIFIED_MANIFEST.csv: {n_unified} rows (all per-task manifests aggregated).")
 
 
 if __name__ == "__main__":
