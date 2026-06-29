@@ -129,7 +129,7 @@ python3 mini-src/rq2_corr.py
 |-------------|-----|---------|
 | RQ1 doc-to-model (`tab:rq1-sadsam`) | `RQ12_BIGTABLE.csv` | `doc_to_model_link_{precision,recall,f1}` |
 | RQ1 doc-to-code (`tab:rq1-sadcode`) | `RQ12_BIGTABLE.csv` | `doc_to_code_file_{precision,recall,f1}` |
-| RQ2 size-aware (`tab:rq2-summary`)  | `RQ2_PANEL.csv` | `doc_to_code_file_f1`, `..._sentence_coverage`, `..._worst_component_f1`, `..._harmonic_component_f1` |
+| RQ2 size-aware (`tab:rq2`)  | `RQ2_PANEL.csv` | `doc_to_code_file_f1`, `..._sentence_coverage`, `..._worst_component_f1`, `..._harmonic_component_f1` |
 
 ### Paper snapshot (what the floats actually read)
 
@@ -248,13 +248,14 @@ top of the CSVs above:
 # (a) reshape the wide CSVs into one small "this is the table" CSV per float
 python3 mini-src/rq_tables.py
 #   → reports/tex_src/rq1.csv  rq2.csv  rq3.csv  rq4.csv                                   (body; rq3 = mean of 3 runs)
-#   → reports/tex_src/rq3_claude.csv  rq3_perrun.csv  rq3_perrun_claude.csv  rq3_perproject.csv  (RQ3 appendix)
-#   → reports/tex_src/bigtable_rq12_avg.csv  bigtable_rq12_perproject.csv               (RQ1+RQ2 big tables)
-#   → reports/tex_src/bigtable_rq4_avg.csv   bigtable_rq4_perproject.csv                (RQ4 big tables)
+#   → reports/tex_src/rq3_confusion_both.csv  rq3_perrun_both.csv  rq3_perproject.csv   (RQ3 appendix; both backends, per-project GPT)
+#   → reports/tex_src/bigtable_rq12_perproject.csv                                      (RQ1+RQ2 big table; per project + Average)
+#   → reports/tex_src/bigtable_rq4_perproject.csv                                       (RQ4 big table; per project + Average)
 
 # (b) render each tex_src CSV into a booktabs .tex via the SPECS registry
 python3 mini-src/csv_to_tex.py
-#   → reports/tex/*.tex   (rq{1,2,3,4}-results / rq3-confusion / big-table* / rq4-bigtable*)
+#   → reports/tex/*.tex   (rq{1,2,3,4}-results / rq3-confusion / big-table-perproject /
+#                          rq3-confusion-both / rq3-perrun / rq3-perproject / rq4-bigtable-perproject)
 ```
 
 `rq_tables.py` does NO metric math — it only selects rows/columns from the CSVs in
@@ -262,20 +263,19 @@ python3 mini-src/csv_to_tex.py
 §4 first). `csv_to_tex.py` is a declarative renderer: edit the `SPECS` list to change
 columns, headers, precision, bolding, or captions. Re-running is byte-identical.
 
-**Copy into the paper** (the manual snapshot step — the generated `.tex` lives here,
-the paper just consumes copies):
+**Sync into the paper** (`sync_paper.py` is the single bridge — it copies every generated
+`.tex` and its `tex_src` companion `.csv` into `../alinker-paper`, body tables to `table/`
+and the rest to `appendix/`, and refreshes `gold_concentration.{tex,csv}` too):
 
 ```bash
-cp reports/tex/rq1-results.tex reports/tex/rq2-results.tex \
-   reports/tex/rq3-confusion.tex reports/tex/rq4-results.tex   ../alinker-paper/table/
-cp reports/tex/big-table.tex reports/tex/big-table-perproject.tex \
-   reports/tex/rq4-bigtable.tex reports/tex/rq4-bigtable-perproject.tex \
-   reports/tex/rq3-confusion-claude.tex reports/tex/rq3-perproject.tex \
-   reports/tex/rq3-perrun.tex reports/tex/rq3-perrun-claude.tex   ../alinker-paper/appendix/
+python3 mini-src/sync_paper.py            # copy generated tables + companions into the paper
+python3 mini-src/sync_paper.py --check     # drift guard: byte-diff only, exit 1 on drift
 ```
 
 The copied files carry a `% GENERATED ... do not edit by hand` header; edit the CSV
-specs and re-render instead. Which float each CSV feeds:
+specs and re-render instead. Each appendix table folds both backends into one float
+(GPT-5.4 + Claude); the two big tables carry a per-system / per-variant `Average` row, so
+there is no separate aggregate float. Which float each CSV feeds:
 
 | Paper float (label) | tex_src CSV | Backend / grain |
 |---------------------|-------------|-----------------|
@@ -283,14 +283,15 @@ specs and re-render instead. Which float each CSV feeds:
 | body RQ2 `tab:rq2` | `rq2.csv` | GPT-5.4, macro size-aware |
 | body RQ3 `tab:rq3-confusion` | `rq3.csv` | GPT-5.4, mean of 3 runs |
 | body RQ4 `tab:rq4` | `rq4.csv` | GPT-5.4, macro |
-| appendix `tab:detailed-macro` | `bigtable_rq12_avg.csv` | both backends, whole suite |
-| appendix `tab:detailed-perproject` | `bigtable_rq12_perproject.csv` | both backends, per project |
-| appendix `tab:rq4-detailed` | `bigtable_rq4_avg.csv` | both backends, whole suite |
-| appendix `tab:rq4-perproject` | `bigtable_rq4_perproject.csv` | both backends, per project |
-| appendix `tab:rq3-confusion-claude` | `rq3_claude.csv` | Claude, mean of 3 runs |
-| appendix `tab:rq3-perrun` | `rq3_perrun.csv` | GPT-5.4, per run |
-| appendix `tab:rq3-perrun-claude` | `rq3_perrun_claude.csv` | Claude, per run |
+| appendix `tab:detailed-perproject` | `bigtable_rq12_perproject.csv` | both backends, per project + Average |
+| appendix `tab:rq4-perproject` | `bigtable_rq4_perproject.csv` | both backends, per project + Average |
+| appendix `tab:rq3-confusion-both` | `rq3_confusion_both.csv` | both backends, mean of 3 runs |
+| appendix `tab:rq3-perrun` | `rq3_perrun_both.csv` | both backends, per run |
 | appendix `tab:rq3-perproject` | `rq3_perproject.csv` | GPT-5.4, per project |
+
+The `--check` guard regenerates `gold_concentration` and byte-diffs all 20 paper files
+(9 tables + 9 companion CSVs + the gold pair); `mini-inequality/check_paper_table.py`
+is a thin wrapper that runs the gold-only slice of it.
 
 ---
 
@@ -327,10 +328,76 @@ RQ34_VARIANT=s_linker21 RQ34_OPENAI_SLOT=$HOME_ABS/agent-linker/results/v2.6.6_s
   python3 mini-rq34/rq34_rq2.py --backends openai --csv-root mini-rq34/reports_s21_noknow
 RQ34_VARIANT=s_linker21 RQ34_CLAUDE_SLOT=$HOME_ABS/agent-linker/results/v2.6.6_s21_noknow_sonnet \
   python3 mini-rq34/rq34_rq2.py --backends claude --csv-root mini-rq34/reports_s21_noknow_sonnet
-# 5. paper tables: reshape -> render -> copy into ../alinker-paper (see §5)
+# 5. paper tables: reshape -> render -> sync into ../alinker-paper (see §5)
 python3 mini-src/rq_tables.py && python3 mini-src/csv_to_tex.py
-cp reports/tex/{rq1-results,rq2-results,rq3-confusion,rq4-results}.tex ../alinker-paper/table/
-cp reports/tex/{big-table,big-table-perproject,rq4-bigtable,rq4-bigtable-perproject,rq3-confusion-claude,rq3-perproject,rq3-perrun,rq3-perrun-claude}.tex ../alinker-paper/appendix/
+python3 mini-src/sync_paper.py            # copy tables + companions into the paper
+python3 mini-src/sync_paper.py --check     # confirm in sync (exit 0)
 # 6. verify
 python3 mini-src/check.py
 ```
+
+---
+
+## 7. Reproduce from a clone (GitHub alone)
+
+Every number and table the paper reports rebuilds from GitHub clones plus the
+public ARDoCo benchmark — no access to the dev machine's run tree is needed.
+Three inputs:
+
+| Input | Repo / data | Get it |
+|-------|-------------|--------|
+| eval engine + cached CSVs | `transarc-emp` (**branch `mini`**) | `git clone --branch mini …/transarc-emp.git` |
+| sota link dumps + RQ3/RQ4 pickles | `sota-recovered-links` | clone **into a `sota/` parent** (see gotcha 2) |
+| gold standards | public ARDoCo benchmark tree | `export TRANSARC_BENCHMARK=…/benchmark` |
+
+> **Two layout gotchas.** (1) `transarc-emp`'s default GitHub branch is `master`
+> (legacy/full-archive); you must clone `--branch mini`. (2) `rq12.py` resolves the
+> sota dump at `<repo-parent>/sota/recovered-links` (`_ARDOCO_HOME = parents[2]`), so
+> clone `sota-recovered-links` to `<root>/sota/recovered-links`, or override with
+> `SOTA_LINKS=`.
+
+```bash
+ROOT=/tmp/repro                                   # any empty dir
+git clone --branch mini git@github.com:SoftHeinrich/transarc-emp.git "$ROOT/transarc-emp"
+mkdir -p "$ROOT/sota"
+git clone git@github.com:SoftHeinrich/sota-recovered-links.git "$ROOT/sota/recovered-links"
+export TRANSARC_BENCHMARK=/path/to/ardoco/core/tests-base/src/main/resources/benchmark
+cd "$ROOT/transarc-emp"; SOTA="$ROOT/sota/recovered-links"
+
+# RQ1 + RQ2  (sota link dump + gold)
+python3 mini-src/rq12.py
+
+# RQ3 + RQ4  (published phase_cache pickles — see phase-cache-s21/README.md)
+RQ34_OPENAI_SLOT=$SOTA/phase-cache-s21/v2.6.6_s21_gpt \
+RQ34_CLAUDE_SLOT=$SOTA/phase-cache-s21/v2.6.6_s21_sonnet \
+  python3 mini-rq34/rq34.py
+RQ34_VARIANT=s_linker21 \
+RQ34_OPENAI_SLOT=$SOTA/phase-cache-s21/v2.6.6_s21_gpt \
+RQ34_CLAUDE_SLOT=$SOTA/phase-cache-s21/v2.6.6_s21_sonnet \
+  python3 mini-rq34/rq34_rq2.py
+
+# paper tables (committed CSVs only — no external data)
+python3 mini-src/rq_tables.py && python3 mini-src/csv_to_tex.py
+
+# metric self-test
+python3 mini-src/check.py
+```
+
+After running, `git status` in the clone is **clean** — every regenerated CSV and
+`.tex` matches what is committed (verified byte-identical).
+
+### What needs what
+
+| Layer | Beyond the `transarc-emp` clone | On GitHub? |
+|-------|----------------------------------|------------|
+| Paper tables (`rq_tables` → `csv_to_tex`) | nothing (committed CSVs only) | ✅ |
+| RQ1 / RQ2 (`rq12.py`) | `sota-recovered-links` + benchmark | ✅ |
+| RQ3 / RQ4 (`rq34`, `rq34_rq2`) | `sota-recovered-links/phase-cache-s21` + benchmark | ✅ |
+| Metric self-test (`check.py`) | benchmark (uses committed `mini-data/`) | ✅ |
+
+The phase_cache pickles are the only run artifact published for reproduction;
+`rq34.py` vendors the pickle classes (stdlib-only), so **no agent-linker install
+is needed**. The raw `agent-linker/results/` runs (LLM logs, checkpoints) stay
+unversioned — none of them are needed to reproduce a paper number. For the
+no-knowledge RQ4 row, point the slot envs at the `*_noknow_*` dirs under
+`phase-cache-s21/` (see §4 and `phase-cache-s21/README.md`).
