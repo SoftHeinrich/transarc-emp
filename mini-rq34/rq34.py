@@ -240,23 +240,26 @@ def rq3_variant_sets(cell: Cell) -> Dict[str, Set[LinkKey]]:
 def rq3_audit(cell: Cell) -> Dict[str, Dict[str, int]]:
     # A candidate link is a TP if it is in the gold standard, an FP otherwise.
     # "rejected" = the validator dropped the link; "kept" = it survived to the output.
-    # rejected_tp = true links wrongly dropped (cost); rejected_fp = false links
+    # rejected_tp = true links wrongly dropped (raw); rejected_fp = false links
     # correctly dropped (benefit).
-    ent_rejected_tp = cell.ent_rejected & cell.gold
-    cor_rejected_tp = cell.cor_rejected & cell.gold
-
-    def a(rejected, kept, unique_rejected_tp):
+    #
+    # unique_rejected_tp = true links this validator drops that are ABSENT from the
+    # final output (recovered by neither linker) -- the validator's real recall cost,
+    # equal to the single-ablation TP delta (e.g. NoCitation_tp - Full_tp). Earlier this
+    # subtracted the OTHER validator's *rejections*, which badly overcounted: many
+    # coref-rejected gold links are independently KEPT by the entity linker, so they are
+    # still in `final` and were never lost. Subtracting `final` fixes that.
+    def a(rejected, kept):
+        rejected_tp = rejected & cell.gold
         return {
-            "rejected_tp": len(rejected & cell.gold),
-            # TPs THIS validator rejects that the other validator does not
-            # (the per-validator analog of RQ4's unique_tps).
-            "unique_rejected_tp": len(unique_rejected_tp),
+            "rejected_tp": len(rejected_tp),
+            "unique_rejected_tp": len(rejected_tp - cell.final),
             "rejected_fp": len(rejected - cell.gold),
             "kept_tp": len(kept & cell.gold),
             "kept_fp": len(kept - cell.gold),
         }
-    return {"entity": a(cell.ent_rejected, cell.ent_kept, ent_rejected_tp - cor_rejected_tp),
-            "coref": a(cell.cor_rejected, cell.cor_kept, cor_rejected_tp - ent_rejected_tp)}
+    return {"entity": a(cell.ent_rejected, cell.ent_kept),
+            "coref": a(cell.cor_rejected, cell.cor_kept)}
 
 
 def rq3_combined_audit(cell: Cell) -> Dict[str, int]:
