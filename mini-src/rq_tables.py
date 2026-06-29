@@ -140,17 +140,18 @@ def _rq3_matrix(ent, cor, extra=None):
 
     rows = true class, cols = judge x {REJECT, KEEP}. The TP-REJECT cell reports the
     *unique* rejected true positives (those this judge rejects that the other judge would
-    keep) — the recall cost attributable to it alone. ``extra`` prepends fixed columns
-    (e.g. the run label) to every row.
+    keep) — the recall cost attributable to it alone. Raw counts pass through unrounded;
+    csv_to_tex rounds per column kind (per-run = integer, mean = one decimal). ``extra``
+    prepends fixed columns (e.g. the run label) to every row.
     """
     base = extra or {}
     return [
         {**base, "true_class": "False positive (FP)",
-         "ent_reject": i(ent["rejected_fp"]), "ent_keep": i(ent["kept_fp"]),
-         "coref_reject": i(cor["rejected_fp"]), "coref_keep": i(cor["kept_fp"])},
+         "ent_reject": ent["rejected_fp"], "ent_keep": ent["kept_fp"],
+         "coref_reject": cor["rejected_fp"], "coref_keep": cor["kept_fp"]},
         {**base, "true_class": "True positive (TP)",
-         "ent_reject": i(ent["unique_rejected_tp"]), "ent_keep": i(ent["kept_tp"]),
-         "coref_reject": i(cor["unique_rejected_tp"]), "coref_keep": i(cor["kept_tp"])},
+         "ent_reject": ent["unique_rejected_tp"], "ent_keep": ent["kept_tp"],
+         "coref_reject": cor["unique_rejected_tp"], "coref_keep": cor["kept_tp"]},
     ]
 
 

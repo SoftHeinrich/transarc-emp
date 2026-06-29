@@ -33,6 +33,8 @@ def fmt(val, kind):
         return "--"
     if kind == "int":
         return str(round(float(val)))
+    if kind == "f1":                      # one decimal, keep the leading zero (averaged counts)
+        return f"{float(val):.1f}"
     dp = 3 if kind == "f3" else 2
     s = f"{float(val):.{dp}f}"
     if s.startswith("0."):
@@ -214,10 +216,10 @@ SPECS = [
      "labels": [{"field": "true_class", "header": "True class"}],
      "groups": [("\\entValidator{}", 2), ("\\corefValidator{}", 2)],
      "cols": [
-         {"field": "ent_reject", "header": "REJECT", "kind": "int"},
-         {"field": "ent_keep", "header": "KEEP", "kind": "int"},
-         {"field": "coref_reject", "header": "REJECT", "kind": "int"},
-         {"field": "coref_keep", "header": "KEEP", "kind": "int"},
+         {"field": "ent_reject", "header": "REJECT", "kind": "f1"},
+         {"field": "ent_keep", "header": "KEEP", "kind": "f1"},
+         {"field": "coref_reject", "header": "REJECT", "kind": "f1"},
+         {"field": "coref_keep", "header": "KEEP", "kind": "f1"},
      ]},
 
     # ---- RQ3 Claude mirror, mean of 3 runs (appendix) ----
@@ -227,10 +229,10 @@ SPECS = [
      "labels": [{"field": "true_class", "header": "True class"}],
      "groups": [("\\entValidator{}", 2), ("\\corefValidator{}", 2)],
      "cols": [
-         {"field": "ent_reject", "header": "REJECT", "kind": "int"},
-         {"field": "ent_keep", "header": "KEEP", "kind": "int"},
-         {"field": "coref_reject", "header": "REJECT", "kind": "int"},
-         {"field": "coref_keep", "header": "KEEP", "kind": "int"},
+         {"field": "ent_reject", "header": "REJECT", "kind": "f1"},
+         {"field": "ent_keep", "header": "KEEP", "kind": "f1"},
+         {"field": "coref_reject", "header": "REJECT", "kind": "f1"},
+         {"field": "coref_keep", "header": "KEEP", "kind": "f1"},
      ]},
 
     # ---- RQ3 per-run confusion matrix, GPT-5.4 (appendix) ----
