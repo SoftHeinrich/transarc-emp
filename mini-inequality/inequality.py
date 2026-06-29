@@ -262,6 +262,47 @@ def compute_sad_code_dist(project):
     }
 
 
+def compute_sadcode_link_conc(project):
+    """Prestudy table (tab:gold_concentration): enrolled DOC-TO-CODE links grouped
+    by architecture component via the SAM-CODE (model->code) mapping. Measures how
+    the link-level F1 weight concentrates across exactly the component universe the
+    size-aware suite scores.
+
+    The universe is the suite's: D-12 drops ``Interface:`` model elements (code-
+    twins of a Component with no doc signal) and components are keyed by ``ae_id``
+    (same-named elements stay distinct). This mirrors mini-src/metrics.py
+    load_file_to_comps so comp_n here equals the suite's component count (the
+    'real' architectural units), NOT inequality.compute_sad_code_dist's comp_n,
+    which keys by name and keeps interfaces. (Isolation rule: copy the rule, do
+    not import mini-src.)
+
+    A link whose target file realizes several components is counted under each, to
+    mirror eq:comp-f1 (a shared target belongs to each such component). The per-
+    component counts can therefore sum above the raw enrolled link total, which is
+    reported separately as links_total."""
+    code_files, enrolled = _sad_code_enrolled(project)
+    names, sam_enrolled = load_sam_code(project, code_files)
+    file_to_comps = defaultdict(set)
+    for ae, fp in sam_enrolled:
+        if names.get(ae, ae).startswith("Interface:"):   # D-12
+            continue
+        file_to_comps[fp].add(ae)
+    per_comp = defaultdict(int)
+    for _s, f in enrolled:
+        for c in file_to_comps.get(f, ()):
+            per_comp[c] += 1
+    counts = list(per_comp.values())
+    ss = summary_stats(counts)
+    return {
+        "project": project,
+        "links_total": len(enrolled),
+        "comp_n": ss["n"],
+        "link_median": ss["median"], "link_max": ss["max"],
+        "link_gini": _gini(counts),
+        "link_top3_pct": 100 * top_k_share(counts, 3),
+    }
+
+
 def compute_sad_sam_dist(project):
     """INEQ-01: per-component (#distinct sentences per model element) gold
     concentration for sad-sam (by name where SAM-CODE provides one)."""
@@ -392,17 +433,10 @@ EXPANSION_HEADER = ["project", "raw", "dir_entries", "dir_pct", "enrolled", "fac
 
 
 def write_all_csvs(projects, task="both"):
-    # Task-specific distribution CSVs (filtered by --task).
-    if task in ("sad-code", "both"):
-        write_csv(REPORTS / "inequality_sad_code.csv", SAD_CODE_HEADER,
-                  [compute_sad_code_dist(p) for p in projects], agg_label="AVG")
-    if task in ("sad-sam", "both"):
-        write_csv(REPORTS / "inequality_sad_sam.csv", SAD_SAM_HEADER,
-                  [compute_sad_sam_dist(p) for p in projects], agg_label="AVG")
-    # Gold-structural CSVs (always written — they underpin the report + gate).
-    write_csv(REPORTS / "inequality_samcode_skew.csv", SAMCODE_HEADER,
-              [compute_samcode_skew(p) for p in projects], agg_label="AVG")
-
+    # Only inequality_expansion.csv feeds the alinker-paper PDF (the enrollment
+    # factor 1.0x-217.6x cited in sec:metric:prestudy). The per-sentence,
+    # per-component, samcode-skew and Lorenz CSVs are non-PDF; their output is
+    # silenced. (`task` is kept for CLI compatibility; it no longer selects CSVs.)
     exp_rows = [compute_expansion(p) for p in projects]
     total = {
         "project": "Total",
@@ -414,15 +448,6 @@ def write_all_csvs(projects, task="both"):
     total["factor"] = (total["enrolled"] / total["raw"]) if total["raw"] else 0.0
     write_csv(REPORTS / "inequality_expansion.csv", EXPANSION_HEADER,
               exp_rows + [total])
-
-    with open(REPORTS / "lorenz_sad_code_sentence.csv", "w", newline="") as f:
-        w = csv.writer(f)
-        w.writerow(["project", "cum_pop_pct", "cum_mass_pct"])
-        for p in projects:
-            _cf, enrolled = _sad_code_enrolled(p)
-            vals = list(Counter(s for (s, _f) in enrolled).values())
-            for pop, mass in lorenz_points(vals):
-                w.writerow([p, f"{pop:.4f}", f"{mass:.4f}"])
 
 
 # ── Sanity gate (recompute vs frozen eval.tex GOLD literals) ──────────────────
@@ -629,10 +654,11 @@ def main():
     if not args.no_check:
         ok, rows = run_check(projects)
 
-    write_report(projects, ok, rows)
+    # INEQUALITY.md (the full study report) is non-PDF; its output is silenced.
+    # write_report() is retained above and can be re-enabled if needed.
 
-    print(f"[inequality] task={args.task} projects={len(projects)} "
-          f"reports={REPORTS}")
+    print(f"[inequality] projects={len(projects)} reports={REPORTS} "
+          f"(inequality_expansion.csv only)")
     if not args.no_check:
         print_check(rows)
         if ok:

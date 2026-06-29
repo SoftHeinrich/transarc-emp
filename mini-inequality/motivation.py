@@ -5,8 +5,8 @@ Shows that trivial baselines exploit the benchmark's distributional inequality:
 a content-blind Top-3 (most-gold-linked) baseline scores a surprisingly high
 file-/link-level micro-F1, while the four-metric suite (per-component macro F1,
 sentence coverage, noise rate, file-level F1) exposes it as content-blind. This
-motivates the suite (MOTIV-01). It also emits paper-ready Gini/Lorenz table +
-figure source (OUT-02).
+motivates the suite (MOTIV-01). It also emits the paper-ready component link-
+concentration table (with Gini) + Lorenz figure source (OUT-02).
 
 GOLD ONLY — no system/result files. Reuses the study's own engine
 (`import inequality`) and copies the metric/baseline definitions verbatim from
@@ -322,20 +322,51 @@ def write_motivation(rows):
 
 
 # ── OUT-02 paper-ready table + Lorenz figure ──────────────────────────────────
-OUT02_COLS = ["project", "sent_n", "sent_min", "sent_median", "sent_max",
-              "sent_gini", "sent_top3_pct", "samcode_gini", "samcode_top3_conc_pct"]
+# Component grain: the prestudy unit is the architectural component the suite
+# weights equally. The table reports enrolled DOC-TO-CODE links grouped by gold
+# component (via the SAM-CODE model->code mapping) -- the distribution link-level
+# F1 is actually dominated by. comp_n is the suite's component universe (D-12: the
+# Component-typed model elements, interfaces dropped), so the table matches RQ2.
+#
+# The .tex output is PAPER-READY (project aliases + thousands separators baked in)
+# so reports/out02_concentration.tex is copied VERBATIM into the paper's
+# table/gold_concentration.tex; check_paper_table.py guards that they stay equal.
+# Both paper-side artifacts are copied into alinker-paper/table/ and guarded byte-
+# for-byte by check_paper_table.py: the .tex (aliases) and the machine-readable
+# .csv companion (full project names).
+OUT02_CSV_COLS = ["project", "sentences", "components", "files", "links",
+                  "median", "max", "gini", "top3_pct"]
+
+# Compact aliases for the .tex; full names for the .csv companion.
+DISPLAY_NAMES = {"mediastore": "MS", "teastore": "TS", "teammates": "TM",
+                 "bigbluebutton": "BBB", "jabref": "JR"}
+FULL_NAMES = {"mediastore": "MediaStore", "teastore": "TeaStore",
+              "teammates": "Teammates", "bigbluebutton": "BigBlueButton",
+              "jabref": "JabRef"}
+
+
+def _sentence_count(project):
+    """# sentences in the architecture documentation (ARDoCo = one sentence/line)."""
+    txt = sorted((ineq.BENCHMARK / project).glob(f"text_*/{project}.txt"))[0]
+    return sum(1 for line in txt.read_text().splitlines() if line.strip())
+
+
+def _code_file_count(project):
+    """# code files = compilation units in the .acm code model (the file universe
+    the doc-to-code enrollment/concentration is computed against; deduped by path)."""
+    return len(ineq.load_code_model_files(project))
 
 
 def _out02_rows():
     rows = []
     for p in P:
-        sc = ineq.compute_sad_code_dist(p)
-        sk = ineq.compute_samcode_skew(p)
+        lc = ineq.compute_sadcode_link_conc(p)
         rows.append({
-            "project": p, "sent_n": sc["sent_n"], "sent_min": sc["sent_min"],
-            "sent_median": sc["sent_median"], "sent_max": sc["sent_max"],
-            "sent_gini": sc["sent_gini"], "sent_top3_pct": sc["sent_top3_pct"],
-            "samcode_gini": sk["gini"], "samcode_top3_conc_pct": sk["top3_conc_pct"],
+            "project": p, "sentences": _sentence_count(p),
+            "comp_n": lc["comp_n"], "files": _code_file_count(p),
+            "links_total": lc["links_total"],
+            "link_median": lc["link_median"], "link_max": lc["link_max"],
+            "link_gini": lc["link_gini"], "link_top3_pct": lc["link_top3_pct"],
         })
     return rows
 
@@ -343,33 +374,75 @@ def _out02_rows():
 def write_out02_concentration():
     import csv
     rows = _out02_rows()
+
+    def csv_num(v):
+        # whole-number floats print as ints; a genuine .5 median keeps one decimal.
+        if isinstance(v, float):
+            return str(int(v)) if v.is_integer() else f"{v:.1f}"
+        return v
     with open(REPORTS / "out02_concentration.csv", "w", newline="") as f:
         w = csv.writer(f)
-        w.writerow(OUT02_COLS)
+        w.writerow(OUT02_CSV_COLS)
         for r in rows:
-            w.writerow([(f"{r[c]:.3f}" if isinstance(r[c], float) else r[c])
-                        for c in OUT02_COLS])
+            w.writerow([FULL_NAMES.get(r["project"], r["project"]),
+                        r["sentences"], r["comp_n"], r["files"], r["links_total"],
+                        csv_num(r["link_median"]), r["link_max"],
+                        f"{r['link_gini']:.3f}", f"{r['link_top3_pct']:.1f}"])
 
-    def tex_num(v):
-        return f"{v:.3f}" if isinstance(v, float) else str(v)
+    def tex_sep(v):
+        # integer-or-half value -> LaTeX with thousands separators, e.g.
+        # 8097 -> "8{,}097", 152.5 -> "152.5", 3622 -> "3{,}622".
+        if isinstance(v, float):
+            ipart, frac = (int(v), "") if v.is_integer() else \
+                (int(v), "." + str(v).split(".", 1)[1])
+        else:
+            ipart, frac = int(v), ""
+        s = str(abs(ipart))
+        grouped = ""
+        while len(s) > 3:
+            grouped = "{,}" + s[-3:] + grouped
+            s = s[:-3]
+        sign = "-" if ipart < 0 else ""
+        return sign + s + grouped + frac
+
     L = [
-        "% Auto-generated by motivation.py (OUT-02). Requires booktabs.",
-        "\\begin{table}[t]", "\\centering\\small",
-        "\\caption{Gold-standard concentration inequality across the five benchmark "
-        "projects (per-sentence enrolled \\sadcode\\ links and \\samcode\\ "
-        "files-per-component).}",
+        "% Dataset overview + gold-standard link concentration for sec:metric:prestudy",
+        "% (also the dataset table referenced from eval.tex sec:dataset).",
+        "% AUTO-GENERATED by evaluation/mini-inequality/motivation.py (OUT-02) from",
+        "% inequality.compute_sadcode_link_conc + the benchmark SAD text and .acm code",
+        "% model. Sent.\\ = sentences in the architecture documentation (one per line);",
+        "% Comp.\\ = gold-reachable component universe K the size-aware suite scores;",
+        "% Files = code compilation units in the .acm model (the enrollment file",
+        "% universe). Enrolled doc-to-code LINKS are grouped by gold component (via the",
+        "% SAM-CODE model->code mapping).",
+        "% PAPER-READY (project aliases + thousands separators baked in): copy verbatim",
+        "% into working/table/gold_concentration.tex. DO NOT hand-edit -- regenerate; the",
+        "% two files are kept identical by mini-inequality/check_paper_table.py.",
+        "% Project aliases (MS/TS/TM/BBB/JR) are defined in the running text.",
+        "% Companion data (machine-readable): table/gold_concentration.csv",
+        "\\begin{table}[t]", "\\centering\\footnotesize\\setlength{\\tabcolsep}{3pt}",
+        "\\caption{The five ardoco-benchmark projects and the concentration of their "
+        "enrolled doc-to-code links across architecture components. Sent.\\ is the "
+        "number of sentences in the architecture documentation, Comp.\\ the number of "
+        "gold-standard architecture components, and Files the number of code files in "
+        "the code model; Links is the enrolled doc-to-code link total. The links are "
+        "heavily right-skewed across components---a few large components own most of "
+        "them, so link-level \\fone\\ mainly reflects those few: Med, Max, Gini, and "
+        "Top-3\\% summarize links per component. A target file shared by several "
+        "components is counted under each, so per-component counts can sum above Links.}",
         "\\label{tab:gold_concentration}",
         "\\begin{tabular}{lrrrrrrrr}", "\\toprule",
-        "\\textbf{Project} & \\textbf{Sents} & \\textbf{Min} & \\textbf{Med} & "
-        "\\textbf{Max} & \\textbf{Gini} & \\textbf{Top-3\\%} & "
-        "\\textbf{SAM Gini} & \\textbf{SAM Top-3\\%} \\\\", "\\midrule",
+        "\\textbf{Project} & \\textbf{Sent.} & \\textbf{Comp.} & \\textbf{Files} & "
+        "\\textbf{Links} & \\textbf{Med} & \\textbf{Max} & \\textbf{Gini} & "
+        "\\textbf{Top-3\\%} \\\\", "\\midrule",
     ]
     for r in rows:
         L.append(" & ".join([
-            r["project"], str(r["sent_n"]), str(r["sent_min"]),
-            tex_num(r["sent_median"]), str(r["sent_max"]),
-            f"{r['sent_gini']:.3f}", f"{r['sent_top3_pct']:.1f}",
-            f"{r['samcode_gini']:.3f}", f"{r['samcode_top3_conc_pct']:.1f}",
+            DISPLAY_NAMES.get(r["project"], r["project"]),
+            tex_sep(r["sentences"]), tex_sep(r["comp_n"]), tex_sep(r["files"]),
+            tex_sep(r["links_total"]), tex_sep(r["link_median"]),
+            tex_sep(r["link_max"]), f"{r['link_gini']:.3f}",
+            f"{r['link_top3_pct']:.1f}",
         ]) + " \\\\")
     L += ["\\bottomrule", "\\end{tabular}", "\\end{table}"]
     (REPORTS / "out02_concentration.tex").write_text("\n".join(L) + "\n")
@@ -400,25 +473,12 @@ def write_out02_lorenz():
 
 
 def main():
-    rows = run_baselines()
-    write_baselines_csv(rows)
-    write_motivation(rows)
+    # Only the OUT-02 table feeds the alinker-paper PDF, so that is all we emit.
+    # The baselines (MOTIVATION.md, baselines.csv) and the Lorenz figure
+    # (out02_lorenz.tex) are non-PDF; their output is silenced. The functions are
+    # retained above and can be re-enabled here if those analyses are needed again.
     write_out02_concentration()
-    write_out02_lorenz()
-
-    failures = []
-    for task in TASKS:
-        t3 = _avg(rows, task, "top3", "micro_f1")
-        rd = _avg(rows, task, "random", "micro_f1")
-        if not (t3 is not None and rd is not None and t3 > rd):
-            failures.append((task, t3, rd))
-    print(f"[motivation] seed={SEED} reports={REPORTS}")
-    if failures:
-        print("MOTIVATION FAILED — Top-3 did not beat random:", file=sys.stderr)
-        for task, t3, rd in failures:
-            print(f"  {task}: top3={t3} random={rd}", file=sys.stderr)
-        sys.exit(1)
-    print("MOTIVATION OK (Top-3 micro-F1 > random on both tasks)")
+    print(f"[motivation] seed={SEED} reports={REPORTS} (OUT-02 table only)")
 
 
 if __name__ == "__main__":

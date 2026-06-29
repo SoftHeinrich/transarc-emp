@@ -1,6 +1,6 @@
-project,sent_n,sent_min,sent_median,sent_max,sent_gini,sent_top3_pct,samcode_gini,samcode_top3_conc_pct
-mediastore,25,1,2,6,0.331,27.119,0.400,43.333
-teastore,23,5,19,83,0.448,35.219,0.694,68.902
-teammates,92,1,59.000,808,0.645,20.329,0.452,52.351
-bigbluebutton,45,3,16,114,0.472,21.321,0.513,38.356
-jabref,10,8,478.500,1929,0.527,69.993,0.612,98.620
+project,sentences,components,files,links,median,max,gini,top3_pct
+MediaStore,37,9,97,59,4,28,0.542,74.6
+TeaStore,43,6,205,707,78,320,0.474,86.8
+Teammates,198,7,833,8097,861,3622,0.479,77.1
+BigBlueButton,87,10,551,1529,152.5,732,0.532,69.3
+JabRef,13,6,1998,8268,768,3888,0.591,99.3
