@@ -146,26 +146,29 @@ def build_rq3(backend, out):
     ent = val[(backend, run, "entity")]
     cor = val[(backend, run, "coref")]
     # Pivot to the display matrix: rows = true class, cols = judge x {REJECT, KEEP}.
+    # The TP-REJECT cell reports the *unique* rejected true positives (those this judge
+    # rejects that the other judge would keep) — the recall cost attributable to it alone.
     rows = [
         {"true_class": "False positive (FP)",
          "ent_reject": i(ent["rejected_fp"]), "ent_keep": i(ent["kept_fp"]),
          "coref_reject": i(cor["rejected_fp"]), "coref_keep": i(cor["kept_fp"])},
         {"true_class": "True positive (TP)",
-         "ent_reject": i(ent["rejected_tp"]), "ent_keep": i(ent["kept_tp"]),
-         "coref_reject": i(cor["rejected_tp"]), "coref_keep": i(cor["kept_tp"])},
+         "ent_reject": i(ent["unique_rejected_tp"]), "ent_keep": i(ent["kept_tp"]),
+         "coref_reject": i(cor["unique_rejected_tp"]), "coref_keep": i(cor["kept_tp"])},
     ]
     write_csv(out, ["true_class", "ent_reject", "ent_keep", "coref_reject", "coref_keep"], rows)
 
 
 def build_rq3_perproject(backend="openai", out="rq3_perproject.csv"):
     """Per-project FP/TP rejected for each judge (canonical run) + a Macro mean row."""
+    # TP rejected = the unique rejected true positives (those the other judge would keep).
     cols = ["ent_fp_rej", "ent_tp_rej", "coref_fp_rej", "coref_tp_rej"]
     rows, acc = [], {c: [] for c in cols}
     for proj in PROJECTS:
         audit = {r["validator"]: r for r in read_csv(RQ34 / backend / proj / "rq3_audit.csv")}
         e, c = audit["entity"], audit["coref"]
-        vals = {"ent_fp_rej": int(e["rejected_fp"]), "ent_tp_rej": int(e["rejected_tp"]),
-                "coref_fp_rej": int(c["rejected_fp"]), "coref_tp_rej": int(c["rejected_tp"])}
+        vals = {"ent_fp_rej": int(e["rejected_fp"]), "ent_tp_rej": int(e["unique_rejected_tp"]),
+                "coref_fp_rej": int(c["rejected_fp"]), "coref_tp_rej": int(c["unique_rejected_tp"])}
         rows.append({"project": PROJ_DISPLAY[proj], **{k: str(v) for k, v in vals.items()}})
         for k, v in vals.items():
             acc[k].append(v)

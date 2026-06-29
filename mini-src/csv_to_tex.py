@@ -176,11 +176,7 @@ SUITE9_GROUPS = [("doc-to-model (link \\fone)", 3), ("doc-to-code (file \\fone)"
 SPECS = [
     # ---- RQ1 body ----
     {"csv": "rq1.csv", "out": "rq1-results.tex", "label": "tab:rq1", "size": "\\footnotesize", "colsep": "4pt",
-     "caption": "RQ1 macro precision, recall, and \\fone\\ over the five projects on the GPT-5.4 backend "
-                "(\\approach{} is \\texttt{s\\_linker21}, mean of three runs), for the doc-to-model "
-                "(link \\fone) and doc-to-code (file \\fone) tasks. \\textbf{SWATTR}$^{\\dagger}$ is the "
-                "doc-to-model baseline; \\TransArc{} is the doc-to-code baseline. Best \\fone\\ per task in "
-                "bold. The Claude Sonnet backend and the per-project breakdown are in \\autoref{app:detailed}.",
+     "caption": "RQ1 macro precision, recall, and \\fone\\ on the GPT-5.4 backend.",
      "labels": [{"field": "system", "header": "System", "map": SYS_MAP}],
      "groups": [("doc-to-model (link \\fone)", 3), ("doc-to-code (file \\fone)", 3)],
      "cols": [
@@ -196,10 +192,7 @@ SPECS = [
 
     # ---- RQ2 body (was fig:rq2-profile) ----
     {"csv": "rq2.csv", "out": "rq2-results.tex", "label": "tab:rq2", "colsep": "6pt",
-     "caption": "RQ2: the size-aware suite of \\autoref{sec:metric:suite} on doc-to-code, GPT-5.4 backend "
-                "(\\approach{} is \\texttt{s\\_linker21}, mean of three runs; the baselines single-shot). On the "
-                "standard file \\fone\\ the systems are close; the gap widens on the size-aware tail. Best per "
-                "column in bold. The per-project cells and the Claude Sonnet backend are in \\autoref{app:detailed}.",
+     "caption": "RQ2 size-aware suite on doc-to-code, GPT-5.4 backend.",
      "labels": [{"field": "system", "header": "System", "map": SYS_MAP}],
      "cols": [
          {"field": "file_f1", "header": "File \\fone", "kind": "f3", "bold": "max"},
@@ -211,11 +204,7 @@ SPECS = [
     # ---- RQ3 body confusion matrix ----
     {"csv": "rq3.csv", "out": "rq3-confusion.tex", "label": "tab:rq3-confusion",
      "colspec": "@{}l cc @{\\hskip 2.2em} cc@{}",
-     "caption": "RQ3: confusion of the two evidence-grounded judges in \\fullVariant{} \\approach{} (GPT-5.4 "
-                "backend, the canonical run). Each judge decides REJECT or KEEP for every link it inspects; rows "
-                "give the link's true class. A good judge puts its mass on the helpful diagonal: REJECT false "
-                "positives, KEEP true positives. Per-project counts and the Claude Sonnet backend are in "
-                "\\autoref{app:detailed}.",
+     "caption": "RQ3 judge confusion on the GPT-5.4 backend.",
      "labels": [{"field": "true_class", "header": "True class"}],
      "groups": [("\\entValidator{}", 2), ("\\corefValidator{}", 2)],
      "cols": [
@@ -228,9 +217,7 @@ SPECS = [
     # ---- RQ3 Claude mirror (appendix) ----
     {"csv": "rq3_claude.csv", "out": "rq3-confusion-claude.tex", "label": "tab:rq3-confusion-claude",
      "colspec": "@{}l cc @{\\hskip 2.2em} cc@{}",
-     "caption": "RQ3 judge confusion on the Claude Sonnet backend (cross-backend mirror of "
-                "\\autoref{tab:rq3-confusion}). Same layout: each judge decides REJECT or KEEP per link, "
-                "rows are the true class.",
+     "caption": "RQ3 judge confusion on the Claude Sonnet backend.",
      "labels": [{"field": "true_class", "header": "True class"}],
      "groups": [("\\entValidator{}", 2), ("\\corefValidator{}", 2)],
      "cols": [
@@ -243,10 +230,7 @@ SPECS = [
     # ---- RQ3 per-project judge decisions (appendix) ----
     {"csv": "rq3_perproject.csv", "out": "rq3-perproject.tex", "label": "tab:rq3-perproject",
      "midrule_before_last": True, "no_bold": True,
-     "caption": "RQ3 per-project judge decisions on the GPT-5.4 backend (companion to "
-                "\\autoref{tab:rq3-confusion}). FP rejected = false positives correctly removed (benefit); "
-                "TP rejected = true positives wrongly removed (cost). Macro is the unweighted mean over the "
-                "five projects.",
+     "caption": "RQ3 per-project judge decisions on the GPT-5.4 backend.",
      "labels": [{"field": "project", "header": "Project"}],
      "groups": [("\\entValidator{}", 2), ("\\corefValidator{}", 2)],
      "cols": [
@@ -258,10 +242,7 @@ SPECS = [
 
     # ---- RQ4 body (was fig:rq4-ablation) ----
     {"csv": "rq4.csv", "out": "rq4-results.tex", "label": "tab:rq4", "colsep": "5pt",
-     "caption": "RQ4 module ablation on the GPT-5.4 backend: the full approach and each module removed, with the "
-                "doc-to-model macro \\fone\\ and the size-aware doc-to-code suite. Removing a linker or the "
-                "knowledge module barely moves the standard scores but collapses the tail; the Uniq.\\ TP column "
-                "counts the gold links a linker recovers that the other does not. Best per column in bold.",
+     "caption": "RQ4 module ablation on the GPT-5.4 backend.",
      "labels": [{"field": "variant", "header": "Variant", "map": VAR_MAP}],
      "groups": [("doc-to-model", 1), ("doc-to-code (size-aware suite)", 4), ("", 1)],
      "cols": [
@@ -275,13 +256,7 @@ SPECS = [
 
     # ---- RQ1+RQ2 big table: average, both backends ----
     {"csv": "bigtable_rq12_avg.csv", "out": "big-table.tex", "label": "tab:detailed-macro", "star": True,
-     "caption": "Full s21 comparison across the five projects, both backends, in one panel: the doc-to-model "
-                "(link \\fone) and doc-to-code (file \\fone) standard rulers, and the size-aware suite of "
-                "\\autoref{sec:metric:suite} (sentence coverage, worst-component \\fone, and harmonic-mean "
-                "per-component \\fone; doc-to-code). \\approach{} is \\texttt{s\\_linker21} (mean of three runs); "
-                "GPT-5.4 is the backend reported in the body, Claude Sonnet is the cross-backend mirror. Each "
-                "system runs with its authors' released configuration. \\TransArc{}$^{\\dagger}$ uses SWATTR for "
-                "the doc-to-model columns. Best per metric column in bold.",
+     "caption": "Full s21 comparison across the five projects, both backends.",
      "labels": [{"field": "system", "header": "System", "map": BIGSYS_MAP}],
      "groups": SUITE9_GROUPS,
      "cols": SUITE9,
@@ -292,9 +267,7 @@ SPECS = [
     # ---- RQ1+RQ2 big table: per project, both backends ----
     {"csv": "bigtable_rq12_perproject.csv", "out": "big-table-perproject.tex",
      "label": "tab:detailed-perproject", "star": True, "size": "\\footnotesize", "no_bold": True,
-     "caption": "Per-project companion to \\autoref{tab:detailed-macro}: the doc-to-model (link \\fone) and "
-                "doc-to-code (file \\fone) standard rulers and the size-aware suite, for every (system, project) "
-                "on both backends. \\approach{} is \\texttt{s\\_linker21} (mean of three runs).",
+     "caption": "Per-project companion to \\autoref{tab:detailed-macro}.",
      "labels": [{"field": "system", "header": "System", "map": BIGSYS_MAP, "group_by": True},
                 {"field": "project", "header": "Project"}],
      "groups": SUITE9_GROUPS,
@@ -302,10 +275,7 @@ SPECS = [
 
     # ---- RQ4 big table: average, both backends ----
     {"csv": "bigtable_rq4_avg.csv", "out": "rq4-bigtable.tex", "label": "tab:rq4-detailed", "star": True,
-     "caption": "RQ4 module ablation on both backends: the doc-to-model macro \\fone, the doc-to-code file "
-                "rulers, and the size-aware suite for the full approach and each module removed. Uniq.\\ TP is "
-                "the count of gold links a linker recovers that the other does not. GPT-5.4 is the body backend, "
-                "Claude Sonnet the mirror. Best per metric column in bold.",
+     "caption": "RQ4 module ablation, both backends.",
      "labels": [{"field": "backend", "header": "Backend", "map": BACKEND_MAP, "group_by": True},
                 {"field": "variant", "header": "Variant", "map": VAR_MAP}],
      "groups": [("doc-to-model", 1), ("doc-to-code (file \\fone)", 3), ("size-aware", 3), ("", 1)],
@@ -323,9 +293,7 @@ SPECS = [
     # ---- RQ4 big table: per project, both backends (doc-to-code suite) ----
     {"csv": "bigtable_rq4_perproject.csv", "out": "rq4-bigtable-perproject.tex",
      "label": "tab:rq4-perproject", "star": True, "size": "\\footnotesize", "no_bold": True,
-     "caption": "Per-project companion to \\autoref{tab:rq4-detailed}: the doc-to-code file rulers and the "
-                "size-aware suite for each RQ4 variant on every project, both backends. Doc-to-model macro "
-                "\\fone\\ is reported per backend in \\autoref{tab:rq4-detailed} (not per project per variant).",
+     "caption": "Per-project companion to \\autoref{tab:rq4-detailed}.",
      "labels": [{"field": "backend", "header": "Backend", "map": BACKEND_MAP, "group_by": True},
                 {"field": "variant", "header": "Variant", "map": VAR_MAP},
                 {"field": "project", "header": "Project"}],
