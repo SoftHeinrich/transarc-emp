@@ -186,11 +186,12 @@ SPECS = [
     {"csv": "rq1.csv", "out": "rq1-results.tex", "label": "tab:rq1", "size": "\\footnotesize", "colsep": "4pt",
      "caption": "RQ1 macro precision, recall, and \\fone\\ on the GPT-5.4 backend.",
      "labels": [{"field": "system", "header": "System", "map": SYS_MAP}],
-     "groups": [("doc-to-model (link \\fone)", 3), ("doc-to-code (file \\fone)", 3)],
+     "groups": [("doc-to-model (link \\fone)", 4), ("doc-to-code (file \\fone)", 3)],
      "cols": [
          {"field": "dm_p", "header": "P", "kind": "f2"},
          {"field": "dm_r", "header": "R", "kind": "f2"},
          {"field": "dm_f1", "header": "\\fone", "kind": "f3", "bold": "max"},
+         {"field": "dm_sfm", "header": "SFM\\%", "kind": "f1", "bold": "min"},
          {"field": "dc_p", "header": "P", "kind": "f2"},
          {"field": "dc_r", "header": "R", "kind": "f2"},
          {"field": "dc_f1", "header": "\\fone", "kind": "f3", "bold": "max"},

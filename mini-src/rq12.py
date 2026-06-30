@@ -12,7 +12,10 @@ and writes ONE wide CSV whose columns are the union of both tasks.
 That single big table is a superset of every RQ1/RQ2 cell:
   * RQ1 doc-to-model (tab:rq1-sadsam) = columns
     ``doc_to_model_link_precision``, ``doc_to_model_link_recall``,
-    ``doc_to_model_link_f1``.
+    ``doc_to_model_link_f1``. The doc-model group also carries the size-aware
+    Silent-Failure Mass: ``doc_to_model_silent_failure_mass`` (%) +
+    ``doc_to_model_silent_failure_count`` (added 2026-06-30, doc-model only;
+    the doc-code suite keeps worst/harmonic and gets NO SFM column).
   * RQ1 doc-to-code  (tab:rq1-sadcode) = columns
     ``doc_to_code_file_precision``, ``doc_to_code_file_recall``,
     ``doc_to_code_file_f1``.
@@ -136,6 +139,8 @@ COLUMNS = [
     ("doc_to_model_link_f1", SS, "link_f1"),
     ("doc_to_model_sentence_coverage", SS, "sentence_coverage"),
     ("doc_to_model_noise_rate", SS, "noise_rate"),
+    ("doc_to_model_silent_failure_mass", SS, "silent_failure_mass"),
+    ("doc_to_model_silent_failure_count", SS, "silent_failure_count"),
     ("doc_to_code_file_precision", SC, "file_p"),
     ("doc_to_code_file_recall", SC, "file_r"),
     ("doc_to_code_file_f1", SC, "file_f1"),

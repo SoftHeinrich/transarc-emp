@@ -16,12 +16,19 @@ Panel
     sad-code (doc-to-code) : file P/R/F1, per-component F1 (micro),
                              worst-component F1, harmonic-mean component F1,
                              sentence coverage, noise rate
-    sad-sam  (doc-to-model): link P/R/F1, sentence coverage, noise rate
-                             (per-component F1 collapses onto link F1 with no
-                             enrolment, so it is dropped)
+    sad-sam  (doc-to-model): link P/R/F1, sentence coverage, noise rate,
+                             Silent-Failure Mass (SFM%) + Silent-Failure Count (SFC)
+                             (the MICRO per-component F1 collapses onto link F1 with
+                             no enrolment, so it is dropped; SFM/SFC do NOT collapse
+                             — they are the doc-model size-aware metric, added
+                             2026-06-30, distinct-sentence denominator)
 
 The worst-component + harmonic pair is the paper's ``metric.tex`` size-aware
-headline (weight each architecture component equally, not each link pair).
+headline for DOC-CODE (weight each architecture component equally, not each link
+pair); they stay doc-code-only (redundant with link-F1 on doc-model). The
+doc-model size-aware metric is instead SFM/SFC (silent component failure: the
+share of documented sentences whose component recovers no correct link), added
+to ``compute_sad_sam`` only — ``compute_sad_code`` is untouched.
 ``mini-src/check.py`` pins every cell to a frozen golden table (validated at
 retirement against the then-canonical ``metrics_api`` and the interface-dropped
 ``component_suite``). The whole computation lives here, in ~450 lines.
@@ -370,7 +377,24 @@ def compute_sad_code(project, res):
 
 
 def compute_sad_sam(project, res):
-    """Primary panel for one doc-to-model result set."""
+    """Primary panel + Silent-Failure Mass/Count for one doc-to-model result set.
+
+    Silent-Failure Mass (SFM) / Count (SFC) is the doc-model size-aware metric
+    (the doc-code worst/harmonic tail is redundant with link-F1 here, so it is
+    NOT reported on doc-model; see the module docstring). Definitions, over GOLD
+    components and DISTINCT documentation sentences:
+
+      * component c is ABANDONED iff ``recall_c == 0`` -- it recovers no correct
+        link (zero correct sentences for c), reusing ``prf``'s convention that an
+        empty/all-wrong prediction scores recall 0.
+      * SFC = #{abandoned gold components}                              (integer)
+      * SFM = |distinct documented sentences belonging to >=1 abandoned component|
+              / |distinct documented sentences| * 100                  (%, [0,100])
+
+    The denominator and numerator are DISTINCT sentences (a sentence gold-linked
+    to two components is counted once) -- NOT the prototype's (sentence,component)
+    decision grain. Empty gold -> SFM 0.0, SFC 0.
+    """
     gold = load_gs_sad_sam(project)
     lp, lr, lf1 = prf(gold, res)
 
@@ -380,11 +404,25 @@ def compute_sad_sam(project, res):
     for c, s in res:
         res_by_s[s].add(c)
 
+    # SFM/SFC: comp -> distinct gold sentences; abandoned = comp with no CORRECT
+    # link (gold & res), per the recall_c == 0 definition.
+    gold_by_c, correct_by_c = defaultdict(set), defaultdict(set)
+    for c, s in gold:
+        gold_by_c[c].add(s)
+    for c, s in (gold & res):
+        correct_by_c[c].add(s)
+    abandoned = {c for c in gold_by_c if not correct_by_c.get(c)}
+    abandoned_sents = set().union(*(gold_by_c[c] for c in abandoned)) if abandoned else set()
+    all_sents = set().union(*gold_by_c.values()) if gold_by_c else set()
+    sfm = len(abandoned_sents) / len(all_sents) * 100 if all_sents else 0.0
+
     return {
         "project": project,
         "link_p": lp, "link_r": lr, "link_f1": lf1,
         "sentence_coverage": sentence_coverage(gold_by_s, res_by_s),
         "noise_rate": noise_rate(gold_by_s, res_by_s),
+        "silent_failure_mass": sfm,
+        "silent_failure_count": len(abandoned),
     }
 
 
@@ -395,7 +433,8 @@ PANELS = {
                  "worst_component_f1", "harmonic_component_f1",
                  "sentence_coverage", "noise_rate"],
     "sad-sam":  ["link_p", "link_r", "link_f1",
-                 "sentence_coverage", "noise_rate"],
+                 "sentence_coverage", "noise_rate",
+                 "silent_failure_mass", "silent_failure_count"],
 }
 HEADERS = {
     "file_p": "file_P", "file_r": "file_R", "file_f1": "file_F1",
@@ -403,6 +442,7 @@ HEADERS = {
     "component_f1": "comp_F1", "worst_component_f1": "worst_C",
     "harmonic_component_f1": "harm_C", "sentence_coverage": "sent_cov",
     "noise_rate": "noise",
+    "silent_failure_mass": "SFM%", "silent_failure_count": "SFC",
 }
 
 def average_row(rows, cols):

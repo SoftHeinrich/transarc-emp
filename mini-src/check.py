@@ -14,6 +14,9 @@ Provenance of the frozen numbers (validated at retirement, 2026-06):
     (swattr/transarc rows) from the interface-dropped component_suite;
   * ``harmonic_component_f1`` == harmonic mean of the per-component F1 set,
     independently reproduced.
+  * SFM/SFC (sad-sam only) added 2026-06-30: Silent-Failure Mass (%) + Count, the
+    doc-model size-aware metric, distinct-sentence denominator. Frozen from the
+    bundled TransArc doc-model results; sad-code goldens are unchanged.
 
     python3 mini-src/check.py        # -> PASS
 """
@@ -38,12 +41,12 @@ GOLDEN = {
         "jabref":        (0.8927, 1.0000, 0.9433, 0.9565, 0.8000, 0.9412, 1.0000, 0.0823),
     },
     "sad-sam": {
-        # link_P   link_R   link_F1  sent_cov noise
-        "mediastore":    (0.9444, 0.5484, 0.6939, 0.5926, 0.0588),
-        "teastore":      (1.0000, 0.7407, 0.8511, 0.6957, 0.0000),
-        "teammates":     (0.6049, 0.8596, 0.7101, 0.8444, 0.4470),
-        "bigbluebutton": (0.8980, 0.7097, 0.7928, 0.8125, 0.0813),
-        "jabref":        (0.9000, 1.0000, 0.9474, 1.0000, 0.1000),
+        # link_P   link_R   link_F1  sent_cov noise    SFM%      SFC
+        "mediastore":    (0.9444, 0.5484, 0.6939, 0.5926, 0.0588, 37.0370, 3.0000),
+        "teastore":      (1.0000, 0.7407, 0.8511, 0.6957, 0.0000,  0.0000, 0.0000),
+        "teammates":     (0.6049, 0.8596, 0.7101, 0.8444, 0.4470,  0.0000, 0.0000),
+        "bigbluebutton": (0.8980, 0.7097, 0.7928, 0.8125, 0.0813,  0.0000, 0.0000),
+        "jabref":        (0.9000, 1.0000, 0.9474, 1.0000, 0.1000,  0.0000, 0.0000),
     },
 }
 
