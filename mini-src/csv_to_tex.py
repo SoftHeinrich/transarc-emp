@@ -175,7 +175,7 @@ SUITE9 = [
     {"field": "doc_to_code_worst_component_f1", "header": "Worst", "kind": "f2", "bold": "max"},
     {"field": "doc_to_code_harmonic_component_f1", "header": "Harm", "kind": "f2", "bold": "max"},
 ]
-SUITE9_GROUPS = [("doc-to-model (link \\fone)", 4), ("doc-to-code (file \\fone)", 3),
+SUITE9_GROUPS = [("doc-model (link \\fone)", 4), ("doc-code (link \\fone)", 3),
                  ("size-aware (doc-code)", 3)]
 
 
@@ -187,7 +187,7 @@ SPECS = [
     {"csv": "rq1.csv", "out": "rq1-results.tex", "label": "tab:rq1", "size": "\\footnotesize", "colsep": "4pt",
      "caption": "RQ1 macro precision, recall, and \\fone\\ on the GPT-5.4 backend.",
      "labels": [{"field": "system", "header": "System", "map": SYS_MAP}],
-     "groups": [("doc-to-model (link \\fone)", 3), ("doc-to-code (file \\fone)", 3)],
+     "groups": [("doc-model (link \\fone)", 3), ("doc-code (link \\fone)", 3)],
      "cols": [
          {"field": "dm_p", "header": "P", "kind": "f2"},
          {"field": "dm_r", "header": "R", "kind": "f2"},
@@ -196,8 +196,8 @@ SPECS = [
          {"field": "dc_r", "header": "R", "kind": "f2"},
          {"field": "dc_f1", "header": "\\fone", "kind": "f3", "bold": "max"},
      ],
-     "footnote": "$^{\\dagger}$SWATTR is the deterministic doc-to-model stage of \\TransArc{}; "
-                 "\\TransArc{} has no standalone doc-to-model output."},
+     "footnote": "$^{\\dagger}$SWATTR is the deterministic doc-model stage of \\TransArc{}; "
+                 "\\TransArc{} has no standalone doc-model output."},
 
     # ---- RQ2 body (was fig:rq2-profile) ----
     {"csv": "rq2.csv", "out": "rq2-results.tex", "label": "tab:rq2", "colsep": "6pt",
@@ -209,7 +209,7 @@ SPECS = [
      "cols": [
          {"field": "link_f1", "header": "Link \\fone", "kind": "f3", "bold": "max"},
          {"field": "silent_failure_mass", "header": "SFM\\%", "kind": "f1", "bold": "min"},
-         {"field": "file_f1", "header": "File \\fone", "kind": "f3", "bold": "max"},
+         {"field": "file_f1", "header": "Link \\fone", "kind": "f3", "bold": "max"},
          {"field": "sentence_coverage", "header": "Sent.\\ cov.", "kind": "f2", "bold": "max"},
          {"field": "worst_component_f1", "header": "Worst\\ \\fone", "kind": "f2", "bold": "max"},
          {"field": "harmonic_component_f1", "header": "Harm.\\ \\fone", "kind": "f2", "bold": "max"},
@@ -323,7 +323,7 @@ SPECS = [
      "caption": "RQ4 module ablation, both backends.",
      "labels": [{"field": "backend", "header": "Backend", "map": BACKEND_MAP, "group_by": True},
                 {"field": "variant", "header": "Variant", "map": VAR_MAP}],
-     "groups": [("doc-to-model", 1), ("doc-to-code (file \\fone)", 3), ("size-aware", 3)],
+     "groups": [("doc-model", 1), ("doc-code (link \\fone)", 3), ("size-aware", 3)],
      "cols": [
          {"field": "doc_to_model_macro_f1", "header": "\\fone", "kind": "f3", "bold": "max"},
          {"field": "dc_file_precision", "header": "P", "kind": "f2", "bold": "max"},
