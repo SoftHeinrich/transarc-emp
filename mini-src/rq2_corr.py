@@ -4,9 +4,10 @@ metrics against link-level (file) F1.
 
 ``rq12.py`` macro-averages each system's per-project ``metrics.compute_sad_code``
 vectors into ONE row per system; the per-project cells are computed and thrown
-away. This driver keeps the cells: it emits the per-(system, project) panel that
-backs the paper's appendix table ``tab:rq2-tail`` (appendix/rq2-tail.tex) and the
-per-project worst-component claims in ``results.tex`` sec:results:rq2.
+away. This driver keeps the cells: it emits the per-(system, project) panel behind the
+per-project worst-component claims in ``results.tex`` sec:results:rq2 (those figures now
+appear in the appendix ``tab:detailed-perproject``; the old standalone
+``appendix/rq2-tail.tex`` was archived).
 
 NOTE the rank correlation is computed and written (RQ2_CORR.csv) only as a
 DIAGNOSTIC: the paper does NOT report it. Under the canonical s21 variant the

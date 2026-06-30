@@ -1,7 +1,0 @@
-run,true_class,ent_reject,ent_keep,coref_reject,coref_keep
-run1,False positive (FP),38,0,44,1
-run1,True positive (TP),6,147,4,33
-run2,False positive (FP),33,1,32,3
-run2,True positive (TP),8,147,3,29
-run3,False positive (FP),34,1,31,3
-run3,True positive (TP),6,147,5,28
