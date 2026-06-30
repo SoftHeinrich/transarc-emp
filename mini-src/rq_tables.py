@@ -108,21 +108,23 @@ def build_rq1(big):
 
 
 def build_rq2(big):
-    """RQ2 size-aware suite, doc-to-code, GPT-5.4 (the former fig:rq2-profile)."""
+    """RQ2 size-aware suite clustered by task: doc-model (link \\fone + SFM) and
+    doc-code (file \\fone + the doc-code size-aware metrics), GPT-5.4."""
     rows = []
     for label, key in (("approach", ("approach (GPT-5.4)", "average")),
                        ("Artemis", ("Artemis (GPT-5.4)", "single")),
                        ("TransArC", ("TransArC", "single"))):
         s = big[key]
         rows.append({"system": label,
+                     "link_f1": s["doc_to_model_link_f1"],
+                     "silent_failure_mass": s["doc_to_model_silent_failure_mass"],
                      "file_f1": s["doc_to_code_file_f1"],
                      "sentence_coverage": s["doc_to_code_sentence_coverage"],
                      "worst_component_f1": s["doc_to_code_worst_component_f1"],
-                     "harmonic_component_f1": s["doc_to_code_harmonic_component_f1"],
-                     "silent_failure_mass": s["doc_to_model_silent_failure_mass"]})
+                     "harmonic_component_f1": s["doc_to_code_harmonic_component_f1"]})
     write_csv("rq2.csv",
-              ["system", "file_f1", "sentence_coverage", "worst_component_f1",
-               "harmonic_component_f1", "silent_failure_mass"],
+              ["system", "link_f1", "silent_failure_mass", "file_f1",
+               "sentence_coverage", "worst_component_f1", "harmonic_component_f1"],
               rows)
 
 
