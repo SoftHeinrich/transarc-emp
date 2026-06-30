@@ -104,7 +104,7 @@ LISSA = {"label": "LiSSA (gpt-5-mini)", "backend": "gpt-5-mini", "runs": None,
          "sad-sam":  "model-doc/lissa-{project}-gpt-5-mini.csv",
          "sad-code": "doc-code/lissa-{project}-gpt-5-mini.csv"}
 
-# The paper's RQ2 approach numbers (working/table/rq2-summary.tex) came from the
+# The paper's RQ2 approach numbers (working/table/rq2-results.tex) came from the
 # WRONG-CONFIG run: the deleted v2.6.5_s20union_gpt_re_medium slot, i.e. gpt-5.4
 # with reasoning=medium (run_s20union_gpt_re_medium_n3.sh), scored by the deleted
 # /tmp/v265.py. The correct input is the newest NO-REASONING run (v2.6.6_extracts

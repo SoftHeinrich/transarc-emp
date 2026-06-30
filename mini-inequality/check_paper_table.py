@@ -1,77 +1,38 @@
 #!/usr/bin/env python3
-"""Guard: the paper's table/gold_concentration.{tex,csv} must equal the freshly
-regenerated OUT-02 artifacts (reports/out02_concentration.{tex,csv}), byte for byte.
+"""Thin wrapper: guard the paper's gold_concentration.{tex,csv} against drift.
 
-Both are paper-ready and copied verbatim into the paper: the .tex (project aliases +
-thousands separators) and the machine-readable .csv companion (full project names).
-This regenerates from the engine and fails loudly if either committed file has
-drifted -- catching a rerun-without-recopy or a hand-edit.
+The full table guard now lives in ``mini-src/sync_paper.py`` (it covers every paper-bound
+table, deriving the set from ``csv_to_tex.SPECS``). This entry point is kept for back-compat
+and delegates the gold_concentration (OUT-02) check to it via ``--only gold``. Same exit
+codes: 0 in sync, 1 drift (prints a unified diff), 2 paper dir not found.
 
-    python3 check_paper_table.py                      # auto-locate the table dir
+    python3 check_paper_table.py
     PAPER_TABLE_DIR=/path/to/alinker-paper/table python3 check_paper_table.py
     python3 check_paper_table.py /path/to/alinker-paper/table
 
-Exit 0 = in sync; exit 1 = drift (prints a unified diff); exit 2 = table dir not found.
+For the complete guard (RQ tables + gold): ``python3 mini-src/sync_paper.py --check``.
 """
-import difflib
 import os
 import sys
 from pathlib import Path
 
-import motivation as mot
-
 HERE = Path(__file__).resolve().parent
-# (regenerated artifact, paper filename)
-PAIRS = [
-    (mot.REPORTS / "out02_concentration.tex", "gold_concentration.tex"),
-    (mot.REPORTS / "out02_concentration.csv", "gold_concentration.csv"),
-]
+sys.path.insert(0, str(HERE.parent / "mini-src"))
+import sync_paper  # noqa: E402
 
 
-def _locate_paper_table_dir():
-    candidates = [
-        sys.argv[1] if len(sys.argv) > 1 else None,
-        os.environ.get("PAPER_TABLE_DIR"),
-        # sibling repo layout: .../transarc-emp/mini-inequality -> .../alinker-paper
-        HERE.parent.parent / "alinker-paper" / "table",
-        # mono symlink lens, if present
-        HERE.parent.parent / "mono" / "working" / "table",
-    ]
-    for c in candidates:
-        if c and Path(c).is_dir():
-            return Path(c)
-    return None
-
-
-def main():
-    table_dir = _locate_paper_table_dir()
-    if table_dir is None:
-        print("ERROR: could not locate the paper table dir (.../alinker-paper/table).")
-        print("Pass it as an argument or set PAPER_TABLE_DIR=...")
-        return 2
-
-    mot.write_out02_concentration()  # regenerate the canonical artifacts
-
-    drift = False
-    for generated, paper_name in PAIRS:
-        paper = table_dir / paper_name
-        if not paper.is_file():
-            print(f"DRIFT: missing {paper}")
-            drift = True
-            continue
-        g, c = generated.read_text(), paper.read_text()
-        if g == c:
-            print(f"IN SYNC: {paper.name} == {generated.name} (byte-identical).")
-            continue
-        drift = True
-        print(f"\nDRIFT: {paper} differs from regenerated {generated}.")
-        print(f"  cp {generated} {paper}")
-        print("--- unified diff (paper <- generated) ---")
-        sys.stdout.writelines(difflib.unified_diff(
-            c.splitlines(keepends=True), g.splitlines(keepends=True),
-            fromfile=str(paper), tofile=str(generated)))
-    return 1 if drift else 0
+def _paper_root():
+    """Map the legacy 'table dir' arg / PAPER_TABLE_DIR onto the paper root sync_paper wants."""
+    raw = (sys.argv[1] if len(sys.argv) > 1 else None) or os.environ.get("PAPER_TABLE_DIR")
+    if not raw:
+        return None
+    p = Path(raw)
+    return str(p.parent if p.name == "table" else p)
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    argv = ["--check", "--only", "gold"]
+    root = _paper_root()
+    if root:
+        argv.append(root)
+    raise SystemExit(sync_paper.main(argv))
