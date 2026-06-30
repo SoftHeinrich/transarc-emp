@@ -334,8 +334,11 @@ SPECS = [
      "labels": [{"field": "backend", "header": "Backend", "map": BACKEND_MAP, "group_by": True},
                 {"field": "variant", "header": "Variant", "map": VAR_MAP},
                 {"field": "project", "header": "Project"}],
-     "groups": [("doc-to-code (file \\fone)", 3), ("size-aware", 3)],
+     "groups": [("doc-to-model (link \\fone)", 3), ("doc-to-code (file \\fone)", 3), ("size-aware", 3)],
      "cols": [
+         {"field": "dm_link_precision", "header": "P", "kind": "f2"},
+         {"field": "dm_link_recall", "header": "R", "kind": "f2"},
+         {"field": "dm_link_f1", "header": "\\fone", "kind": "f3"},
          {"field": "dc_file_precision", "header": "P", "kind": "f2"},
          {"field": "dc_file_recall", "header": "R", "kind": "f2"},
          {"field": "dc_file_f1", "header": "\\fone", "kind": "f3"},

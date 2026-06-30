@@ -296,24 +296,35 @@ def build_bigtable_rq4_avg():
     write_csv("bigtable_rq4_avg.csv", fields, rows)
 
 
+DM_SUITE = ["link_precision", "link_recall", "link_f1"]
+
+
 def build_bigtable_rq4_perproject():
-    """Doc-to-code suite per (backend, variant, project). doc-to-model macro F1 is
-    avg-only (no per-project per-variant link F1 is computed), so it is omitted here."""
+    """Doc-to-model link P/R/F1 + doc-to-code suite per (backend, variant, project)."""
     link_pp = index(read_csv(RQ34 / "rq34_rq2_linkers_perproject.csv"),
                     "backend", "run", "linker_set", "project")
-    fields = ["backend", "variant", "project"] + [f"dc_{c}" for c in DC_SUITE]
+    dm_pp = index(read_csv(RQ34 / "rq4_variants_perproject.csv"),
+                  "backend", "run", "linker_set", "project")
+    fields = ["backend", "variant", "project"] + [f"dm_{c}" for c in DM_SUITE] \
+        + [f"dc_{c}" for c in DC_SUITE]
     setmap = {"Full": "Full", "Direct": "EntityOnly", "Indirect": "CorefOnly"}
+    dm_setmap = {"Full": "full", "Direct": "entity_only", "Indirect": "coref_only"}
     rows = []
     for backend in ("openai", "claude"):
         noknow_pp = index(read_csv(RQ34_NOKNOW[backend] / "rq34_rq2_variants_perproject.csv"),
                           "backend", "run", "variant", "project")
+        noknow_dm = index(read_csv(RQ34_NOKNOW[backend] / "rq4_variants_perproject.csv"),
+                          "backend", "run", "linker_set", "project")
         for variant, _ in RQ4_DISPLAY:
             for proj in PROJECTS:
                 if variant == "No knowledge":
                     s = noknow_pp[(backend, "average", "Full", proj)]
+                    dm = noknow_dm[(backend, "average", "full", proj)]
                 else:
                     s = link_pp[(backend, "average", setmap[variant], proj)]
+                    dm = dm_pp[(backend, "average", dm_setmap[variant], proj)]
                 rows.append({"backend": backend, "variant": variant, "project": proj,
+                             **{f"dm_{c}": dm[f"doc_to_model_{c}"] for c in DM_SUITE},
                              **{f"dc_{c}": s[f"doc_to_code_{c}"] for c in DC_SUITE}})
     write_csv("bigtable_rq4_perproject.csv", fields, rows)
 

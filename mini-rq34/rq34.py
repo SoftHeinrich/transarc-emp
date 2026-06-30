@@ -169,6 +169,14 @@ def prf(pred: Set[LinkKey], gold: Set[LinkKey]) -> Tuple[int, int, int, float]:
     return tp, fp, fn, f1
 
 
+def prf3(pred: Set[LinkKey], gold: Set[LinkKey]) -> Tuple[float, float, float]:
+    """(precision, recall, f1) for a predicted link set against the gold set."""
+    tp, fp, fn, f1 = prf(pred, gold)
+    p = tp / (tp + fp) if (tp + fp) else 0.0
+    r = tp / (tp + fn) if (tp + fn) else 0.0
+    return p, r, f1
+
+
 def _key(obj) -> LinkKey:
     return (int(obj.sentence_number), str(obj.component_id))
 
@@ -349,6 +357,8 @@ class BackendAgg:
         self.linkers = {l: {"tps_caught": 0, "unique_tps": 0, "fps": 0, "delta_f1_sum": 0.0, "n": 0}
                         for l in ("Entity", "Coref")}
         self.upset = {"only_E": 0, "both": 0, "only_C": 0}
+        # per-project doc-to-model link P/R/F1, per single-linker set: {label: {project: (p, r, f1)}}
+        self.dm_pp = {label: {} for label in ("entity_only", "coref_only", "full")}
 
 
 def mean(vals):
@@ -378,6 +388,11 @@ def average_aggs(backend: str, aggs: List[BackendAgg]) -> BackendAgg:
         avg.linkers[l]["n"] = len(aggs)
     for c in avg.upset:
         avg.upset[c] = mean([a.upset[c] for a in aggs])
+    for label in avg.dm_pp:
+        projects = {p for a in aggs for p in a.dm_pp[label]}
+        for p in projects:
+            triples = [a.dm_pp[label][p] for a in aggs if p in a.dm_pp[label]]
+            avg.dm_pp[label][p] = tuple(mean([t[i] for t in triples]) for i in range(3))
     return avg
 
 
@@ -464,8 +479,11 @@ def process_backend(backend: str, csv_root: Path, run_override: Optional[str],
             f1_ne_list.append(v_f1["NoEntityValid"])
             f1_nc_list.append(v_f1["NoCitation"])
             f1_na_list.append(v_f1["NoValidator"])
-            _, _, _, f1e = prf(cell.ent_kept, cell.gold)
-            _, _, _, f1c = prf(cell.cor_kept, cell.gold)
+            agg.dm_pp["full"][project] = prf3(cell.final, cell.gold)
+            agg.dm_pp["entity_only"][project] = prf3(cell.ent_kept, cell.gold)
+            agg.dm_pp["coref_only"][project] = prf3(cell.cor_kept, cell.gold)
+            f1e = agg.dm_pp["entity_only"][project][2]
+            f1c = agg.dm_pp["coref_only"][project][2]
             f1_e_only_list.append(f1e)
             f1_c_only_list.append(f1c)
             for v in ("entity", "coref"):
@@ -573,6 +591,24 @@ def write_aggregates(csv_root: Path, aggs: Dict[str, List[BackendAgg]]) -> None:
                              "macro_f1": f"{macro:.6f}"})
     _write_csv(csv_root / "rq4_variants.csv",
                ["backend", "run", "linker_set", "macro_f1"], rows)
+
+    # rq4_variants_perproject.csv -- per-project doc-to-model link P/R/F1 backing the
+    # single-linker macro-F1 above (entity-only / coref-only / full).
+    rows = []
+    for backend, backend_aggs in aggs.items():
+        for agg in backend_aggs:
+            for label in ("entity_only", "coref_only", "full"):
+                for project in PROJECTS:
+                    if project not in agg.dm_pp[label]:
+                        continue
+                    p, r, f1 = agg.dm_pp[label][project]
+                    rows.append({"backend": backend, "run": agg.run, "linker_set": label,
+                                 "project": project, "doc_to_model_link_precision": f"{p:.6f}",
+                                 "doc_to_model_link_recall": f"{r:.6f}",
+                                 "doc_to_model_link_f1": f"{f1:.6f}"})
+    _write_csv(csv_root / "rq4_variants_perproject.csv",
+               ["backend", "run", "linker_set", "project", "doc_to_model_link_precision",
+                "doc_to_model_link_recall", "doc_to_model_link_f1"], rows)
 
 
 # --------------------------------------------------------------------------- #
