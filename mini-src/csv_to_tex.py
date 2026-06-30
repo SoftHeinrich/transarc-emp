@@ -173,9 +173,10 @@ SUITE9 = [
     {"field": "doc_to_code_sentence_coverage", "header": "Cov", "kind": "f2", "bold": "max"},
     {"field": "doc_to_code_worst_component_f1", "header": "Worst", "kind": "f2", "bold": "max"},
     {"field": "doc_to_code_harmonic_component_f1", "header": "Harm", "kind": "f2", "bold": "max"},
+    {"field": "doc_to_model_silent_failure_mass", "header": "SFM", "kind": "f1", "bold": "min"},
 ]
 SUITE9_GROUPS = [("doc-to-model (link \\fone)", 3), ("doc-to-code (file \\fone)", 3),
-                 ("size-aware (doc-to-code)", 3)]
+                 ("size-aware", 4)]
 
 
 # --------------------------------------------------------------------------- #
@@ -186,12 +187,11 @@ SPECS = [
     {"csv": "rq1.csv", "out": "rq1-results.tex", "label": "tab:rq1", "size": "\\footnotesize", "colsep": "4pt",
      "caption": "RQ1 macro precision, recall, and \\fone\\ on the GPT-5.4 backend.",
      "labels": [{"field": "system", "header": "System", "map": SYS_MAP}],
-     "groups": [("doc-to-model (link \\fone)", 4), ("doc-to-code (file \\fone)", 3)],
+     "groups": [("doc-to-model (link \\fone)", 3), ("doc-to-code (file \\fone)", 3)],
      "cols": [
          {"field": "dm_p", "header": "P", "kind": "f2"},
          {"field": "dm_r", "header": "R", "kind": "f2"},
          {"field": "dm_f1", "header": "\\fone", "kind": "f3", "bold": "max"},
-         {"field": "dm_sfm", "header": "SFM\\%", "kind": "f1", "bold": "min"},
          {"field": "dc_p", "header": "P", "kind": "f2"},
          {"field": "dc_r", "header": "R", "kind": "f2"},
          {"field": "dc_f1", "header": "\\fone", "kind": "f3", "bold": "max"},
@@ -201,13 +201,16 @@ SPECS = [
 
     # ---- RQ2 body (was fig:rq2-profile) ----
     {"csv": "rq2.csv", "out": "rq2-results.tex", "label": "tab:rq2", "colsep": "6pt",
-     "caption": "RQ2 size-aware suite on doc-to-code, GPT-5.4 backend.",
+     "caption": "RQ2 size-aware suite (four metrics): sentence coverage, worst- and "
+                "harmonic-component \\fone\\ on doc-code, and Silent-Failure Mass (SFM) "
+                "on doc-model. GPT-5.4 backend.",
      "labels": [{"field": "system", "header": "System", "map": SYS_MAP}],
      "cols": [
          {"field": "file_f1", "header": "File \\fone", "kind": "f3", "bold": "max"},
          {"field": "sentence_coverage", "header": "Sent.\\ cov.", "kind": "f2", "bold": "max"},
          {"field": "worst_component_f1", "header": "Worst\\ \\fone", "kind": "f2", "bold": "max"},
          {"field": "harmonic_component_f1", "header": "Harm.\\ \\fone", "kind": "f2", "bold": "max"},
+         {"field": "silent_failure_mass", "header": "SFM\\%", "kind": "f1", "bold": "min"},
      ]},
 
     # ---- RQ3 body confusion matrix (mean of 3 runs) ----
@@ -301,7 +304,7 @@ SPECS = [
      "cols": SUITE9,
      "footnote": "$^{\\dagger}$The doc-to-model columns for \\TransArc{} are SWATTR, its deterministic "
                  "doc-to-model stage (\\TransArc{} has no standalone doc-to-model system). The size-aware "
-                 "suite is defined on doc-to-code only."},
+                 "suite is Cov/Worst/Harm on doc-to-code plus the doc-model Silent-Failure Mass (SFM)."},
 
     # ---- RQ1+RQ2 big table: per project, both backends ----
     {"csv": "bigtable_rq12_perproject.csv", "out": "big-table-perproject.tex",

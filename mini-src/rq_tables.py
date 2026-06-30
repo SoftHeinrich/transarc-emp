@@ -85,9 +85,7 @@ def build_rq1(big):
     ap = big[("approach (GPT-5.4)", "average")]
     ar = big[("Artemis (GPT-5.4)", "single")]
     tx = big[("TransArC", "single")]
-    # dm_sfm = doc-model Silent-Failure Mass (%); doc-model size-aware column,
-    # blank for the doc-code-only TransArC row.
-    cols = ["dm_p", "dm_r", "dm_f1", "dm_sfm", "dc_p", "dc_r", "dc_f1"]
+    cols = ["dm_p", "dm_r", "dm_f1", "dc_p", "dc_r", "dc_f1"]
 
     def row(label, src, dm=True, dc=True):
         return {
@@ -95,7 +93,6 @@ def build_rq1(big):
             "dm_p": src["doc_to_model_link_precision"] if dm else "",
             "dm_r": src["doc_to_model_link_recall"] if dm else "",
             "dm_f1": src["doc_to_model_link_f1"] if dm else "",
-            "dm_sfm": src["doc_to_model_silent_failure_mass"] if dm else "",
             "dc_p": src["doc_to_code_file_precision"] if dc else "",
             "dc_r": src["doc_to_code_file_recall"] if dc else "",
             "dc_f1": src["doc_to_code_file_f1"] if dc else "",
@@ -121,9 +118,11 @@ def build_rq2(big):
                      "file_f1": s["doc_to_code_file_f1"],
                      "sentence_coverage": s["doc_to_code_sentence_coverage"],
                      "worst_component_f1": s["doc_to_code_worst_component_f1"],
-                     "harmonic_component_f1": s["doc_to_code_harmonic_component_f1"]})
+                     "harmonic_component_f1": s["doc_to_code_harmonic_component_f1"],
+                     "silent_failure_mass": s["doc_to_model_silent_failure_mass"]})
     write_csv("rq2.csv",
-              ["system", "file_f1", "sentence_coverage", "worst_component_f1", "harmonic_component_f1"],
+              ["system", "file_f1", "sentence_coverage", "worst_component_f1",
+               "harmonic_component_f1", "silent_failure_mass"],
               rows)
 
 
@@ -252,7 +251,8 @@ def build_rq4():
 # RQ1+RQ2 big tables (whole suite, both backends): average + per-project
 # --------------------------------------------------------------------------- #
 SUITE_COLS = (["doc_to_model_link_precision", "doc_to_model_link_recall", "doc_to_model_link_f1",
-               "doc_to_model_sentence_coverage", "doc_to_model_noise_rate"]
+               "doc_to_model_sentence_coverage", "doc_to_model_noise_rate",
+               "doc_to_model_silent_failure_mass"]
               + [f"doc_to_code_{c}" for c in DC_SUITE])
 
 BIG_SYSTEMS = [  # (display label, (system, run) key into RQ12_BIGTABLE)

@@ -5,16 +5,16 @@
 \label{tab:rq1}
 \centering\footnotesize
 \setlength{\tabcolsep}{4pt}
-\begin{tabular}{@{}l rrrrrrr@{}}
+\begin{tabular}{@{}l rrrrrr@{}}
 \toprule
- & \multicolumn{4}{c}{doc-to-model (link \fone)} & \multicolumn{3}{c}{doc-to-code (file \fone)} \\
-\cmidrule(lr){2-5}\cmidrule(lr){6-8}
-System & P & R & \fone & SFM\% & P & R & \fone \\
+ & \multicolumn{3}{c}{doc-to-model (link \fone)} & \multicolumn{3}{c}{doc-to-code (file \fone)} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+System & P & R & \fone & P & R & \fone \\
 \midrule
-\approach{} & .99 & .89 & \textbf{.936} & \textbf{0.0} & .96 & .86 & \textbf{.906} \\
-\Artemis{} & .93 & .76 & .836 & 7.1 & .94 & .78 & .849 \\
-SWATTR$^{\dagger}$ & .87 & .77 & .799 & 7.4 & -- & -- & -- \\
-\TransArc{} & -- & -- & -- & -- & .89 & .78 & .803 \\
+\approach{} & .99 & .89 & \textbf{.936} & .96 & .86 & \textbf{.906} \\
+\Artemis{} & .93 & .76 & .836 & .94 & .78 & .849 \\
+SWATTR$^{\dagger}$ & .87 & .77 & .799 & -- & -- & -- \\
+\TransArc{} & -- & -- & -- & .89 & .78 & .803 \\
 \bottomrule
 \end{tabular}
 \par\smallskip\footnotesize $^{\dagger}$SWATTR is the deterministic doc-to-model stage of \TransArc{}; \TransArc{} has no standalone doc-to-model output.
