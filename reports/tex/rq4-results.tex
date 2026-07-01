@@ -3,10 +3,10 @@
 \begin{table}[t]
 \caption{RQ4 module ablation on the GPT-5.4 backend.}
 \label{tab:rq4}
-\centering\footnotesize
+\centering%\footnotesize
 \setlength{\tabcolsep}{3pt}
 \adjustbox{max width=\columnwidth}{
-\begin{tabular}{@{}l rrrrr@{}}
+\begin{tabularx}{\columnwidth}{l ZZZZZ}
 \toprule
  & \multicolumn{1}{c}{doc-model} & \multicolumn{4}{c}{doc-code (size-aware)} \\
 \cmidrule(lr){2-2}\cmidrule(lr){3-6}
@@ -17,6 +17,6 @@ Full & \textbf{.936} & \textbf{.906} & \textbf{.84} & \textbf{.75} & \textbf{.88
 \linkerC{} only & .242 & .238 & .15 & .00 & .00 \\
 No knowledge & .878 & .851 & .77 & .53 & .66 \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 }
 \end{table}

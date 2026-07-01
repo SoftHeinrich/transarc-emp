@@ -93,7 +93,11 @@ def render(spec):
     if spec.get("fit"):
         width = "\\textwidth" if spec.get("star") else "\\columnwidth"
         out.append("\\adjustbox{max width=" + width + "}{")
-    out.append(f"\\begin{{tabular}}{{{colspec}}}")
+    tabularx = spec.get("tabularx")       # e.g. "\\columnwidth": stretch to that width
+    if tabularx:
+        out.append(f"\\begin{{tabularx}}{{{tabularx}}}{{{colspec}}}")
+    else:
+        out.append(f"\\begin{{tabular}}{{{colspec}}}")
     out.append("\\toprule")
 
     # group band + cmidrules
@@ -128,11 +132,15 @@ def render(spec):
             out.append("\\addlinespace[2pt]")
         prev_block = block_key
         is_summary = summary is not None and r.get(summary["field"]) == summary["value"]
+        # summary_label: force this label to show (bold) on the summary row even when
+        # its group_by value repeats — it names the block the summary belongs to.
+        summary_label = spec.get("summary_label")
         cells = []
         for lab in labels:
             v = r[lab["field"]]
             shown = lab.get("map", {}).get(v, v)
-            if lab.get("group_by") and prev_vals.get(lab["field"]) == v:
+            repeats = lab.get("group_by") and prev_vals.get(lab["field"]) == v
+            if repeats and not (is_summary and lab["field"] == summary_label):
                 shown = ""
             if is_summary and shown:
                 shown = f"\\textbf{{{shown}}}"
@@ -151,7 +159,7 @@ def render(spec):
             prev_vals[lab["field"]] = r[lab["field"]]
 
     out.append("\\bottomrule")
-    out.append("\\end{tabular}")
+    out.append("\\end{tabularx}" if tabularx else "\\end{tabular}")
     if spec.get("fit"):
         out.append("}")
     if spec.get("footnote"):
@@ -192,13 +200,20 @@ SUITE9 = [
 SUITE9_GROUPS = [("doc-model (link \\fone)", 4), ("doc-code (link \\fone)", 3),
                  ("size-aware (doc-code)", 3)]
 
+# Same suite without the doc-model SFM column: the per-run big table reports SFM in the
+# body RQ2 + per-project detailed tables instead, so it is omitted here (co-author design).
+SUITE_NOSFM = [c for c in SUITE9 if c["field"] != "doc_to_model_silent_failure_mass"]
+SUITE_NOSFM_GROUPS = [("doc-model (link \\fone)", 3), ("doc-code (link \\fone)", 3),
+                      ("size-aware (doc-code)", 3)]
+
 
 # --------------------------------------------------------------------------- #
 # Spec registry
 # --------------------------------------------------------------------------- #
 SPECS = [
     # ---- RQ1 body ----
-    {"csv": "rq1.csv", "out": "rq1-results.tex", "label": "tab:rq1", "size": "\\footnotesize", "colsep": "4pt",
+    {"csv": "rq1.csv", "out": "rq1-results.tex", "label": "tab:rq1", "size": "%\\footnotesize", "colsep": "4pt",
+     "colspec": "l ZZZZZZ", "tabularx": "\\columnwidth",
      "caption": "RQ1 macro precision, recall, and \\fone\\ on the GPT-5.4 backend.",
      "labels": [{"field": "system", "header": "System", "map": SYS_MAP}],
      "groups": [("doc-model (link \\fone)", 3), ("doc-code (link \\fone)", 3)],
@@ -215,6 +230,7 @@ SPECS = [
 
     # ---- RQ2 body (was fig:rq2-profile) ----
     {"csv": "rq2.csv", "out": "rq2-results.tex", "label": "tab:rq2", "colsep": "6pt",
+     "colspec": "@{}l ZZZZZZ@{}", "tabularx": "\\columnwidth",
      "caption": "RQ2 size-aware suite, both tasks: reference \\fone\\ with the size-aware "
                 "metrics --- sentence coverage, worst- and harmonic-component \\fone\\ on "
                 "doc-code, and SFM on doc-model. GPT-5.4 backend.",
@@ -231,7 +247,7 @@ SPECS = [
 
     # ---- RQ3 body confusion matrix (mean of 3 runs) ----
     {"csv": "rq3.csv", "out": "rq3-confusion.tex", "label": "tab:rq3-confusion",
-     "colspec": "@{}l cc @{\\hskip 2.2em} cc@{}",
+     "colspec": "l YY @{\\hskip 2.2em} YY", "tabularx": "\\columnwidth",
      "caption": "RQ3 judge confusion on the GPT-5.4 backend, averaged over the three runs.",
      "labels": [{"field": "true_class", "header": "True class"}],
      "groups": [("\\entValidator{}", 2), ("\\corefValidator{}", 2)],
@@ -260,8 +276,8 @@ SPECS = [
      ]},
 
     # ---- RQ4 body (was fig:rq4-ablation) ----
-    {"csv": "rq4.csv", "out": "rq4-results.tex", "label": "tab:rq4", "size": "\\footnotesize",
-     "colsep": "3pt", "fit": True,
+    {"csv": "rq4.csv", "out": "rq4-results.tex", "label": "tab:rq4", "size": "%\\footnotesize",
+     "colsep": "3pt", "fit": True, "colspec": "l ZZZZZ", "tabularx": "\\columnwidth",
      "caption": "RQ4 module ablation on the GPT-5.4 backend.",
      "labels": [{"field": "variant", "header": "Variant", "map": VAR_MAP}],
      "groups": [("doc-model", 1), ("doc-code (size-aware)", 4)],
@@ -284,9 +300,10 @@ SPECS = [
      "cols": SUITE9,
      "footnote": "$^{\\dagger}$The doc-model columns for \\TransArc{} are SWATTR, its deterministic "
                  "doc-model stage (\\TransArc{} has no standalone doc-model system). The size-aware "
-                 "suite is defined on doc-code only."},
+                 "(doc-code) suite is Cov/Worst/Harm; the doc-model Silent-Failure Mass (SFM) sits "
+                 "with the doc-model columns."},
 
-    # ---- RQ1+RQ2 big table: per run + the average, both backends ----
+    # ---- RQ1+RQ2 big table: per run + the average, both backends (SFM omitted here) ----
     {"csv": "bigtable_rq12_perrun.csv", "out": "big-table-perrun.tex",
      "label": "tab:detailed-perrun", "star": True, "size": "\\footnotesize", "no_bold": True,
      "summary": {"field": "run", "value": "average"},
@@ -294,22 +311,23 @@ SPECS = [
                 "deterministic, one run), both backends, five-project average.",
      "labels": [{"field": "system", "header": "System", "map": BIGSYS_MAP, "group_by": True},
                 {"field": "run", "header": "Run", "map": RUN_MAP}],
-     "groups": SUITE9_GROUPS,
-     "cols": SUITE9,
+     "groups": SUITE_NOSFM_GROUPS,
+     "cols": SUITE_NOSFM,
      "footnote": "$^{\\dagger}$The doc-model columns for \\TransArc{} are SWATTR, its deterministic "
                  "doc-model stage (\\TransArc{} has no standalone doc-model system). The size-aware "
-                 "suite is defined on doc-code only."},
+                 "columns shown here are the doc-code \\fone-tail (worst/harmonic); SFM is the "
+                 "doc-model member, reported in \\autoref{tab:rq2} and \\autoref{tab:detailed-perproject}."},
 
     # ---- RQ4 big table: per project + per-variant Average row, both backends ----
     {"csv": "bigtable_rq4_perproject.csv", "out": "rq4-bigtable-perproject.tex",
      "label": "tab:rq4-perproject", "star": True, "size": "\\footnotesize", "no_bold": True,
      "block_by": ["backend", "variant"], "summary": {"field": "project", "value": "Average"},
-     "caption": "RQ4 module ablation per project, with the per-variant average row, both backends. "
-                "Doc-model columns are link-level P/R/\\fone; doc-code columns are file-level.",
+     "summary_label": "variant",
+     "caption": "RQ4 module ablation per project, with the per-variant average, both backends.",
      "labels": [{"field": "backend", "header": "Backend", "map": BACKEND_MAP, "group_by": True},
-                {"field": "variant", "header": "Variant", "map": VAR_MAP},
+                {"field": "variant", "header": "Variant", "map": VAR_MAP, "group_by": True},
                 {"field": "project", "header": "Project"}],
-     "groups": [("doc-model (link \\fone)", 3), ("doc-code (file \\fone)", 3), ("size-aware", 3)],
+     "groups": [("doc-model (link \\fone)", 3), ("doc-code (link \\fone)", 3), ("size-aware", 3)],
      "cols": [
          {"field": "dm_link_precision", "header": "P", "kind": "f2"},
          {"field": "dm_link_recall", "header": "R", "kind": "f2"},
@@ -325,7 +343,7 @@ SPECS = [
 
 
 # ---- RQ4 per-run aggregate tables: one per run + the average (both backends x variants) ----
-_RQ4_RUN_GROUPS = [("doc-model", 1), ("doc-code (file \\fone)", 3), ("size-aware", 3)]
+_RQ4_RUN_GROUPS = [("doc-model", 1), ("doc-code (link \\fone)", 3), ("size-aware", 3)]
 _RQ4_RUN_COLS = [
     {"field": "doc_to_model_macro_f1", "header": "\\fone", "kind": "f3", "bold": "max"},
     {"field": "dc_file_precision", "header": "P", "kind": "f2", "bold": "max"},

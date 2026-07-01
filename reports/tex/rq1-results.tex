@@ -3,9 +3,9 @@
 \begin{table}[t]
 \caption{RQ1 macro precision, recall, and \fone\ on the GPT-5.4 backend.}
 \label{tab:rq1}
-\centering\footnotesize
+\centering%\footnotesize
 \setlength{\tabcolsep}{4pt}
-\begin{tabular}{@{}l rrrrrr@{}}
+\begin{tabularx}{\columnwidth}{l ZZZZZZ}
 \toprule
  & \multicolumn{3}{c}{doc-model (link \fone)} & \multicolumn{3}{c}{doc-code (link \fone)} \\
 \cmidrule(lr){2-4}\cmidrule(lr){5-7}
@@ -16,6 +16,6 @@ System & P & R & \fone & P & R & \fone \\
 SWATTR$^{\dagger}$ & .87 & .77 & .799 & -- & -- & -- \\
 \TransArc{} & -- & -- & -- & .89 & .78 & .803 \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \par\smallskip\footnotesize $^{\dagger}$SWATTR is the deterministic doc-model stage of \TransArc{}; \TransArc{} has no standalone doc-model output.
 \end{table}

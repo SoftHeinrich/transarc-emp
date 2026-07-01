@@ -428,7 +428,7 @@ def write_out02_concentration():
         "% (one per line); Comp.\\ = components in the architecture model (PCM repository,",
         "% reproduces benchmark-paper Table 3: MS 14/TS 11/TM 8/BBB 12/JR 6); K =",
         "% gold-reachable components the size-aware suite scores;",
-        "% Links/Med/Max/Gini/Top-3\\% = enrolled doc-to-code link concentration over the",
+        "% Links/Med/Max/Gini/Top-3\\% = enrolled doc-code link concentration over the",
         "% K components. (# code files per project is computed but not reported here.)",
         "% PAPER-READY (project aliases + thousands separators baked in): copy verbatim",
         "% into working/table/gold_concentration.tex. DO NOT hand-edit -- regenerate; the",

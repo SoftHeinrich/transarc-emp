@@ -4,7 +4,7 @@
 \caption{RQ3 judge confusion on the GPT-5.4 backend, averaged over the three runs.}
 \label{tab:rq3-confusion}
 \centering\small
-\begin{tabular}{@{}l cc @{\hskip 2.2em} cc@{}}
+\begin{tabularx}{\columnwidth}{l YY @{\hskip 2.2em} YY}
 \toprule
  & \multicolumn{2}{c}{\entValidator{}} & \multicolumn{2}{c}{\corefValidator{}} \\
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}
@@ -13,5 +13,5 @@ True class & REJECT & KEEP & REJECT & KEEP \\
 False positive (FP) & 35.0 & 0.7 & 35.7 & 2.3 \\
 True positive (TP) & 6.7 & 147.0 & 4.0 & 30.0 \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
