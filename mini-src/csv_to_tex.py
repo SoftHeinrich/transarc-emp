@@ -229,20 +229,20 @@ SPECS = [
                  "\\TransArc{} has no standalone doc-model output."},
 
     # ---- RQ2 body (was fig:rq2-profile) ----
-    {"csv": "rq2.csv", "out": "rq2-results.tex", "label": "tab:rq2", "colsep": "6pt",
-     "colspec": "@{}l ZZZZZZ@{}", "tabularx": "\\columnwidth",
-     "caption": "RQ2 size-aware suite, both tasks: reference \\fone\\ with the size-aware "
-                "metrics --- sentence coverage, worst- and harmonic-component \\fone\\ on "
-                "doc-code, and SFM on doc-model. GPT-5.4 backend.",
+    {"csv": "rq2.csv", "out": "rq2-results.tex", "label": "tab:rq2", "colsep": "3pt",
+     "colspec": "@{}l ZZZZZZZ@{}", "tabularx": "\\columnwidth", "fit": True,
+     "caption": "RQ2 size-aware suite, both tasks: reference \\fone\\ with sentence "
+                "coverage (Cov) and the size-aware metrics on each task. GPT-5.4 backend.",
      "labels": [{"field": "system", "header": "System", "map": SYS_MAP}],
-     "groups": [("doc-model", 2), ("doc-code", 4)],
+     "groups": [("doc-model (link \\fone)", 3), ("doc-code (link \\fone)", 4)],
      "cols": [
-         {"field": "link_f1", "header": "Link \\fone", "kind": "f3", "bold": "max"},
+         {"field": "dm_link_f1", "header": "\\fone", "kind": "f3", "bold": "max"},
+         {"field": "dm_sentence_coverage", "header": "Cov", "kind": "f2", "bold": "max"},
          {"field": "silent_failure_mass", "header": "SFM\\%", "kind": "f1", "bold": "min"},
-         {"field": "file_f1", "header": "Link \\fone", "kind": "f3", "bold": "max"},
-         {"field": "sentence_coverage", "header": "Sent.\\ cov.", "kind": "f2", "bold": "max"},
-         {"field": "worst_component_f1", "header": "Worst\\ \\fone", "kind": "f2", "bold": "max"},
-         {"field": "harmonic_component_f1", "header": "Harm.\\ \\fone", "kind": "f2", "bold": "max"},
+         {"field": "dc_file_f1", "header": "\\fone", "kind": "f3", "bold": "max"},
+         {"field": "dc_sentence_coverage", "header": "Cov", "kind": "f2", "bold": "max"},
+         {"field": "worst_component_f1", "header": "Worst", "kind": "f2", "bold": "max"},
+         {"field": "harmonic_component_f1", "header": "Harm.", "kind": "f2", "bold": "max"},
      ]},
 
     # ---- RQ3 body confusion matrix (mean of 3 runs) ----
